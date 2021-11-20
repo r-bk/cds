@@ -4,6 +4,14 @@
 
 The version `v0.0.1` is a `crates.io` placeholder.
 
+[![crates.io][crates-badge]][crates-url]
+[![docs.rs][docs-badge]][docs-url]
+
+[crates-badge]: https://img.shields.io/crates/v/cds.svg
+[crates-url]: https://crates.io/crates/cds
+[docs-badge]: https://img.shields.io/docsrs/cds
+[docs-url]: https://docs.rs/cds/latest/cds
+
 
 ## License
 
