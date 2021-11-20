@@ -26,6 +26,10 @@ jobs:
         feature:
           - all
           - ''
+          - default
+          - std
+          - arrayvec
+          - arrayvec,std
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1

@@ -22,6 +22,10 @@ jobs:
         feature:
           - all
           - ''
+          - default
+          - std
+          - arrayvec
+          - arrayvec,std
     steps:
       - id: find_miri
         run: |

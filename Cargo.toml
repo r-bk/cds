@@ -10,6 +10,11 @@ categories = ["data-structures"]
 repository = "https://github.com/r-bk/cds"
 exclude = [".git*", "Makefile.toml"]
 
+[features]
+default = []
+arrayvec = []
+std = []
+
 [dependencies]
 
 
