@@ -2,6 +2,8 @@
 
 !!! UNDER CONSTRUCTION !!!
 
+The version `v0.0.1` is a `crates.io` placeholder.
+
 
 ## License
 
