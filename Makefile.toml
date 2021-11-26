@@ -1,6 +1,9 @@
 [env]
 CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
 
+[tasks.d]
+dependencies = ["clippy-beta", "build", "test"]
+
 [tasks.clippy]
 command = "cargo"
 args = ["clippy", "--all-features"]
