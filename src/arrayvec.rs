@@ -861,7 +861,7 @@ impl<T, const C: usize> ArrayVec<T, C> {
     pub unsafe fn swap_remove_unchecked(&mut self, index: usize) -> T {
         let p = self.as_mut_ptr().add(index);
         let tmp = p.read();
-        if self.len > 1 {
+        if index < self.len - 1 {
             ptr::copy(p.add(self.len - 1), p, 1);
         }
         self.len -= 1;
