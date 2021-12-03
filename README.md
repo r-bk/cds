@@ -38,6 +38,11 @@ The documentation is available at [docs.rs][docs-url].
 - `SmallString` - a string with inline capacity to avoid heap allocation
 
 
+## Changelog
+
+The changelog is maintained in [CHANGELOG.md](CHANGELOG.md)
+
+
 ## License
 
 Licensed under either of
