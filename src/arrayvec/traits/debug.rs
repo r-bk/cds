@@ -1,4 +1,4 @@
-use crate::ArrayVec;
+use crate::arrayvec::ArrayVec;
 use core::fmt::{Debug, Formatter, Result};
 
 impl<T, const C: usize> Debug for ArrayVec<T, C>

@@ -1,4 +1,4 @@
-use crate::ArrayVec;
+use crate::arrayvec::ArrayVec;
 use core::convert::AsRef;
 
 impl<T, const C: usize> AsRef<[T]> for ArrayVec<T, C> {

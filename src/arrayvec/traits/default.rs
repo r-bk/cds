@@ -1,4 +1,4 @@
-use crate::ArrayVec;
+use crate::arrayvec::ArrayVec;
 use core::default::Default;
 
 impl<T, const C: usize> Default for ArrayVec<T, C> {

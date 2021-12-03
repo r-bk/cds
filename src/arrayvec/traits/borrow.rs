@@ -1,4 +1,4 @@
-use crate::ArrayVec;
+use crate::arrayvec::ArrayVec;
 use core::borrow::{Borrow, BorrowMut};
 
 impl<T, const C: usize> Borrow<[T]> for ArrayVec<T, C> {

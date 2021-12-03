@@ -1,4 +1,4 @@
-use crate::ArrayVec;
+use crate::arrayvec::ArrayVec;
 use core::iter::{FromIterator, IntoIterator};
 
 impl<T, const C: usize> FromIterator<T> for ArrayVec<T, C> {

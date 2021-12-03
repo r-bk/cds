@@ -1,4 +1,4 @@
-use crate::ArrayVec;
+use crate::arrayvec::ArrayVec;
 use core::{
     ops::{Index, IndexMut},
     slice::SliceIndex,

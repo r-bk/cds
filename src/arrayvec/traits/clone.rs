@@ -1,4 +1,4 @@
-use crate::ArrayVec;
+use crate::arrayvec::ArrayVec;
 use core::clone::Clone;
 
 impl<T, const C: usize> Clone for ArrayVec<T, C>

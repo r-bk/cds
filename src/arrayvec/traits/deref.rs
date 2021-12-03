@@ -1,4 +1,4 @@
-use crate::ArrayVec;
+use crate::arrayvec::ArrayVec;
 use core::ops::{Deref, DerefMut};
 
 impl<T, const C: usize> Deref for ArrayVec<T, C> {

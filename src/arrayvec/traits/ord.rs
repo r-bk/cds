@@ -1,4 +1,4 @@
-use crate::ArrayVec;
+use crate::arrayvec::ArrayVec;
 use core::cmp::{Ord, Ordering, PartialOrd};
 
 impl<T, const C: usize> PartialOrd for ArrayVec<T, C>

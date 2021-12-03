@@ -1,4 +1,4 @@
-use crate::ArrayVec;
+use crate::arrayvec::ArrayVec;
 use core::cmp::{Eq, PartialEq};
 
 impl<T, U, const C: usize, const N: usize> PartialEq<&'_ [U; N]> for ArrayVec<T, C>

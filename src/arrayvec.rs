@@ -22,7 +22,7 @@ use core::{mem, ptr, result::Result, slice};
 /// # Examples
 ///
 /// ```rust
-/// # use cds::{ArrayVec, array_vec};
+/// # use cds::{arrayvec::ArrayVec, array_vec};
 /// let mut v = ArrayVec::<u64, 12>::new();
 /// assert_eq!(v.len(), 0);
 /// assert_eq!(v.capacity(), 12);
@@ -72,7 +72,7 @@ use core::{mem, ptr, result::Result, slice};
 /// An `ArrayVec` can be created from an iterator:
 ///
 /// ```rust
-/// # use cds::ArrayVec;
+/// # use cds::arrayvec::ArrayVec;
 /// type A = ArrayVec<u64, 5>;
 /// let vec = vec![1, 2, 3, 4, 5];
 /// let a = vec.iter()
@@ -85,7 +85,7 @@ use core::{mem, ptr, result::Result, slice};
 /// If the iterator yields more than [`CAPACITY`] elements, the method panics:
 ///
 /// ```should_panic
-/// # use cds::ArrayVec;
+/// # use cds::arrayvec::ArrayVec;
 /// type A = ArrayVec<u64, 3>;     // <-- the capacity is 3
 /// let vec = vec![1, 2, 3, 4, 5];
 /// let a = vec.iter()             // <-- but the iterator yields 5 elements
@@ -96,7 +96,7 @@ use core::{mem, ptr, result::Result, slice};
 /// Avoid a panic with [`try_from_iter`] method, which returns [`CapacityError`] instead:
 ///
 /// ```rust
-/// # use cds::{ArrayVec, errors::CapacityError};
+/// # use cds::{arrayvec::ArrayVec, errors::CapacityError};
 /// type A = ArrayVec<u64, 3>;
 /// let vec = vec![1, 2, 3, 4, 5];
 /// let iter = vec.iter().map(|x| x * x);
@@ -120,7 +120,7 @@ impl<T, const C: usize> ArrayVec<T, C> {
     ///
     /// # Examples
     /// ```rust
-    /// # use cds::ArrayVec;
+    /// # use cds::arrayvec::ArrayVec;
     /// type A = ArrayVec<u64, 8>;
     /// let v = A::new();
     /// assert_eq!(A::CAPACITY, 8);
@@ -135,7 +135,7 @@ impl<T, const C: usize> ArrayVec<T, C> {
     /// # Examples
     ///
     /// ```rust
-    /// # use cds::ArrayVec;
+    /// # use cds::arrayvec::ArrayVec;
     /// let a = ArrayVec::<u64, 8>::new();
     /// assert_eq!(a.capacity(), 8);
     /// assert_eq!(a.len(), 0);
@@ -154,7 +154,7 @@ impl<T, const C: usize> ArrayVec<T, C> {
     /// # Examples
     ///
     /// ```rust
-    /// # use cds::{ArrayVec, array_vec};
+    /// # use cds::{arrayvec::ArrayVec, array_vec};
     /// let mut a = array_vec![12; 3, 4];
     /// assert_eq!(a.len(), 2);
     /// a.pop();
@@ -528,7 +528,7 @@ impl<T, const C: usize> ArrayVec<T, C> {
     /// # Examples
     ///
     /// ```rust
-    /// # use cds::{ArrayVec, errors::CapacityError};
+    /// # use cds::{arrayvec::ArrayVec, errors::CapacityError};
     /// # use std::error::Error;
     /// # fn example() -> Result<(), CapacityError> {
     /// type A = ArrayVec<usize, 3>;

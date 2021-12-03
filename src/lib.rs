@@ -11,10 +11,6 @@
 #[cfg_attr(docsrs, doc(cfg(feature = "arrayvec")))]
 pub mod arrayvec;
 
-#[cfg(feature = "arrayvec")]
-#[doc(inline)]
-pub use arrayvec::ArrayVec;
-
 pub mod errors;
 
 pub mod mem;
