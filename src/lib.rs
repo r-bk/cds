@@ -17,6 +17,8 @@ pub use arrayvec::ArrayVec;
 
 pub mod errors;
 
+pub mod mem;
+
 pub(crate) mod sealed;
 
 #[cfg(test)]
