@@ -15,7 +15,8 @@ default = []
 arrayvec = []
 std = []
 
-[dependencies]
+[dev-dependencies]
+heapless = "0.7.8"
 
 
 [package.metadata.docs.rs]

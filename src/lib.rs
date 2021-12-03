@@ -16,3 +16,6 @@ pub mod arrayvec;
 pub use arrayvec::ArrayVec;
 
 pub mod errors;
+
+#[cfg(test)]
+pub(crate) mod testing;
