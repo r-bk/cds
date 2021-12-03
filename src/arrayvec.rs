@@ -13,7 +13,7 @@ use core::{mem, ptr, result::Result, slice};
 /// size of `T` (like a standard array).
 ///
 /// `ArrayVec` may be created empty, with no elements.
-/// However, contrary to `Vec` which allocates memory only when elements are pushed,
+/// However, once created, contrary to `Vec` which allocates memory only when elements are pushed,
 /// `ArrayVec` occupies all the memory needed for the requested capacity.
 ///
 /// The capacity of `ArrayVec` cannot be dynamically changed.
