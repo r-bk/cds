@@ -1,3 +1,5 @@
+//! A vector-like array.
+
 use crate::errors::CapacityError;
 use core::{mem, ptr, result::Result, slice};
 
