@@ -6,6 +6,18 @@ use core::ptr;
 /// This includes both the initial allocation, and any memory that becomes free following removal of
 /// an element from a collection (including removal forced by a [`drop`] of a collection).
 ///
+/// Note that spare memory policy affects only the current region of memory occupied by a
+/// collection. That is, if a program moves a whole collection (e.g. `ArrayVec`), the old region of
+/// memory occupied by the collection is no longer accessible, and spare memory policy cannot be
+/// applied to it. This may lead to having the old region of memory a byte-by-byte copy of
+/// the memory the collection was moved to.
+///
+/// Currently the following policies are supported:
+///
+/// - [`Uninitialized`] does nothing with spare bytes
+/// - [`Zeroed`] fills spare bytes with zeroes
+/// - [`Pattern`] fills spare bytes with a specified value
+///
 /// [`drop`]: https://doc.rust-lang.org/core/mem/fn.drop.html
 pub trait SpareMemoryPolicy<T>: Sealed {
     /// Initialize spare memory of `count` elements of type `T` starting at `dst`.
@@ -45,20 +57,24 @@ pub trait SpareMemoryPolicy<T>: Sealed {
 
 /// Uninitialized spare memory policy.
 ///
-/// `Uninitialized` is the fastest spare memory policy, because it is essentially a `noop`.
+/// `Uninitialized` is the fastest spare memory policy, because it does absolutely nothing.
 ///
-/// When used, spare memory is left intact:
+/// This means that:
 /// - initial memory allocated by a collection remains uninitialized
 /// - a region of memory occupied by an element of type `T` remains a byte-by-byte copy of the
-/// element after its removal/move, until being overwritten with a value of another element
-/// in the collection, or any other write made to that region after destruction of
-/// the collection.
+/// element until being overwritten (if at all)
 pub struct Uninitialized;
 
 /// Pattern-initialized spare memory policy.
 ///
 /// Written as `Pattern<P>`, pattern spare memory policy initializes every spare byte with the value
 /// `P`.
+///
+/// This means that:
+/// - initial memory allocated by a collection is byte-by-byte initialized with the value `P`
+/// - a region of memory occupied by an element is byte-by-byte initialized with the value `P`
+///   when the element is moved out of the region, unless being immediately overwritten with another
+///   element
 pub struct Pattern<const P: u8>;
 
 /// Zeroed spare memory policy.
