@@ -1,7 +1,10 @@
-use crate::arrayvec::ArrayVec;
+use crate::{arrayvec::ArrayVec, mem::SpareMemoryPolicy};
 use core::ops::Drop;
 
-impl<T, const C: usize> Drop for ArrayVec<T, C> {
+impl<T, SM, const C: usize> Drop for ArrayVec<T, SM, C>
+where
+    SM: SpareMemoryPolicy<T>,
+{
     #[inline]
     fn drop(&mut self) {
         self.truncate(0)

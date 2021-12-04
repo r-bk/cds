@@ -1,15 +1,16 @@
-use super::*;
+use crate as cds;
+use crate::array_vec;
 use core::mem;
 
 #[test]
 fn test_zst_size() {
-    let a = ArrayVec::<(), 3>::new();
+    let a = array_vec![3; ()];
     assert_eq!(mem::size_of_val(&a), mem::size_of::<usize>());
 }
 
 #[test]
 fn test_zst_push_pop() {
-    let mut a = ArrayVec::<(), 3>::new();
+    let mut a = array_vec![3; ()];
     while a.has_spare_capacity() {
         a.push(());
     }
@@ -26,7 +27,7 @@ fn test_zst_push_pop() {
 
 #[test]
 fn test_zst_truncate() {
-    let mut a = ArrayVec::<(), 3>::new();
+    let mut a = array_vec![3; ()];
     while a.has_spare_capacity() {
         unsafe {
             a.push_unchecked(());
@@ -44,7 +45,7 @@ fn test_zst_truncate() {
 
 #[test]
 fn test_zst_clone() {
-    let mut a = ArrayVec::<(), 3>::new();
+    let mut a = array_vec![3; ()];
     a.push(());
     a.push(());
     assert_eq!(a.len(), 2);

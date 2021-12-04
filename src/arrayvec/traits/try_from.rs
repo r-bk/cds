@@ -1,9 +1,10 @@
-use crate::{arrayvec::ArrayVec, errors::CapacityError};
+use crate::{arrayvec::ArrayVec, errors::CapacityError, mem::SpareMemoryPolicy};
 use core::{convert::TryFrom, mem, ptr};
 
-impl<T, const C: usize> TryFrom<&[T]> for ArrayVec<T, C>
+impl<T, SM, const C: usize> TryFrom<&[T]> for ArrayVec<T, SM, C>
 where
     T: Clone,
+    SM: SpareMemoryPolicy<T>,
 {
     type Error = CapacityError;
 
@@ -20,9 +21,10 @@ where
     }
 }
 
-impl<T, const C: usize> TryFrom<&mut [T]> for ArrayVec<T, C>
+impl<T, SM, const C: usize> TryFrom<&mut [T]> for ArrayVec<T, SM, C>
 where
     T: Clone,
+    SM: SpareMemoryPolicy<T>,
 {
     type Error = CapacityError;
 
@@ -39,7 +41,10 @@ where
     }
 }
 
-impl<T, const C: usize, const N: usize> TryFrom<[T; N]> for ArrayVec<T, C> {
+impl<T, SM, const C: usize, const N: usize> TryFrom<[T; N]> for ArrayVec<T, SM, C>
+where
+    SM: SpareMemoryPolicy<T>,
+{
     type Error = CapacityError;
 
     #[inline]

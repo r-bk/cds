@@ -1,10 +1,13 @@
-use crate::arrayvec::ArrayVec;
+use crate::{arrayvec::ArrayVec, mem::SpareMemoryPolicy};
 use core::{
     ops::{Index, IndexMut},
     slice::SliceIndex,
 };
 
-impl<T, I: SliceIndex<[T]>, const C: usize> Index<I> for ArrayVec<T, C> {
+impl<T, SM, I: SliceIndex<[T]>, const C: usize> Index<I> for ArrayVec<T, SM, C>
+where
+    SM: SpareMemoryPolicy<T>,
+{
     type Output = I::Output;
 
     #[inline]
@@ -13,7 +16,10 @@ impl<T, I: SliceIndex<[T]>, const C: usize> Index<I> for ArrayVec<T, C> {
     }
 }
 
-impl<T, I: SliceIndex<[T]>, const C: usize> IndexMut<I> for ArrayVec<T, C> {
+impl<T, SM, I: SliceIndex<[T]>, const C: usize> IndexMut<I> for ArrayVec<T, SM, C>
+where
+    SM: SpareMemoryPolicy<T>,
+{
     #[inline]
     fn index_mut(&mut self, index: I) -> &mut Self::Output {
         IndexMut::index_mut(&mut **self, index)

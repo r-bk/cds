@@ -62,15 +62,17 @@
 #[macro_export]
 macro_rules! array_vec {
     ($c:expr; $t:ty) => {{
-        cds::arrayvec::ArrayVec::<$t, $c>::new()
+        cds::arrayvec::ArrayVec::<$t, cds::mem::Uninitialized, $c>::new()
     }};
     ($c:expr; $t:ty; $($e:expr),+ $(,)?) => {{
-        cds::arrayvec::ArrayVec::<$t, $c>::try_from([$($e),*]).expect("insufficient capacity")
+        cds::arrayvec::ArrayVec::<$t, cds::mem::Uninitialized, $c>::try_from([$($e),*])
+            .expect("insufficient capacity")
     }};
     ($c:expr;) => {{
-        cds::arrayvec::ArrayVec::<_, $c>::new()
+        cds::arrayvec::ArrayVec::<_, cds::mem::Uninitialized, $c>::new()
     }};
     ($c:expr; $($e:expr),+ $(,)?) => {{
-        cds::arrayvec::ArrayVec::<_, $c>::try_from([$($e),*]).expect("insufficient capacity")
+        cds::arrayvec::ArrayVec::<_, cds::mem::Uninitialized, $c>::try_from([$($e),*])
+            .expect("insufficient capacity")
     }};
 }

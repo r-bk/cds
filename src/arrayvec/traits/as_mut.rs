@@ -1,16 +1,22 @@
-use crate::arrayvec::ArrayVec;
+use crate::{arrayvec::ArrayVec, mem::SpareMemoryPolicy};
 use core::convert::AsMut;
 
-impl<T, const C: usize> AsMut<[T]> for ArrayVec<T, C> {
+impl<T, SM, const C: usize> AsMut<[T]> for ArrayVec<T, SM, C>
+where
+    SM: SpareMemoryPolicy<T>,
+{
     #[inline]
     fn as_mut(&mut self) -> &mut [T] {
         self.as_mut_slice()
     }
 }
 
-impl<T, const C: usize> AsMut<ArrayVec<T, C>> for ArrayVec<T, C> {
+impl<T, SM, const C: usize> AsMut<ArrayVec<T, SM, C>> for ArrayVec<T, SM, C>
+where
+    SM: SpareMemoryPolicy<T>,
+{
     #[inline]
-    fn as_mut(&mut self) -> &mut ArrayVec<T, C> {
+    fn as_mut(&mut self) -> &mut ArrayVec<T, SM, C> {
         self
     }
 }

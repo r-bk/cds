@@ -1,7 +1,10 @@
-use crate::arrayvec::ArrayVec;
+use crate::{arrayvec::ArrayVec, mem::SpareMemoryPolicy};
 use core::iter::{FromIterator, IntoIterator};
 
-impl<T, const C: usize> FromIterator<T> for ArrayVec<T, C> {
+impl<T, SM, const C: usize> FromIterator<T> for ArrayVec<T, SM, C>
+where
+    SM: SpareMemoryPolicy<T>,
+{
     /// Creates an `ArrayVec` from an iterator.
     ///
     /// # Panics

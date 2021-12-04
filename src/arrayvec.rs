@@ -1,7 +1,7 @@
 //! A vector-like array.
 
-use crate::errors::CapacityError;
-use core::{mem, ptr, result::Result, slice};
+use crate::{errors::CapacityError, mem::SpareMemoryPolicy};
+use core::{marker::PhantomData, mem, ptr, result::Result, slice};
 
 /// A continuous non-growable array with vector-like API.
 ///
@@ -22,8 +22,8 @@ use core::{mem, ptr, result::Result, slice};
 /// # Examples
 ///
 /// ```rust
-/// # use cds::{arrayvec::ArrayVec, array_vec};
-/// let mut v = ArrayVec::<u64, 12>::new();
+/// # use cds::{arrayvec::ArrayVec, array_vec, mem::Uninitialized};
+/// let mut v = ArrayVec::<u64, Uninitialized, 12>::new();
 /// assert_eq!(v.len(), 0);
 /// assert_eq!(v.capacity(), 12);
 /// assert_eq!(v.spare_capacity_len(), 12);
@@ -72,8 +72,8 @@ use core::{mem, ptr, result::Result, slice};
 /// An `ArrayVec` can be created from an iterator:
 ///
 /// ```rust
-/// # use cds::arrayvec::ArrayVec;
-/// type A = ArrayVec<u64, 5>;
+/// # use cds::{arrayvec::ArrayVec, mem::Uninitialized};
+/// type A = ArrayVec<u64, Uninitialized, 5>;
 /// let vec = vec![1, 2, 3, 4, 5];
 /// let a = vec.iter()
 ///            .map(|x| x * x)
@@ -85,19 +85,19 @@ use core::{mem, ptr, result::Result, slice};
 /// If the iterator yields more than [`CAPACITY`] elements, the method panics:
 ///
 /// ```should_panic
-/// # use cds::arrayvec::ArrayVec;
-/// type A = ArrayVec<u64, 3>;     // <-- the capacity is 3
+/// # use cds::{arrayvec::ArrayVec, mem::Uninitialized};
+/// type A = ArrayVec<u64, Uninitialized, 3>; // <-- the capacity is 3
 /// let vec = vec![1, 2, 3, 4, 5];
-/// let a = vec.iter()             // <-- but the iterator yields 5 elements
+/// let a = vec.iter()                        // <-- but the iterator yields 5 elements
 ///            .map(|x| x * x)
-///            .collect::<A>();    // <-- this panics
+///            .collect::<A>();               // <-- this panics
 /// ```
 ///
 /// Avoid a panic with [`try_from_iter`] method, which returns [`CapacityError`] instead:
 ///
 /// ```rust
-/// # use cds::{arrayvec::ArrayVec, errors::CapacityError};
-/// type A = ArrayVec<u64, 3>;
+/// # use cds::{arrayvec::ArrayVec, errors::CapacityError, mem::Uninitialized};
+/// type A = ArrayVec<u64, Uninitialized, 3>;
 /// let vec = vec![1, 2, 3, 4, 5];
 /// let iter = vec.iter().map(|x| x * x);
 /// assert!(matches!(A::try_from_iter(iter), Err(CapacityError)));
@@ -108,20 +108,27 @@ use core::{mem, ptr, result::Result, slice};
 /// [`try_from_iter`]: ArrayVec::try_from_iter
 /// [`try_push`]: ArrayVec::try_push
 /// [`push`]: ArrayVec::push
-pub struct ArrayVec<T, const C: usize> {
+pub struct ArrayVec<T, SM, const C: usize>
+where
+    SM: SpareMemoryPolicy<T>,
+{
     arr: [mem::MaybeUninit<T>; C],
     len: usize,
+    phantom1: PhantomData<SM>,
 }
 
-impl<T, const C: usize> ArrayVec<T, C> {
+impl<T, SM, const C: usize> ArrayVec<T, SM, C>
+where
+    SM: SpareMemoryPolicy<T>,
+{
     /// The capacity of the array-vector as associated constant.
     ///
     /// The capacity can also be obtained via the [`capacity`] method.
     ///
     /// # Examples
     /// ```rust
-    /// # use cds::arrayvec::ArrayVec;
-    /// type A = ArrayVec<u64, 8>;
+    /// # use cds::{arrayvec::ArrayVec, mem::Uninitialized};
+    /// type A = ArrayVec<u64, Uninitialized, 8>;
     /// let v = A::new();
     /// assert_eq!(A::CAPACITY, 8);
     /// assert_eq!(v.capacity(), A::CAPACITY);
@@ -135,18 +142,21 @@ impl<T, const C: usize> ArrayVec<T, C> {
     /// # Examples
     ///
     /// ```rust
-    /// # use cds::arrayvec::ArrayVec;
-    /// let a = ArrayVec::<u64, 8>::new();
+    /// # use cds::{arrayvec::ArrayVec, mem::Zeroed};
+    /// let a = ArrayVec::<u64, Zeroed, 8>::new();
     /// assert_eq!(a.capacity(), 8);
     /// assert_eq!(a.len(), 0);
     /// ```
     #[inline]
     pub fn new() -> Self {
-        ArrayVec {
+        let mut v = ArrayVec {
             // it is safe to call `assume_init` to create an array of `MaybeUninit`
             arr: unsafe { mem::MaybeUninit::uninit().assume_init() },
             len: 0,
-        }
+            phantom1: PhantomData,
+        };
+        unsafe { SM::init(v.as_mut_ptr(), Self::CAPACITY) };
+        v
     }
 
     /// Returns the number of elements in the array-vector.
@@ -248,7 +258,7 @@ impl<T, const C: usize> ArrayVec<T, C> {
     ///
     /// [`CAPACITY`]: ArrayVec::CAPACITY
     #[inline]
-    pub const fn capacity(&self) -> usize {
+    pub fn capacity(&self) -> usize {
         Self::CAPACITY
     }
 
@@ -268,7 +278,7 @@ impl<T, const C: usize> ArrayVec<T, C> {
     /// assert_eq!(v.spare_capacity_len(), 1);
     /// ```
     #[inline]
-    pub const fn spare_capacity_len(&self) -> usize {
+    pub fn spare_capacity_len(&self) -> usize {
         Self::CAPACITY - self.len
     }
 
@@ -289,7 +299,7 @@ impl<T, const C: usize> ArrayVec<T, C> {
     /// assert_eq!(v.has_spare_capacity(), false);
     /// ```
     #[inline]
-    pub const fn has_spare_capacity(&self) -> bool {
+    pub fn has_spare_capacity(&self) -> bool {
         self.len < Self::CAPACITY
     }
 
@@ -410,7 +420,10 @@ impl<T, const C: usize> ArrayVec<T, C> {
     #[inline]
     pub unsafe fn pop_unchecked(&mut self) -> T {
         self.len -= 1;
-        self.as_ptr().add(self.len).read()
+        let p = self.as_mut_ptr().add(self.len);
+        let e = p.read();
+        SM::init(p, 1);
+        e
     }
 
     /// Appends an element to the back of the array-vector without spare capacity check.
@@ -456,6 +469,12 @@ impl<T, const C: usize> ArrayVec<T, C> {
     ///
     /// If `len` is greater than array-vector's current length, this has no effect.
     ///
+    /// # Safety
+    ///
+    /// Spare memory policy is invoked only if all truncated elements drop successfully. I.e, if
+    /// any of the truncated elements panics during drop, spare memory policy isn't invoked
+    /// at all, including on successfully dropped elements.
+    ///
     /// # Examples
     /// ```rust
     /// # use cds::array_vec;
@@ -481,6 +500,11 @@ impl<T, const C: usize> ArrayVec<T, C> {
                 // try to drop the rest and only then re-raise the panic.
                 // If more than one slot panic, the program aborts.
                 ptr::drop_in_place(s);
+
+                // TODO: invoke SM-policy on every successfully dropped element, even if one panics
+
+                // invoke spare memory policy
+                SM::init(s.as_mut_ptr(), s.len());
             }
         }
     }
@@ -528,10 +552,10 @@ impl<T, const C: usize> ArrayVec<T, C> {
     /// # Examples
     ///
     /// ```rust
-    /// # use cds::{arrayvec::ArrayVec, errors::CapacityError};
+    /// # use cds::{arrayvec::ArrayVec, errors::CapacityError, mem::Uninitialized};
     /// # use std::error::Error;
     /// # fn example() -> Result<(), CapacityError> {
-    /// type A = ArrayVec<usize, 3>;
+    /// type A = ArrayVec<usize, Uninitialized, 3>;
     /// let a = [1, 2, 3];
     /// let v = A::try_from_iter(a.iter().filter(|x| **x % 2 == 0).cloned())?;
     /// assert_eq!(v, [2]);
@@ -778,10 +802,12 @@ impl<T, const C: usize> ArrayVec<T, C> {
     /// [`remove`]: ArrayVec::remove
     /// [`swap_remove_unchecked`]: ArrayVec::swap_remove_unchecked
     pub unsafe fn remove_unchecked(&mut self, index: usize) -> T {
-        let p = self.as_mut_ptr().add(index);
+        let base = self.as_mut_ptr();
+        let p = base.add(index);
         let tmp = p.read();
         ptr::copy(p.add(1), p, self.len - index - 1);
         self.len -= 1;
+        SM::init(base.add(self.len), 1);
         tmp
     }
 
@@ -861,19 +887,23 @@ impl<T, const C: usize> ArrayVec<T, C> {
     /// assert_eq!(v, [3, 2]);
     /// ```
     pub unsafe fn swap_remove_unchecked(&mut self, index: usize) -> T {
-        let p = self.as_mut_ptr().add(index);
+        let base = self.as_mut_ptr();
+        let p = base.add(index);
         let tmp = p.read();
-        if index < self.len - 1 {
-            ptr::copy(p.add(self.len - 1), p, 1);
-        }
         self.len -= 1;
+        let last = base.add(self.len);
+        if index < self.len {
+            ptr::copy(last, p, 1);
+        }
+        SM::init(last, 1);
         tmp
     }
 }
 
-impl<T, const C: usize> ArrayVec<T, C>
+impl<T, SM, const C: usize> ArrayVec<T, SM, C>
 where
     T: Clone,
+    SM: SpareMemoryPolicy<T>,
 {
     #[inline]
     fn _clone_from(&mut self, other: &Self) {

@@ -1,9 +1,10 @@
-use crate::arrayvec::ArrayVec;
+use crate::{arrayvec::ArrayVec, mem::SpareMemoryPolicy};
 use core::clone::Clone;
 
-impl<T, const C: usize> Clone for ArrayVec<T, C>
+impl<T, SM, const C: usize> Clone for ArrayVec<T, SM, C>
 where
     T: Clone,
+    SM: SpareMemoryPolicy<T>,
 {
     #[inline]
     fn clone(&self) -> Self {

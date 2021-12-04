@@ -1,7 +1,10 @@
-use crate::arrayvec::ArrayVec;
+use crate::{arrayvec::ArrayVec, mem::SpareMemoryPolicy};
 use core::{iter::IntoIterator, slice};
 
-impl<'a, T, const C: usize> IntoIterator for &'a ArrayVec<T, C> {
+impl<'a, T, SM, const C: usize> IntoIterator for &'a ArrayVec<T, SM, C>
+where
+    SM: SpareMemoryPolicy<T>,
+{
     type Item = &'a T;
     type IntoIter = slice::Iter<'a, T>;
 
@@ -11,7 +14,10 @@ impl<'a, T, const C: usize> IntoIterator for &'a ArrayVec<T, C> {
     }
 }
 
-impl<'a, T, const C: usize> IntoIterator for &'a mut ArrayVec<T, C> {
+impl<'a, T, SM, const C: usize> IntoIterator for &'a mut ArrayVec<T, SM, C>
+where
+    SM: SpareMemoryPolicy<T>,
+{
     type Item = &'a mut T;
     type IntoIter = slice::IterMut<'a, T>;
 

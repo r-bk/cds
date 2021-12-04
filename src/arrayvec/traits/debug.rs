@@ -1,9 +1,10 @@
-use crate::arrayvec::ArrayVec;
+use crate::{arrayvec::ArrayVec, mem::SpareMemoryPolicy};
 use core::fmt::{Debug, Formatter, Result};
 
-impl<T, const C: usize> Debug for ArrayVec<T, C>
+impl<T, SM, const C: usize> Debug for ArrayVec<T, SM, C>
 where
     T: Debug,
+    SM: SpareMemoryPolicy<T>,
 {
     #[inline]
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
