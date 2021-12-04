@@ -1,4 +1,4 @@
-use crate::{arrayvec::ArrayVec, mem::SpareMemoryPolicy};
+use crate::{arrayvec::ArrayVec, defs::SpareMemoryPolicy};
 use core::convert::AsMut;
 
 impl<T, SM, const C: usize> AsMut<[T]> for ArrayVec<T, SM, C>

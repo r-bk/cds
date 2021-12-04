@@ -1,4 +1,4 @@
-use crate::{arrayvec::ArrayVec, mem::SpareMemoryPolicy};
+use crate::{arrayvec::ArrayVec, defs::SpareMemoryPolicy};
 use core::convert::AsRef;
 
 impl<T, SM, const C: usize> AsRef<[T]> for ArrayVec<T, SM, C>

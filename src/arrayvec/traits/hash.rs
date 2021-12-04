@@ -1,4 +1,4 @@
-use crate::{arrayvec::ArrayVec, mem::SpareMemoryPolicy};
+use crate::{arrayvec::ArrayVec, defs::SpareMemoryPolicy};
 use core::hash::{Hash, Hasher};
 
 impl<T, SM, const C: usize> Hash for ArrayVec<T, SM, C>

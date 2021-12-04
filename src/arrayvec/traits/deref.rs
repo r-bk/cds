@@ -1,4 +1,4 @@
-use crate::{arrayvec::ArrayVec, mem::SpareMemoryPolicy};
+use crate::{arrayvec::ArrayVec, defs::SpareMemoryPolicy};
 use core::ops::{Deref, DerefMut};
 
 impl<T, SM, const C: usize> Deref for ArrayVec<T, SM, C>

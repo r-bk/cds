@@ -1,4 +1,4 @@
-use crate::{arrayvec::ArrayVec, errors::CapacityError, mem::SpareMemoryPolicy};
+use crate::{arrayvec::ArrayVec, defs::SpareMemoryPolicy, errors::CapacityError};
 use core::{convert::TryFrom, mem, ptr};
 
 impl<T, SM, const C: usize> TryFrom<&[T]> for ArrayVec<T, SM, C>

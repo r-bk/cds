@@ -1,4 +1,4 @@
-use crate::{arrayvec::ArrayVec, mem::SpareMemoryPolicy};
+use crate::{arrayvec::ArrayVec, defs::SpareMemoryPolicy};
 use core::default::Default;
 
 impl<T, SM, const C: usize> Default for ArrayVec<T, SM, C>

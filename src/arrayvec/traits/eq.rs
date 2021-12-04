@@ -1,4 +1,4 @@
-use crate::{arrayvec::ArrayVec, mem::SpareMemoryPolicy};
+use crate::{arrayvec::ArrayVec, defs::SpareMemoryPolicy};
 use core::cmp::{Eq, PartialEq};
 
 impl<T, U, SM, const C: usize, const N: usize> PartialEq<&'_ [U; N]> for ArrayVec<T, SM, C>

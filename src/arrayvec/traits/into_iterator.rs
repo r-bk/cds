@@ -1,4 +1,4 @@
-use crate::{arrayvec::ArrayVec, mem::SpareMemoryPolicy};
+use crate::{arrayvec::ArrayVec, defs::SpareMemoryPolicy};
 use core::{iter::IntoIterator, slice};
 
 impl<'a, T, SM, const C: usize> IntoIterator for &'a ArrayVec<T, SM, C>

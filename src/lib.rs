@@ -13,7 +13,7 @@ pub mod arrayvec;
 
 pub mod errors;
 
-pub mod mem;
+pub mod defs;
 
 pub(crate) mod sealed;
 
