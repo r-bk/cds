@@ -503,18 +503,17 @@ where
     /// assert_eq!(a, [1]);
     /// ```
     pub fn truncate(&mut self, len: usize) {
-        if len < self.len.as_usize() {
-            unsafe {
-                // create a slice of truncated slots
-                let s = slice::from_raw_parts_mut(
-                    self.as_mut_ptr().add(len),
-                    self.len.as_usize() - len,
-                );
+        let my_len = self.len.as_usize();
 
+        if len < my_len {
+            unsafe {
                 // `drop` of any of the truncated slots may panic, which may trigger destruction
                 // of `self`. Thus, update `self.len` *before* calling `drop_in_place` to avoid
                 // a possible double-drop of a truncated slot.
                 self.set_len(len);
+
+                // create a slice of truncated slots
+                let s = slice::from_raw_parts_mut(self.as_mut_ptr().add(len), my_len - len);
 
                 // `drop_in_place` drops every slot in the slice. If one slot panics, it will first
                 // try to drop the rest and only then re-raise the panic.
