@@ -1,9 +1,13 @@
-use crate::{arrayvec::ArrayVec, defs::SpareMemoryPolicy};
+use crate::{
+    arrayvec::ArrayVec,
+    defs::{LengthType, SpareMemoryPolicy},
+};
 use core::cmp::{Eq, PartialEq};
 
-impl<T, U, SM, const C: usize, const N: usize> PartialEq<&'_ [U; N]> for ArrayVec<T, SM, C>
+impl<T, L, U, SM, const C: usize, const N: usize> PartialEq<&'_ [U; N]> for ArrayVec<T, L, SM, C>
 where
     T: PartialEq<U>,
+    L: LengthType,
     SM: SpareMemoryPolicy<T>,
 {
     #[inline]
@@ -12,9 +16,10 @@ where
     }
 }
 
-impl<T, U, SM, const C: usize, const N: usize> PartialEq<[U; N]> for ArrayVec<T, SM, C>
+impl<T, L, U, SM, const C: usize, const N: usize> PartialEq<[U; N]> for ArrayVec<T, L, SM, C>
 where
     T: PartialEq<U>,
+    L: LengthType,
     SM: SpareMemoryPolicy<T>,
 {
     #[inline]
@@ -23,9 +28,10 @@ where
     }
 }
 
-impl<T, U, SM, const C: usize> PartialEq<&'_ [U]> for ArrayVec<T, SM, C>
+impl<T, L, U, SM, const C: usize> PartialEq<&'_ [U]> for ArrayVec<T, L, SM, C>
 where
     T: PartialEq<U>,
+    L: LengthType,
     SM: SpareMemoryPolicy<T>,
 {
     #[inline]
@@ -34,9 +40,10 @@ where
     }
 }
 
-impl<T, U, SM, const C: usize> PartialEq<[U]> for ArrayVec<T, SM, C>
+impl<T, L, U, SM, const C: usize> PartialEq<[U]> for ArrayVec<T, L, SM, C>
 where
     T: PartialEq<U>,
+    L: LengthType,
     SM: SpareMemoryPolicy<T>,
 {
     #[inline]
@@ -45,30 +52,34 @@ where
     }
 }
 
-impl<T, U, SMT, SMU, const C: usize, const N: usize> PartialEq<ArrayVec<U, SMU, N>>
-    for ArrayVec<T, SMT, C>
+impl<T, U, LT, LU, SMT, SMU, const C: usize, const N: usize> PartialEq<ArrayVec<U, LU, SMU, N>>
+    for ArrayVec<T, LT, SMT, C>
 where
     T: PartialEq<U>,
+    LT: LengthType,
+    LU: LengthType,
     SMT: SpareMemoryPolicy<T>,
     SMU: SpareMemoryPolicy<U>,
 {
     #[inline]
-    fn eq(&self, other: &ArrayVec<U, SMU, N>) -> bool {
+    fn eq(&self, other: &ArrayVec<U, LU, SMU, N>) -> bool {
         self[..] == other[..]
     }
 }
 
-impl<T, U, SMT, SMU, const C: usize, const N: usize> PartialEq<&'_ ArrayVec<U, SMU, N>>
-    for ArrayVec<T, SMT, C>
+impl<T, U, LT, LU, SMT, SMU, const C: usize, const N: usize> PartialEq<&'_ ArrayVec<U, LU, SMU, N>>
+    for ArrayVec<T, LT, SMT, C>
 where
     T: PartialEq<U>,
+    LT: LengthType,
+    LU: LengthType,
     SMT: SpareMemoryPolicy<T>,
     SMU: SpareMemoryPolicy<U>,
 {
     #[inline]
-    fn eq(&self, other: &&'_ ArrayVec<U, SMU, N>) -> bool {
+    fn eq(&self, other: &&'_ ArrayVec<U, LU, SMU, N>) -> bool {
         self[..] == other[..]
     }
 }
 
-impl<T: Eq, SM: SpareMemoryPolicy<T>, const C: usize> Eq for ArrayVec<T, SM, C> {}
+impl<T: Eq, L: LengthType, SM: SpareMemoryPolicy<T>, const C: usize> Eq for ArrayVec<T, L, SM, C> {}

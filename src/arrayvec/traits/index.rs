@@ -1,11 +1,15 @@
-use crate::{arrayvec::ArrayVec, defs::SpareMemoryPolicy};
+use crate::{
+    arrayvec::ArrayVec,
+    defs::{LengthType, SpareMemoryPolicy},
+};
 use core::{
     ops::{Index, IndexMut},
     slice::SliceIndex,
 };
 
-impl<T, SM, I: SliceIndex<[T]>, const C: usize> Index<I> for ArrayVec<T, SM, C>
+impl<T, L, SM, I: SliceIndex<[T]>, const C: usize> Index<I> for ArrayVec<T, L, SM, C>
 where
+    L: LengthType,
     SM: SpareMemoryPolicy<T>,
 {
     type Output = I::Output;
@@ -16,8 +20,9 @@ where
     }
 }
 
-impl<T, SM, I: SliceIndex<[T]>, const C: usize> IndexMut<I> for ArrayVec<T, SM, C>
+impl<T, L, SM, I: SliceIndex<[T]>, const C: usize> IndexMut<I> for ArrayVec<T, L, SM, C>
 where
+    L: LengthType,
     SM: SpareMemoryPolicy<T>,
 {
     #[inline]

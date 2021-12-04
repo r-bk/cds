@@ -1,8 +1,12 @@
-use crate::{arrayvec::ArrayVec, defs::SpareMemoryPolicy};
+use crate::{
+    arrayvec::ArrayVec,
+    defs::{LengthType, SpareMemoryPolicy},
+};
 use core::{iter::IntoIterator, slice};
 
-impl<'a, T, SM, const C: usize> IntoIterator for &'a ArrayVec<T, SM, C>
+impl<'a, T, L, SM, const C: usize> IntoIterator for &'a ArrayVec<T, L, SM, C>
 where
+    L: LengthType,
     SM: SpareMemoryPolicy<T>,
 {
     type Item = &'a T;
@@ -14,8 +18,9 @@ where
     }
 }
 
-impl<'a, T, SM, const C: usize> IntoIterator for &'a mut ArrayVec<T, SM, C>
+impl<'a, T, L, SM, const C: usize> IntoIterator for &'a mut ArrayVec<T, L, SM, C>
 where
+    L: LengthType,
     SM: SpareMemoryPolicy<T>,
 {
     type Item = &'a mut T;

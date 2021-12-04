@@ -1,9 +1,13 @@
-use crate::{arrayvec::ArrayVec, defs::SpareMemoryPolicy};
+use crate::{
+    arrayvec::ArrayVec,
+    defs::{LengthType, SpareMemoryPolicy},
+};
 use core::fmt::{Debug, Formatter, Result};
 
-impl<T, SM, const C: usize> Debug for ArrayVec<T, SM, C>
+impl<T, L, SM, const C: usize> Debug for ArrayVec<T, L, SM, C>
 where
     T: Debug,
+    L: LengthType,
     SM: SpareMemoryPolicy<T>,
 {
     #[inline]
