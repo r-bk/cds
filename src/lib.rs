@@ -18,6 +18,9 @@ pub mod defs;
 #[doc(inline)]
 pub use defs::SpareMemoryPolicy;
 
+#[doc(inline)]
+pub use defs::LengthType;
+
 pub(crate) mod sealed;
 
 #[cfg(test)]
