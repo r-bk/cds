@@ -1,5 +1,11 @@
-use crate::sealed::Sealed;
 use core::ptr;
+
+mod private {
+    pub trait SpareMemoryPolicyBase<T> {
+        unsafe fn init(dst: *mut T, count: usize);
+        unsafe fn init_bytes(dst: *mut u8, count: usize);
+    }
+}
 
 /// Defines handling of spare memory in collections.
 ///
@@ -19,41 +25,7 @@ use core::ptr;
 /// - [`Pattern`] fills spare bytes with a specified value
 ///
 /// [`drop`]: https://doc.rust-lang.org/core/mem/fn.drop.html
-pub trait SpareMemoryPolicy<T>: Sealed {
-    /// Initialize spare memory of `count` elements of type `T` starting at `dst`.
-    ///
-    /// # Safety
-    ///
-    /// Behavior is undefined if any of the following conditions are violated:
-    ///
-    /// - `dst` must be [`valid`] for writes of `count * size_of::<T>()` bytes
-    /// - `dst` must be properly aligned
-    /// - `dst` must point to unoccupied memory
-    ///
-    /// Using a region of memory typed as `T` that contains an invalid value of `T` is undefined
-    /// behavior. Thus, a collection must ensure that only free memory is handled with
-    /// spare memory policy.
-    ///
-    /// [`valid`]: https://doc.rust-lang.org/core/ptr/index.html#safety
-    unsafe fn init(dst: *mut T, count: usize);
-
-    /// Initializes `count` bytes of spare memory starting at `dst`.
-    ///
-    /// # Safety
-    ///
-    /// Behavior is undefined if any of the following conditions are violated:
-    ///
-    /// - `dst` must be [`valid`] for writes of `count` bytes
-    /// - `dst` must be properly aligned
-    /// - `dst` must point to unoccupied memory
-    ///
-    /// Using a region of memory typed as `T` that contains an invalid value of `T` is undefined
-    /// behavior. Thus, a collection must ensure that only free memory is handled with
-    /// spare memory policy.
-    ///
-    /// [`valid`]: https://doc.rust-lang.org/core/ptr/index.html#safety
-    unsafe fn init_bytes(dst: *mut u8, count: usize);
-}
+pub trait SpareMemoryPolicy<T>: private::SpareMemoryPolicyBase<T> {}
 
 /// Uninitialized spare memory policy.
 ///
@@ -82,10 +54,9 @@ pub struct Pattern<const P: u8>;
 /// This is a friendly alias for [`Pattern`] using zero as the pattern byte.
 pub type Zeroed = Pattern<0>;
 
-impl Sealed for Uninitialized {}
-impl<const P: u8> Sealed for Pattern<P> {}
+impl<T> SpareMemoryPolicy<T> for Uninitialized {}
 
-impl<T> SpareMemoryPolicy<T> for Uninitialized {
+impl<T> private::SpareMemoryPolicyBase<T> for Uninitialized {
     #[inline]
     unsafe fn init(_dst: *mut T, _count: usize) {
         // noop
@@ -96,7 +67,9 @@ impl<T> SpareMemoryPolicy<T> for Uninitialized {
     }
 }
 
-impl<T, const P: u8> SpareMemoryPolicy<T> for Pattern<P> {
+impl<T, const P: u8> SpareMemoryPolicy<T> for Pattern<P> {}
+
+impl<T, const P: u8> private::SpareMemoryPolicyBase<T> for Pattern<P> {
     #[inline]
     unsafe fn init(dst: *mut T, count: usize) {
         ptr::write_bytes(dst, P, count)
