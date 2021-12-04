@@ -8,7 +8,10 @@ use core::{marker::PhantomData, mem, ptr, result::Result, slice};
 
 /// A continuous non-growable array with vector-like API.
 ///
-/// Written as `ArrayVec<T, C>`, array vector has the capacity to store `C` elements of type `T`.
+/// Written as `ArrayVec<T, L, SM, C>`, array vector has the capacity to store `C` elements of type
+/// `T`.
+///
+/// It uses type `L` as [`length type`], and `SM` as [`spare memory policy`].
 ///
 /// `ArrayVec` stores elements inline in the struct itself, and doesn't allocate memory on the heap.
 ///
@@ -20,6 +23,9 @@ use core::{marker::PhantomData, mem, ptr, result::Result, slice};
 /// `ArrayVec` occupies all the memory needed for the requested capacity.
 ///
 /// The capacity of `ArrayVec` cannot be dynamically changed.
+///
+/// [`spare memory policy`]: SpareMemoryPolicy
+/// [`length type`]: LengthType
 ///
 ///
 /// # Examples
@@ -143,6 +149,11 @@ where
     pub const CAPACITY: usize = C;
 
     /// Creates an empty `ArrayVec`.
+    ///
+    /// # Safety
+    ///
+    /// This method panics if requested capacity `C` exceeds the maximal value that can be stored in
+    /// length type `L`.
     ///
     /// # Examples
     ///

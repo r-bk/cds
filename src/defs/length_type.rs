@@ -49,6 +49,38 @@ use lt_private::LengthTypeBase;
 ///
 /// Every length-type having `N` bits in the underlying type supports collections with capacity of
 /// up to `2 ^ N - 1` elements.
+///
+/// Currently supported length types are: [`U8`], [`U16`], [`U32`], [`U64`] and [`Usize`].
+///
+/// # Examples
+///
+/// `LengthType` allows creation of very compact fixed-capacity collections:
+///
+/// ```rust
+/// # #[cfg(feature = "arrayvec")] {
+/// use cds::{
+///     arrayvec::ArrayVec,
+///     defs::{Uninitialized, U8}
+/// };
+/// type A = ArrayVec<u8, U8, Uninitialized, 7>;
+/// assert_eq!(core::mem::size_of::<A>(), 8); // 7 element bytes + 1 length byte
+/// # }
+/// ```
+///
+/// The requested capacity may not exceed the length-type's maximal value:
+///
+/// ```should_panic
+/// # #[cfg(feature = "arrayvec")] {
+/// use cds::{
+///     arrayvec::ArrayVec,
+///     defs::{Uninitialized, U8}
+/// };
+/// type A = ArrayVec<u8, U8, Uninitialized, 256>; // U8::MAX(255) < CAPACITY(256)
+/// let a = A::new();   // <-- this panics
+/// # }
+/// # #[cfg(not(feature = "arrayvec"))]
+/// # panic!("just to fulfill the doc attribute")
+/// ```
 pub trait LengthType: LengthTypeBase {}
 
 // ------------------------------------------------------------------------------------------------
