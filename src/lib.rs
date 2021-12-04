@@ -15,6 +15,9 @@ pub mod errors;
 
 pub mod defs;
 
+#[doc(inline)]
+pub use defs::SpareMemoryPolicy;
+
 pub(crate) mod sealed;
 
 #[cfg(test)]
