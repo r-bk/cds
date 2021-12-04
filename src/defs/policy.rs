@@ -7,7 +7,9 @@ mod private {
     }
 }
 
-/// Defines handling of spare memory in collections.
+/// A trait of custom spare memory policies.
+///
+/// A spare memory policy defines the way a *cds* collection handles spare memory.
 ///
 /// This includes both the initial allocation, and any memory that becomes free following removal of
 /// an element from a collection (including removal forced by a [`drop`] of a collection).
@@ -33,8 +35,8 @@ pub trait SpareMemoryPolicy<T>: private::SpareMemoryPolicyBase<T> {}
 ///
 /// This means that:
 /// - initial memory allocated by a collection remains uninitialized
-/// - a region of memory occupied by an element of type `T` remains a byte-by-byte copy of the
-/// element until being overwritten (if at all)
+/// - a region of memory occupied by an element remains a byte-by-byte copy of the
+/// element after it is moved out, until the region is overwritten (if at all)
 pub struct Uninitialized;
 
 /// Pattern-initialized spare memory policy.
@@ -45,7 +47,7 @@ pub struct Uninitialized;
 /// This means that:
 /// - initial memory allocated by a collection is byte-by-byte initialized with the value `P`
 /// - a region of memory occupied by an element is byte-by-byte initialized with the value `P`
-///   when the element is moved out of the region, unless being immediately overwritten with another
+///   when the element is moved out, unless the region is immediately overwritten with another
 ///   element
 pub struct Pattern<const P: u8>;
 
