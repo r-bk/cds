@@ -57,6 +57,10 @@ impl<const C: usize> Track<C> {
         arr.fill(false);
     }
 
+    pub fn n_allocated(&self) -> usize {
+        self.n_allocated.get()
+    }
+
     pub fn dropped(&self) -> heapless::Vec<usize, C> {
         let mut tmp = heapless::Vec::new();
         let arr = self.arr.borrow();
