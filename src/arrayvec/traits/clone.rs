@@ -37,25 +37,21 @@ mod testing {
 
         let mut a = A::try_from_iter(track.take(5)).unwrap();
         let b = A::try_from_iter(track.take(6)).unwrap();
-        assert_eq!(track.n_allocated(), 11);
-        assert_eq!(track.dropped(), []);
+        assert!(track.dropped_range(0..0)); // empty range
 
         a.clone_from(&b);
 
         assert_eq!(track.n_allocated(), 12);
-        assert_eq!(track.dropped(), [0, 1, 2, 3, 4]);
+        assert!(track.dropped_range(0..=4));
 
         drop(b);
 
         assert_eq!(track.n_allocated(), 6);
-        assert_eq!(track.dropped(), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+        assert!(track.dropped_range(0..=10));
 
         drop(a);
         assert_eq!(track.n_allocated(), 0);
-        assert_eq!(
-            track.dropped(),
-            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
-        )
+        assert!(track.dropped_range(0..=16))
     }
 
     #[test]
@@ -68,14 +64,14 @@ mod testing {
 
         let b = a.clone();
         assert_eq!(track.n_allocated(), 6);
-        assert_eq!(track.dropped(), []);
+        assert!(track.dropped_range(0..0)); // empty range
 
         drop(a);
         assert_eq!(track.n_allocated(), 3);
-        assert_eq!(track.dropped(), [0, 1, 2]);
+        assert!(track.dropped_range(0..=2));
 
         drop(b);
         assert_eq!(track.n_allocated(), 0);
-        assert_eq!(track.dropped(), [0, 1, 2, 3, 4, 5]);
+        assert!(track.dropped_range(0..=5));
     }
 }

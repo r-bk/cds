@@ -15,10 +15,6 @@ default = []
 arrayvec = []
 std = []
 
-[dev-dependencies]
-heapless = "0.7.8"
-
-
 [package.metadata.docs.rs]
 all-features = true
 rustdoc-args = ["--cfg", "docsrs"]

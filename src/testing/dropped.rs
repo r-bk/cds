@@ -1,4 +1,7 @@
-use core::cell::{Cell, RefCell};
+use core::{
+    cell::{Cell, RefCell},
+    ops::RangeBounds,
+};
 
 pub struct Track<const C: usize> {
     arr: RefCell<[bool; C]>,
@@ -61,15 +64,16 @@ impl<const C: usize> Track<C> {
         self.n_allocated.get()
     }
 
-    pub fn dropped(&self) -> heapless::Vec<usize, C> {
-        let mut tmp = heapless::Vec::new();
+    pub fn dropped_range<R: RangeBounds<usize>>(&self, range: R) -> bool {
         let arr = self.arr.borrow();
         for (i, b) in arr.iter().enumerate() {
-            if *b {
-                tmp.push(i).expect("push failed");
+            if range.contains(&i) && !*b {
+                return false;
+            } else if !range.contains(&i) && *b {
+                return false;
             }
         }
-        tmp
+        true
     }
 }
 
