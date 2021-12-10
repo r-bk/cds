@@ -35,3 +35,7 @@ workspace = false
 [tasks.fmt]
 command = "cargo"
 args = ["fmt", "--all", "--", "--check"]
+
+[tasks.cover]
+command = "cargo"
+args = ["tarpaulin", "--all-features", "--out", "Html", "--out", "Xml"]
