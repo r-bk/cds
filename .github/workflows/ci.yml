@@ -124,3 +124,21 @@ jobs:
         with:
           command: doc
           args: --all-features --no-deps
+
+  coverage:
+    runs-on: ubuntu-latest
+    container:
+      image: xd009642/tarpaulin:develop-nightly
+      options: --security-opt seccomp=unconfined
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/cargo@v1
+        name: tarpaulin
+        with:
+          toolchain: nightly
+          command: tarpaulin
+          args: --all-features --out Xml
+      - name: upload to codecov.io
+        uses: codecov/codecov-action@v2
+        with:
+          fail_ci_if_error: true
