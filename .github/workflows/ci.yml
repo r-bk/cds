@@ -139,6 +139,7 @@ jobs:
           command: tarpaulin
           args: --all-features --out Xml
       - name: upload to codecov.io
+        if: github.ref == 'refs/heads/master'
         uses: codecov/codecov-action@v2
         with:
           fail_ci_if_error: true
