@@ -1,7 +1,6 @@
 //! *cds* is a Collection of Data Structures.
 //!
 //! *cds* is in development.
-//! The version 0.0.1 is a crates.io placeholder.
 
 #![cfg_attr(not(feature = "std"), no_std)]
 #![warn(missing_docs)]
