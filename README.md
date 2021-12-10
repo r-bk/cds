@@ -13,6 +13,9 @@
 
 ## What's included?
 
+- `SpareMemoryPolicy` - a custom policy for handling spare memory in collections
+- `LengthType` - a customizable type to track fixed-capacity collection length
+  (allows creation of very compact collection types)
 - `ArrayVec` - an array with vector-like API
 
 
@@ -23,7 +26,12 @@ For example, `arrayvec` enables `ArrayVec`. None of the data structures is enabl
 
 Additionally, the following crate features are available:
 
-- `std`- enables usage of the Rust standard library. Without this feature the crate is `no_std`.
+- `std`- enables usage of the Rust standard library.
+
+  Currently, this feature affects only error types to implement the `std::error::Error` trait,
+  which is not available in `core`.
+
+  Without this feature the crate is `no_std`.
 
 
 ## Documentation
@@ -33,7 +41,7 @@ The documentation is @ [docs.rs/cds][docs-url]
 
 ## Roadmap
 
-- `ArrayString` - a string with fixed capacity
+- `ArrayString` - an array with string-like API
 - `SmallVec` - a vector with inline capacity to avoid heap allocation
 - `SmallString` - a string with inline capacity to avoid heap allocation
 
