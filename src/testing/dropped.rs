@@ -97,3 +97,9 @@ impl<const C: usize> Drop for Dropped<'_, C> {
         self.track.free(self);
     }
 }
+
+impl<const C: usize> Clone for Dropped<'_, C> {
+    fn clone(&self) -> Self {
+        self.track.alloc()
+    }
+}
