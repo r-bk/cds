@@ -15,3 +15,20 @@ where
         Debug::fmt(&**self, f)
     }
 }
+
+#[cfg(feature = "std")]
+#[cfg(test)]
+mod testing {
+    use crate as cds;
+    use crate::array_vec;
+
+    #[test]
+    fn test_debug() {
+        let mut a = array_vec![3; String];
+        a.push("Hello".into());
+        a.push(", ".into());
+        a.push("world!".into());
+        let s = format!("{:?}", a);
+        assert_eq!(s, "[\"Hello\", \", \", \"world!\"]");
+    }
+}
