@@ -2,6 +2,7 @@ use core::cell::{Cell, RefCell};
 
 pub struct Track<const C: usize> {
     arr: RefCell<[bool; C]>,
+    idx: Cell<usize>,
     n_allocated: Cell<usize>,
 }
 
@@ -22,9 +23,10 @@ impl<const C: usize> Track<C> {
     }
 
     pub fn alloc(&self) -> Dropped<'_, C> {
-        let idx = self.n_allocated.get();
+        let idx = self.idx.get();
         assert!(idx < C);
-        self.n_allocated.set(idx + 1);
+        self.idx.set(idx + 1);
+        self.n_allocated.set(self.n_allocated.get() + 1);
         Dropped { track: self, idx }
     }
 
@@ -49,6 +51,8 @@ impl<const C: usize> Track<C> {
     }
 
     pub fn clear(&self) {
+        self.n_allocated.set(0);
+        self.idx.set(0);
         let mut arr = self.arr.borrow_mut();
         arr.fill(false);
     }
@@ -82,6 +86,7 @@ impl<const C: usize> Default for Track<C> {
     fn default() -> Self {
         Track {
             arr: RefCell::new([false; C]),
+            idx: Cell::new(0),
             n_allocated: Cell::new(0),
         }
     }
