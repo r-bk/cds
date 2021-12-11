@@ -38,7 +38,7 @@ Additionally, the following crate features are available:
 
 ## Documentation
 
-The documentation is @ [docs.rs/cds][docs-url]
+The documentation is at [docs.rs/cds][docs-url]
 
 
 ## Roadmap
