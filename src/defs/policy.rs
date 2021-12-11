@@ -3,7 +3,6 @@ use core::ptr;
 mod private {
     pub trait SpareMemoryPolicyBase<T> {
         unsafe fn init(dst: *mut T, count: usize);
-        unsafe fn init_bytes(dst: *mut u8, count: usize);
     }
 }
 
@@ -142,10 +141,6 @@ impl<T> private::SpareMemoryPolicyBase<T> for Uninitialized {
     unsafe fn init(_dst: *mut T, _count: usize) {
         // noop
     }
-    #[inline]
-    unsafe fn init_bytes(_dst: *mut u8, _count: usize) {
-        // noop
-    }
 }
 
 impl<T, const P: u8> SpareMemoryPolicy<T> for Pattern<P> {}
@@ -154,10 +149,5 @@ impl<T, const P: u8> private::SpareMemoryPolicyBase<T> for Pattern<P> {
     #[inline]
     unsafe fn init(dst: *mut T, count: usize) {
         ptr::write_bytes(dst, P, count)
-    }
-
-    #[inline]
-    unsafe fn init_bytes(dst: *mut u8, count: usize) {
-        ptr::write_bytes(dst, P, count);
     }
 }
