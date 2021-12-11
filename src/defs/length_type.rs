@@ -187,3 +187,25 @@ length_type!(
 );
 
 // ------------------------------------------------------------------------------------------------
+
+#[cfg(all(test, feature = "std"))]
+mod testing {
+    use super::*;
+
+    macro_rules! check_display {
+        ($LT:expr, $C:literal) => {
+            let lt = $LT($C);
+            let s = format!("{}", lt);
+            assert_eq!(s, $C.to_string());
+        };
+    }
+
+    #[test]
+    fn test_display() {
+        check_display!(U8, 7);
+        check_display!(U16, 707);
+        check_display!(U32, 70707);
+        check_display!(U64, 7070707);
+        check_display!(Usize, 707070707);
+    }
+}
