@@ -30,3 +30,54 @@ where
         IndexMut::index_mut(&mut **self, index)
     }
 }
+
+#[cfg(test)]
+mod testing {
+    use crate as cds;
+    use cds::array_vec;
+
+    #[test]
+    fn test_index() {
+        let a = array_vec![5; u64; 1, 2, 3, 4, 5];
+        assert_eq!(a[1], 2);
+        assert_eq!(a[..2], [1, 2]);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_index_panics() {
+        let a = array_vec![5; u64; 1, 2, 3, 4, 5];
+        a[5];
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_range_index_panics() {
+        let a = array_vec![5; u64; 1, 2, 3, 4, 5];
+        let _ = &a[3..7];
+    }
+
+    #[test]
+    fn test_index_mut() {
+        let mut a = array_vec![5; u64; 1, 2, 3, 4, 5];
+        a[1] = 7;
+        assert_eq!(a, [1, 7, 3, 4, 5]);
+
+        let s = &mut a[1..=3];
+        assert_eq!(s, [7, 3, 4]);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_index_mut_panics() {
+        let mut a = array_vec![5; u64; 1, 2, 3, 4, 5];
+        a[7] = 7;
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_range_index_mut_panics() {
+        let mut a = array_vec![5; u64; 1, 2, 3, 4, 5];
+        let _ = &mut a[1..7];
+    }
+}
