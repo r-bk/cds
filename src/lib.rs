@@ -23,4 +23,5 @@ pub use defs::LengthType;
 pub(crate) mod sealed;
 
 #[cfg(test)]
+#[cfg(not(tarpaulin_include))]
 pub(crate) mod testing;
