@@ -1,7 +1,3 @@
-# cds - Collection of Data Structures
-
-`cds` implements handy data structures written for speed and ergonomic API.
-
 [![crates.io][crates-badge]][crates-url]
 [![docs.rs][docs-badge]][docs-url]
 [![codecov](https://codecov.io/gh/r-bk/cds/branch/master/graph/badge.svg?token=4WRUI0DNK1)](https://codecov.io/gh/r-bk/cds)
@@ -10,6 +6,11 @@
 [crates-url]: https://crates.io/crates/cds
 [docs-badge]: https://img.shields.io/docsrs/cds
 [docs-url]: https://docs.rs/cds/latest/cds
+
+
+# cds - Collection of Data Structures
+
+`cds` implements handy data structures written for speed and ergonomic API.
 
 
 ## What's included?
