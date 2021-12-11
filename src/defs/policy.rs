@@ -1,6 +1,6 @@
 use core::ptr;
 
-mod private {
+pub(crate) mod private {
     pub trait SpareMemoryPolicyBase<T> {
         unsafe fn init(dst: *mut T, count: usize);
     }
@@ -149,5 +149,41 @@ impl<T, const P: u8> private::SpareMemoryPolicyBase<T> for Pattern<P> {
     #[inline]
     unsafe fn init(dst: *mut T, count: usize) {
         ptr::write_bytes(dst, P, count)
+    }
+}
+
+#[cfg(test)]
+mod testing {
+    use super::{private::SpareMemoryPolicyBase, *};
+
+    #[test]
+    fn test_uninitialized() {
+        let o64 = 0xFEFEFEFEFEFEFEFE;
+        let mut arr: [u64; 6] = [o64, 1, 2, 3, o64, o64];
+        unsafe {
+            <Uninitialized as SpareMemoryPolicyBase<u64>>::init(arr.as_mut().as_mut_ptr().add(1), 3)
+        };
+        assert_eq!(arr, [o64, 1, 2, 3, o64, o64]);
+    }
+
+    #[test]
+    fn test_zeroed() {
+        let o64 = 0xFEFEFEFEFEFEFEFE;
+        let mut arr: [u64; 6] = [o64, 1, 2, 3, o64, o64];
+        unsafe {
+            <Zeroed as SpareMemoryPolicyBase<u64>>::init(arr.as_mut().as_mut_ptr().add(1), 3)
+        };
+        assert_eq!(arr, [o64, 0, 0, 0, o64, o64]);
+    }
+
+    #[test]
+    fn test_pattern() {
+        let o64 = 0xFEFEFEFEFEFEFEFE;
+        let mut arr: [u64; 6] = [o64, 1, 2, 3, o64, o64];
+        unsafe {
+            <Pattern<0xAB> as SpareMemoryPolicyBase<u64>>::init(arr.as_mut().as_mut_ptr().add(1), 3)
+        };
+        let n64 = 0xABABABABABABABAB;
+        assert_eq!(arr, [o64, n64, n64, n64, o64, o64]);
     }
 }
