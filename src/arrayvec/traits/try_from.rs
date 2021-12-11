@@ -68,3 +68,56 @@ where
         Ok(tmp)
     }
 }
+
+#[cfg(test)]
+mod testing {
+    use crate as cds;
+    use cds::{
+        arrayvec::ArrayVec,
+        defs::{Uninitialized, Usize},
+        errors::CapacityError,
+    };
+    type A = ArrayVec<u64, Usize, Uninitialized, 7>;
+
+    #[test]
+    fn test_try_from_slice() {
+        let a = A::try_from([1, 2, 3].as_ref()).unwrap();
+        assert_eq!(a, [1, 2, 3]);
+    }
+
+    #[test]
+    fn test_try_from_slice_err() {
+        assert!(matches!(
+            A::try_from([1, 2, 3, 4, 5, 6, 7, 8].as_ref()),
+            Err(CapacityError)
+        ));
+    }
+
+    #[test]
+    fn test_try_from_mut_slice() {
+        let a = A::try_from([1, 2, 3].as_mut()).unwrap();
+        assert_eq!(a, [1, 2, 3]);
+    }
+
+    #[test]
+    fn test_try_from_mut_slice_err() {
+        assert!(matches!(
+            A::try_from([1, 2, 3, 4, 5, 6, 7, 8].as_mut()),
+            Err(CapacityError)
+        ));
+    }
+
+    #[test]
+    fn test_try_from_array() {
+        let a = A::try_from([1, 2, 3]).unwrap();
+        assert_eq!(a, [1, 2, 3]);
+    }
+
+    #[test]
+    fn test_try_from_array_err() {
+        assert!(matches!(
+            A::try_from([1, 2, 3, 4, 5, 6, 7, 8]),
+            Err(CapacityError)
+        ));
+    }
+}
