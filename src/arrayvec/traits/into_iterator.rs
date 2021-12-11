@@ -31,3 +31,41 @@ where
         self.iter_mut()
     }
 }
+
+#[cfg(test)]
+mod testing {
+    use crate as cds;
+    use cds::{
+        arrayvec::ArrayVec,
+        defs::{Uninitialized, Usize},
+    };
+    type A = ArrayVec<u64, Usize, Uninitialized, 7>;
+
+    fn use_iterator(a: &A) -> u64 {
+        let mut sum = 0;
+        for e in a {
+            sum += *e;
+        }
+        sum
+    }
+
+    fn use_iterator_mut(a: &mut A) -> u64 {
+        let mut sum = 0;
+        for e in a {
+            sum += *e;
+        }
+        sum
+    }
+
+    #[test]
+    fn test_into_iterator_ref() {
+        let a = A::from_iter(0..3);
+        use_iterator(&a);
+    }
+
+    #[test]
+    fn test_into_iterator_mut() {
+        let mut a = A::from_iter(0..3);
+        use_iterator_mut(&mut a);
+    }
+}
