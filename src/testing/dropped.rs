@@ -75,6 +75,19 @@ impl<const C: usize> Track<C> {
         }
         true
     }
+
+    pub fn dropped_indices(&self, indices: &[usize]) -> bool {
+        let arr = self.arr.borrow();
+        for (i, b) in arr.iter().enumerate() {
+            let is_found = indices.iter().find(|&x| *x == i).is_some();
+            if is_found && !*b {
+                return false;
+            } else if !is_found && *b {
+                return false;
+            }
+        }
+        true
+    }
 }
 
 impl<'a, const C: usize> Iterator for TrackIter<'a, C> {
