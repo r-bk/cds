@@ -338,34 +338,6 @@ where
         self.len.set(new_len);
     }
 
-    /// Tries to append an element to the back of the array-vector.
-    ///
-    /// Returns [`CapacityError`] if there is no spare capacity to accommodate a new element.
-    ///
-    /// This is a non-panic version of [`push`].
-    ///
-    /// # Examples
-    ///
-    /// ```rust
-    /// # use cds::{array_vec, errors::CapacityError};
-    /// let mut v = array_vec![2; u64];
-    /// assert!(v.try_push(1).is_ok());
-    /// assert!(v.try_push(2).is_ok());
-    /// assert!(matches!(v.try_push(3), Err(CapacityError)));
-    /// assert_eq!(v, [1, 2]);
-    /// ```
-    ///
-    /// [`push`]: ArrayVec::push
-    #[inline]
-    pub fn try_push(&mut self, e: T) -> Result<(), CapacityError> {
-        if self.len < Self::CAPACITY {
-            unsafe { self.push_unchecked(e) };
-            Ok(())
-        } else {
-            Err(CapacityError {})
-        }
-    }
-
     /// Appends an element to the back of the array-vector.
     ///
     /// # Panics
@@ -396,7 +368,59 @@ where
     /// [`push`]: ArrayVec::push
     #[inline]
     pub fn push(&mut self, e: T) {
-        self.try_push(e).expect("ArrayVec::push failed")
+        self.try_push(e).expect("insufficient capacity")
+    }
+
+    /// Tries to append an element to the back of the array-vector.
+    ///
+    /// Returns [`CapacityError`] if there is no spare capacity to accommodate a new element.
+    ///
+    /// This is a non-panic version of [`push`].
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use cds::{array_vec, errors::CapacityError};
+    /// let mut v = array_vec![2; u64];
+    /// assert!(v.try_push(1).is_ok());
+    /// assert!(v.try_push(2).is_ok());
+    /// assert!(matches!(v.try_push(3), Err(CapacityError)));
+    /// assert_eq!(v, [1, 2]);
+    /// ```
+    ///
+    /// [`push`]: ArrayVec::push
+    #[inline]
+    pub fn try_push(&mut self, e: T) -> Result<(), CapacityError> {
+        if self.len < Self::CAPACITY {
+            unsafe { self.push_unchecked(e) };
+            Ok(())
+        } else {
+            Err(CapacityError {})
+        }
+    }
+
+    /// Appends an element to the back of the array-vector without spare capacity check.
+    ///
+    /// This method is useful when spare capacity check is already done by the caller.
+    ///
+    /// # Safety
+    ///
+    /// The caller must ensure that the array-vector has spare capacity to accommodate a new
+    /// element.
+    ///
+    /// # Example
+    /// ```rust
+    /// # use cds::array_vec;
+    /// let mut a = array_vec![3; usize; 1];
+    /// while a.has_spare_capacity() {
+    ///     unsafe { a.push_unchecked(0); }
+    /// }
+    /// assert_eq!(a, [1, 0, 0]);
+    /// ```
+    #[inline]
+    pub unsafe fn push_unchecked(&mut self, e: T) {
+        self.as_mut_ptr().add(self.len.as_usize()).write(e);
+        self.len += 1;
     }
 
     /// Removes the last element from an array-vector and returns it, or [`None`] if it is empty.
@@ -441,30 +465,6 @@ where
         let e = p.read();
         SM::init(p, 1);
         e
-    }
-
-    /// Appends an element to the back of the array-vector without spare capacity check.
-    ///
-    /// This method is useful when spare capacity check is already done by the caller.
-    ///
-    /// # Safety
-    ///
-    /// The caller must ensure that the array-vector has spare capacity to accommodate a new
-    /// element.
-    ///
-    /// # Example
-    /// ```rust
-    /// # use cds::array_vec;
-    /// let mut a = array_vec![3; usize; 1];
-    /// while a.has_spare_capacity() {
-    ///     unsafe { a.push_unchecked(0); }
-    /// }
-    /// assert_eq!(a, [1, 0, 0]);
-    /// ```
-    #[inline]
-    pub unsafe fn push_unchecked(&mut self, e: T) {
-        self.as_mut_ptr().add(self.len.as_usize()).write(e);
-        self.len += 1;
     }
 
     /// Clears the array-vector, dropping all values.
