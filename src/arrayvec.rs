@@ -323,6 +323,10 @@ where
 
     /// Forces the length of the array-vector to `new_len`.
     ///
+    /// Note that this method doesn't [`drop`] elements, which may lead to a resource leak if
+    /// `new_len < len()` and `T` has a custom [`Drop`] implementation. See [`truncate`] for a
+    /// method that handles array-vector truncation properly.
+    ///
     /// # Safety
     ///
     /// - `new_len` must be less than or equal to the array-vector's [`CAPACITY`]
@@ -333,6 +337,10 @@ where
     /// # Panics
     ///
     /// This method uses debug assertions to verify that `new_len` is in bounds.
+    ///
+    /// [`drop`]: core::mem::drop
+    /// [`Drop`]: core::ops::Drop
+    /// [`truncate`]: ArrayVec::truncate
     #[inline]
     pub unsafe fn set_len(&mut self, new_len: usize) {
         debug_assert!(new_len <= Self::CAPACITY);
@@ -343,7 +351,7 @@ where
     ///
     /// # Panics
     ///
-    /// This method panics of there is no spare capacity to accommodate the new element.
+    /// This method panics if there is no spare capacity to accommodate the new element.
     /// See [`try_push`] for a method that returns an error instead.
     ///
     /// # Examples
