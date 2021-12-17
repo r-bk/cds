@@ -39,3 +39,10 @@ args = ["fmt", "--all", "--", "--check"]
 [tasks.cover]
 command = "cargo"
 args = ["tarpaulin", "--all-features", "--out", "Html"]
+
+[tasks.c]
+dependencies = ["cover"]
+script = '''
+#!/usr/bin/env bash
+browse ./tarpaulin-report.html >/dev/null 2>&1 &
+'''
