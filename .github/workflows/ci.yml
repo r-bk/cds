@@ -137,14 +137,8 @@ jobs:
         with:
           toolchain: nightly
           command: tarpaulin
-          args: --all-features --out Lcov --out Html
+          args: --all-features --out Html
       - uses: actions/upload-artifact@v2
         with:
           name: tarpaulin-report.html
           path: tarpaulin-report.html
-      - name: coveralls
-        if: github.ref == 'refs/heads/master'
-        uses: coverallsapp/github-action@master
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          path-to-lcov: lcov.info
