@@ -12,3 +12,4 @@ Cargo.lock
 # makers cover output
 tarpaulin-report.html
 cobertura.xml
+lcov.info

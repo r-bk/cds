@@ -1,5 +1,6 @@
 [![crates.io][crates-badge]][crates-url]
 [![docs.rs][docs-badge]][docs-url]
+[![Coverage Status](https://coveralls.io/repos/github/r-bk/cds/badge.svg?branch=master)](https://coveralls.io/github/r-bk/cds?branch=master)
 
 [crates-badge]: https://img.shields.io/crates/v/cds.svg
 [crates-url]: https://crates.io/crates/cds
