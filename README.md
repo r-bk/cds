@@ -1,6 +1,5 @@
 [![crates.io][crates-badge]][crates-url]
 [![docs.rs][docs-badge]][docs-url]
-[![codecov](https://codecov.io/gh/r-bk/cds/branch/master/graph/badge.svg?token=4WRUI0DNK1)](https://codecov.io/gh/r-bk/cds)
 
 [crates-badge]: https://img.shields.io/crates/v/cds.svg
 [crates-url]: https://crates.io/crates/cds

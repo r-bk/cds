@@ -138,11 +138,6 @@ jobs:
           toolchain: nightly
           command: tarpaulin
           args: --all-features --out Xml --out Html
-      - name: upload to codecov.io
-        if: github.ref == 'refs/heads/master'
-        uses: codecov/codecov-action@v2
-        with:
-          fail_ci_if_error: true
       - uses: actions/upload-artifact@v2
         with:
           name: tarpaulin-report.html
