@@ -29,6 +29,6 @@ mod testing {
         let a: A = Default::default();
         assert_eq!(a.len(), 0);
         assert_eq!(a.capacity(), 7);
-        assert_eq!(a.spare_capacity_len(), a.capacity());
+        assert_eq!(a.spare_capacity(), a.capacity());
     }
 }

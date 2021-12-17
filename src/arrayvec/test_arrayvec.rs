@@ -20,14 +20,14 @@ fn test_zst_push_pop() {
         a.push(());
     }
     assert_eq!(a.len(), 3);
-    assert_eq!(a.spare_capacity_len(), 0);
+    assert_eq!(a.spare_capacity(), 0);
     assert_eq!(a.try_push(()).is_err(), true);
 
     while !a.is_empty() {
         let _zst = unsafe { a.pop_unchecked() };
     }
     assert_eq!(a.len(), 0);
-    assert_eq!(a.spare_capacity_len(), 3);
+    assert_eq!(a.spare_capacity(), 3);
 }
 
 #[test]
@@ -65,7 +65,7 @@ fn test_capacity_len_empty_full() {
 
     assert_eq!(a.len(), 0);
     assert_eq!(a.capacity(), 2);
-    assert_eq!(a.spare_capacity_len(), a.capacity());
+    assert_eq!(a.spare_capacity(), a.capacity());
     assert_eq!(a.has_spare_capacity(), true);
     assert_eq!(a.is_empty(), true);
     assert_eq!(a.is_full(), false);
@@ -73,14 +73,14 @@ fn test_capacity_len_empty_full() {
     a.push(1);
     assert_eq!(a.len(), 1);
     assert_eq!(a.has_spare_capacity(), true);
-    assert_eq!(a.spare_capacity_len(), 1);
+    assert_eq!(a.spare_capacity(), 1);
     assert_eq!(a.is_empty(), false);
     assert_eq!(a.is_full(), false);
 
     a.push(2);
     assert_eq!(a.len(), a.capacity());
     assert_eq!(a.has_spare_capacity(), false);
-    assert_eq!(a.spare_capacity_len(), 0);
+    assert_eq!(a.spare_capacity(), 0);
     assert_eq!(a.is_empty(), false);
     assert_eq!(a.is_full(), true);
 }
@@ -143,18 +143,18 @@ fn test_remove_unchecked() {
     let mut a = A::from_iter(1..6);
     assert_eq!(a, [1, 2, 3, 4, 5]);
     assert_eq!(a.len(), 5);
-    assert_eq!(a.spare_capacity_len(), 0);
+    assert_eq!(a.spare_capacity(), 0);
 
     assert_eq!(unsafe { a.remove_unchecked(0) }, 1);
     assert_eq!(a, [2, 3, 4, 5]);
     assert_eq!(a.len(), 4);
-    assert_eq!(a.spare_capacity_len(), 1);
+    assert_eq!(a.spare_capacity(), 1);
     assert_eq!(unsafe { a.as_ptr().add(4).read() }, 0xAB);
 
     assert_eq!(unsafe { a.remove_unchecked(1) }, 3);
     assert_eq!(a, [2, 4, 5]);
     assert_eq!(a.len(), 3);
-    assert_eq!(a.spare_capacity_len(), 2);
+    assert_eq!(a.spare_capacity(), 2);
     assert_eq!(unsafe { a.as_ptr().add(3).read() }, 0xAB);
     assert_eq!(unsafe { a.as_ptr().add(4).read() }, 0xAB);
 }

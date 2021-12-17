@@ -35,7 +35,7 @@ use core::{marker::PhantomData, mem, ptr, result::Result, slice};
 /// let mut v = ArrayVec::<u64, U8, Uninitialized, 12>::new();
 /// assert_eq!(v.len(), 0);
 /// assert_eq!(v.capacity(), 12);
-/// assert_eq!(v.spare_capacity_len(), 12);
+/// assert_eq!(v.spare_capacity(), 12);
 /// assert_eq!(v, []);
 ///
 /// v.push(1);
@@ -43,7 +43,7 @@ use core::{marker::PhantomData, mem, ptr, result::Result, slice};
 ///
 /// assert_eq!(v.len(), 2);
 /// assert_eq!(v.capacity(), 12);
-/// assert_eq!(v.spare_capacity_len(), 10);
+/// assert_eq!(v.spare_capacity(), 10);
 /// assert_eq!(v, [1, 2]);
 ///
 /// v[0] = 7;
@@ -279,7 +279,7 @@ where
         Self::CAPACITY
     }
 
-    /// Returns the number of elements left until the array-vector is completely full.
+    /// Returns the number of elements the array-vector can hold in addition to already held ones.
     ///
     /// Equivalent to `capacity() - len()`.
     ///
@@ -289,13 +289,14 @@ where
     /// # use cds::array_vec;
     /// let mut v = array_vec![2; u64];
     /// assert_eq!(v.capacity(), 2);
-    /// assert_eq!(v.spare_capacity_len(), 2);
+    /// assert_eq!(v.spare_capacity(), 2);
     ///
     /// v.push(1);
-    /// assert_eq!(v.spare_capacity_len(), 1);
+    /// assert_eq!(v.capacity(), 2);
+    /// assert_eq!(v.spare_capacity(), 1);
     /// ```
     #[inline]
-    pub fn spare_capacity_len(&self) -> usize {
+    pub fn spare_capacity(&self) -> usize {
         Self::CAPACITY - self.len.as_usize()
     }
 
