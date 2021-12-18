@@ -2,7 +2,7 @@
 
 use crate::{
     defs::{LengthType, SpareMemoryPolicy},
-    errors::{CapacityError, InsertError},
+    errors::{CapacityError, CapacityErrorVal, InsertError, InsertErrorVal},
 };
 use core::{marker::PhantomData, mem, ptr, result::Result, slice};
 
@@ -408,6 +408,42 @@ where
         }
     }
 
+    /// Tries to append an element to the back of the array-vector.
+    ///
+    /// Returns [`CapacityErrorVal`] if there is no spare capacity to accommodate a new element.
+    ///
+    /// The difference between this method and [`try_push`] is that in case of an error
+    /// [`try_push_val`] returns the element back to the caller.
+    ///
+    /// This is a non-panic version of [`push`].
+    ///
+    /// # Examples
+    /// ```rust
+    /// # use cds::{array_vec, errors::CapacityErrorVal};
+    /// let mut v = array_vec![2; u64];
+    /// assert_eq!(v, []);
+    ///
+    /// assert!(v.try_push_val(1).is_ok());
+    /// assert!(v.try_push_val(2).is_ok());
+    /// assert_eq!(v, [1, 2]);
+    ///
+    /// assert!(matches!(v.try_push_val(3), Err(CapacityErrorVal(e)) if e == 3));
+    /// assert_eq!(v, [1, 2]);
+    /// ```
+    ///
+    /// [`try_push_val`]: ArrayVec::try_push_val
+    /// [`try_push`]: ArrayVec::try_push
+    /// [`push`]: ArrayVec::push
+    #[inline]
+    pub fn try_push_val(&mut self, value: T) -> Result<(), CapacityErrorVal<T>> {
+        if self.len < Self::CAPACITY {
+            unsafe { self.push_unchecked(value) };
+            Ok(())
+        } else {
+            Err(CapacityErrorVal(value))
+        }
+    }
+
     /// Appends an element to the back of the array-vector without spare capacity check.
     ///
     /// This method is useful when spare capacity check is already done by the caller.
@@ -427,8 +463,8 @@ where
     /// assert_eq!(a, [1, 0, 0]);
     /// ```
     #[inline]
-    pub unsafe fn push_unchecked(&mut self, e: T) {
-        self.as_mut_ptr().add(self.len.as_usize()).write(e);
+    pub unsafe fn push_unchecked(&mut self, value: T) {
+        self.as_mut_ptr().add(self.len.as_usize()).write(value);
         self.len += 1;
     }
 
@@ -664,6 +700,9 @@ where
     /// Returns [`InsertError`] if there is no spare capacity in the array vector, or if `index` is
     /// out of bounds.
     ///
+    /// Note that in case of an error `value` is lost if it is not [`Copy`]. Use [`try_insert_val`]
+    /// to receive the element back in case of an error.
+    ///
     /// Note that the worst case performance of this operation is O(n), because all elements of the
     /// array may be shifted right. If order of elements is not needed to be preserved,
     /// use [`try_push`] instead.
@@ -683,9 +722,10 @@ where
     /// ```
     ///
     /// [`try_push`]: ArrayVec::try_push
+    /// [`try_insert_val`]: ArrayVec::try_insert_val
     /// [`insert`]: ArrayVec::insert
     #[inline]
-    pub fn try_insert(&mut self, index: usize, element: T) -> Result<(), InsertError> {
+    pub fn try_insert(&mut self, index: usize, value: T) -> Result<(), InsertError> {
         if index > self.len.as_usize() {
             return Err(InsertError::IndexOutOfBounds);
         }
@@ -693,7 +733,61 @@ where
             return Err(InsertError::CapacityError);
         }
         unsafe {
-            self.insert_unchecked(index, element);
+            self.insert_unchecked(index, value);
+        }
+        Ok(())
+    }
+
+    /// Tries to insert an element at position `index` within the array-vector,
+    /// shifting all elements after it to the right.
+    ///
+    /// Returns [`InsertErrorVal`] if there is no spare capacity in the array vector,
+    /// or if `index` is out of bounds.
+    ///
+    /// The difference between this method and [`try_insert`], is that in case of an error
+    /// [`try_insert_val`] returns the element back to the caller.
+    ///
+    /// Note that the worst case performance of this operation is O(n), because all elements of the
+    /// array may be shifted right. If order of elements is not needed to be preserved,
+    /// use [`try_push_val`] instead.
+    ///
+    /// This is a non-panic version of [`insert`].
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use cds::{array_vec, errors::InsertErrorVal};
+    /// let mut v = array_vec![3; u64; 1, 2];
+    /// assert!(matches!(
+    ///     v.try_insert_val(5, 3),
+    ///     Err(InsertErrorVal::IndexOutOfBounds(v)) if v == 3
+    /// ));
+    /// assert_eq!(v, [1, 2]);
+    ///
+    /// assert!(v.try_insert_val(0, 0).is_ok());
+    /// assert_eq!(v, [0, 1, 2]);
+    ///
+    /// assert!(matches!(
+    ///     v.try_insert_val(1, 5),
+    ///     Err(InsertErrorVal::CapacityError(v)) if v == 5
+    /// ));
+    /// assert_eq!(v, [0, 1, 2]);
+    /// ```
+    ///
+    /// [`try_insert_val`]: ArrayVec::try_insert_val
+    /// [`try_insert`]: ArrayVec::try_insert
+    /// [`try_push_val`]: ArrayVec::try_push_val
+    /// [`insert`]: ArrayVec::insert
+    #[inline]
+    pub fn try_insert_val(&mut self, index: usize, value: T) -> Result<(), InsertErrorVal<T>> {
+        if index > self.len.as_usize() {
+            return Err(InsertErrorVal::IndexOutOfBounds(value));
+        }
+        if self.len >= Self::CAPACITY {
+            return Err(InsertErrorVal::CapacityError(value));
+        }
+        unsafe {
+            self.insert_unchecked(index, value);
         }
         Ok(())
     }
@@ -725,10 +819,10 @@ where
     /// unsafe { v.insert_unchecked(2, 2) };
     /// assert_eq!(v, [0, 1, 2]);
     /// ```
-    pub unsafe fn insert_unchecked(&mut self, index: usize, element: T) {
+    pub unsafe fn insert_unchecked(&mut self, index: usize, value: T) {
         let p = self.as_mut_ptr().add(index);
         ptr::copy(p, p.add(1), self.len.as_usize() - index);
-        p.write(element);
+        p.write(value);
         self.len += 1;
     }
 

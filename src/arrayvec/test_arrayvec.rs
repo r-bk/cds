@@ -3,7 +3,7 @@ use cds::{
     array_vec,
     arrayvec::ArrayVec,
     defs::{Pattern, Uninitialized, U8},
-    errors::{CapacityError, InsertError},
+    errors::{CapacityError, InsertError, InsertErrorVal},
     testing::dropped::{Dropped, Track},
 };
 use core::mem;
@@ -467,4 +467,80 @@ fn test_swap_remove_unchecked_dropped() {
 
     unsafe { a.swap_remove_unchecked(1) };
     assert!(t.dropped_indices(&[1, 4]));
+}
+
+#[test]
+fn test_try_push_val() {
+    type A = ArrayVec<u8, U8, Uninitialized, 4>;
+    let mut a = A::from_iter(0..3);
+    assert_eq!(a, [0, 1, 2]);
+
+    assert!(a.try_push_val(3).is_ok());
+    assert_eq!(a, [0, 1, 2, 3]);
+
+    let res = a.try_push_val(4);
+    assert!(res.is_err());
+    assert_eq!(4, res.unwrap_err().0);
+    assert_eq!(a, [0, 1, 2, 3]);
+}
+
+#[test]
+fn test_try_push_val_dropped() {
+    type A<'a> = ArrayVec<Dropped<'a, 5>, U8, Pattern<0xAC>, 4>;
+    let t = Track::new();
+    let mut a = A::from_iter(t.take(3));
+    assert!(t.dropped_indices(&[]));
+
+    assert!(a.try_push_val(t.alloc()).is_ok());
+    assert!(t.dropped_indices(&[]));
+
+    let v = t.alloc();
+    let res = a.try_push_val(v);
+    assert!(res.is_err());
+    assert!(t.dropped_indices(&[]));
+
+    drop(res);
+    assert!(t.dropped_indices(&[4]));
+
+    drop(a);
+    assert!(t.dropped_range(0..=4));
+}
+
+#[test]
+fn test_try_insert_val() {
+    type A = ArrayVec<u8, U8, Uninitialized, 4>;
+    let mut a = A::from_iter(0..3);
+    assert_eq!(a, [0, 1, 2]);
+
+    let res = a.try_insert_val(4, 14);
+    assert!(matches!(res, Err(InsertErrorVal::IndexOutOfBounds(v)) if v == 14));
+    assert_eq!(res.unwrap_err().into_value(), 14);
+
+    assert!(a.try_insert_val(1, 7).is_ok());
+    assert_eq!(a, [0, 7, 1, 2]);
+
+    let res = a.try_insert_val(0, 14);
+    assert!(matches!(res, Err(InsertErrorVal::CapacityError(v)) if v == 14));
+    assert_eq!(a, [0, 7, 1, 2]);
+}
+
+#[test]
+fn test_try_insert_val_dropped() {
+    type A<'a> = ArrayVec<Dropped<'a, 10>, U8, Uninitialized, 4>;
+    let t = Track::new();
+    let mut a = A::from_iter(t.take(3));
+    assert!(t.dropped_indices(&[]));
+
+    assert!(a.try_insert_val(5, t.alloc()).is_err());
+    assert!(t.dropped_indices(&[3]));
+
+    assert!(a.try_insert_val(1, t.alloc()).is_ok());
+    assert!(t.dropped_indices(&[3]));
+
+    let res = a.try_insert_val(0, t.alloc());
+    assert!(matches!(res, Err(InsertErrorVal::CapacityError(ref _v))));
+    assert!(t.dropped_indices(&[3]));
+
+    drop(res);
+    assert!(t.dropped_indices(&[3, 5]));
 }
