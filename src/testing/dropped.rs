@@ -64,12 +64,20 @@ impl<const C: usize> Track<C> {
         self.n_allocated.get()
     }
 
-    pub fn dropped_range<R: RangeBounds<usize>>(&self, range: R) -> bool {
+    pub fn dropped_range<R: RangeBounds<usize> + IntoIterator<Item = usize>>(
+        &self,
+        range: R,
+    ) -> bool {
         let arr = self.arr.borrow();
         for (i, b) in arr.iter().enumerate() {
             if range.contains(&i) && !*b {
                 return false;
             } else if !range.contains(&i) && *b {
+                return false;
+            }
+        }
+        for i in range {
+            if i >= C || !arr[i] {
                 return false;
             }
         }
@@ -83,6 +91,11 @@ impl<const C: usize> Track<C> {
             if is_found && !*b {
                 return false;
             } else if !is_found && *b {
+                return false;
+            }
+        }
+        for i in indices {
+            if *i >= C || !arr[*i] {
                 return false;
             }
         }
