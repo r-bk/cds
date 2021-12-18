@@ -3,7 +3,7 @@ use cds::{
     array_vec,
     arrayvec::ArrayVec,
     defs::{Pattern, Uninitialized, U8},
-    errors::CapacityError,
+    errors::{CapacityError, InsertError},
     testing::dropped::{Dropped, Track},
 };
 use core::mem;
@@ -390,14 +390,26 @@ fn test_insert_unchecked_dropped() {
 #[test]
 fn test_try_insert() {
     type A = ArrayVec<u8, U8, Pattern<0xAB>, 5>;
-    let mut a = A::from_iter(0..4);
-    assert_eq!(a, [0, 1, 2, 3]);
+    let mut a = A::from_iter(0..3);
+    assert_eq!(a, [0, 1, 2]);
+    assert_eq!(unsafe { a.as_ptr().add(3).read() }, 0xAB);
     assert_eq!(unsafe { a.as_ptr().add(4).read() }, 0xAB);
 
-    a.try_insert(1, 4).expect("try_insert failed");
-    assert_eq!(a, [0, 4, 1, 2, 3]);
+    assert!(matches!(
+        a.try_insert(4, 4),
+        Err(InsertError::IndexOutOfBounds)
+    ));
 
-    assert!(matches!(a.try_insert(1, 4), Err(CapacityError)));
+    a.try_insert(1, 4).expect("try_insert failed");
+    assert_eq!(a, [0, 4, 1, 2]);
+
+    a.try_insert(4, 5).expect("try_insert failed");
+    assert_eq!(a, [0, 4, 1, 2, 5]);
+
+    assert!(matches!(
+        a.try_insert(1, 8),
+        Err(InsertError::CapacityError)
+    ));
 }
 
 #[test]

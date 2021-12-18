@@ -2,7 +2,7 @@
 
 use crate::{
     defs::{LengthType, SpareMemoryPolicy},
-    errors::CapacityError,
+    errors::{CapacityError, InsertError},
 };
 use core::{marker::PhantomData, mem, ptr, result::Result, slice};
 
@@ -661,7 +661,8 @@ where
     /// Tries to insert an element at position `index` within the vector, shifting all elements
     /// after it to the right.
     ///
-    /// Returns [`CapacityError`] if there is no spare capacity in the array vector.
+    /// Returns [`InsertError`] if there is no spare capacity in the array vector, or if `index` is
+    /// out of bounds.
     ///
     /// Note that the worst case performance of this operation is O(n), because all elements of the
     /// array may be shifted right. If order of elements is not needed to be preserved,
@@ -669,29 +670,27 @@ where
     ///
     /// This is a non-panic version of [`insert`].
     ///
-    /// # Panics
-    ///
-    /// This method panics if `index > len()`.
-    ///
     /// # Examples
     ///
     /// ```rust
-    /// # use cds::{array_vec, errors::CapacityError};
+    /// # use cds::{array_vec, errors::InsertError};
     /// let mut v = array_vec![3; u64; 1, 2];
+    /// assert!(matches!(v.try_insert(3, 3), Err(InsertError::IndexOutOfBounds)));
+    ///
     /// assert!(v.try_insert(0, 0).is_ok());
     /// assert_eq!(v, [0, 1, 2]);
-    /// assert!(matches!(v.try_insert(1, 3), Err(CapacityError)));
+    /// assert!(matches!(v.try_insert(1, 3), Err(InsertError::CapacityError)));
     /// ```
     ///
     /// [`try_push`]: ArrayVec::try_push
     /// [`insert`]: ArrayVec::insert
     #[inline]
-    pub fn try_insert(&mut self, index: usize, element: T) -> Result<(), CapacityError> {
-        if self.len >= Self::CAPACITY {
-            return Err(CapacityError {});
-        }
+    pub fn try_insert(&mut self, index: usize, element: T) -> Result<(), InsertError> {
         if index > self.len.as_usize() {
-            panic!("index is out of bounds [0, {}]: {}", self.len, index);
+            return Err(InsertError::IndexOutOfBounds);
+        }
+        if self.len >= Self::CAPACITY {
+            return Err(InsertError::CapacityError);
         }
         unsafe {
             self.insert_unchecked(index, element);
