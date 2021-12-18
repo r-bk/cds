@@ -6,7 +6,7 @@ edition = "2021"
 description = "Collection of Data Structures"
 license = "MIT OR Apache-2.0"
 keywords = ["collections"]
-categories = ["data-structures"]
+categories = ["data-structures", "no-std"]
 repository = "https://github.com/r-bk/cds"
 exclude = [".git*", "Makefile.toml"]
 
