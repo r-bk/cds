@@ -34,7 +34,12 @@ where
 #[cfg(test)]
 mod testing {
     use crate as cds;
-    use cds::array_vec;
+    use cds::{
+        array_vec,
+        arrayvec::ArrayVec,
+        defs::{Uninitialized, U8},
+        testing::dropped::{Dropped, Track},
+    };
 
     #[test]
     fn test_index() {
@@ -79,5 +84,22 @@ mod testing {
     fn test_range_index_mut_panics() {
         let mut a = array_vec![5; u64; 1, 2, 3, 4, 5];
         let _ = &mut a[1..7];
+    }
+
+    #[test]
+    fn test_index_mut_dropped() {
+        type A<'a> = ArrayVec<Dropped<'a, 5>, U8, Uninitialized, 5>;
+        let t = Track::new();
+        let mut a = A::from_iter(t.take(3));
+        assert!(t.dropped_indices(&[]));
+
+        a[1] = t.alloc();
+        assert!(t.dropped_indices(&[1]));
+
+        a[1] = t.alloc();
+        assert!(t.dropped_indices(&[1, 3]));
+
+        drop(a);
+        assert!(t.dropped_indices(&[0, 1, 2, 3, 4]));
     }
 }
