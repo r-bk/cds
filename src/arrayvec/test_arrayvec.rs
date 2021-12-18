@@ -470,6 +470,80 @@ fn test_swap_remove_unchecked_dropped() {
 }
 
 #[test]
+fn test_try_swap_remove() {
+    type A = ArrayVec<u8, U8, Pattern<0xAC>, 5>;
+    let mut a = A::from_iter(0..5);
+    assert_eq!(a, [0, 1, 2, 3, 4]);
+
+    assert_eq!(a.try_swap_remove(1), Some(1));
+    assert_eq!(a, [0, 4, 2, 3]);
+    assert_eq!(unsafe { a.as_ptr().add(4).read() }, 0xAC);
+
+    assert_eq!(a.try_swap_remove(1), Some(4));
+    assert_eq!(a, [0, 3, 2]);
+    assert_eq!(unsafe { a.as_ptr().add(3).read() }, 0xAC);
+    assert_eq!(unsafe { a.as_ptr().add(4).read() }, 0xAC);
+
+    assert_eq!(a.try_swap_remove(10), None);
+    assert_eq!(a, [0, 3, 2]);
+}
+
+#[test]
+fn test_try_swap_remove_dropped() {
+    type A<'a> = ArrayVec<Dropped<'a, 5>, U8, Pattern<0xAC>, 5>;
+    let t = Track::new();
+    let mut a = A::from_iter(t.take(4));
+    assert!(t.dropped_indices(&[]));
+
+    assert!(a.try_swap_remove(1).is_some());
+    assert!(t.dropped_indices(&[1]));
+
+    assert!(a.try_swap_remove(1).is_some());
+    assert!(t.dropped_indices(&[1, 3]));
+
+    assert!(a.try_swap_remove(10).is_none());
+}
+
+#[test]
+fn test_swap_remove() {
+    type A = ArrayVec<u8, U8, Pattern<0xAC>, 5>;
+    let mut a = A::from_iter(0..5);
+    assert_eq!(a, [0, 1, 2, 3, 4]);
+
+    assert_eq!(a.swap_remove(1), 1);
+    assert_eq!(a, [0, 4, 2, 3]);
+    assert_eq!(unsafe { a.as_ptr().add(4).read() }, 0xAC);
+
+    assert_eq!(a.swap_remove(1), 4);
+    assert_eq!(a, [0, 3, 2]);
+    assert_eq!(unsafe { a.as_ptr().add(3).read() }, 0xAC);
+    assert_eq!(unsafe { a.as_ptr().add(4).read() }, 0xAC);
+}
+
+#[test]
+fn test_swap_remove_dropped() {
+    type A<'a> = ArrayVec<Dropped<'a, 5>, U8, Pattern<0xAC>, 5>;
+    let t = Track::new();
+    let mut a = A::from_iter(t.take(4));
+    assert!(t.dropped_indices(&[]));
+
+    a.swap_remove(1);
+    assert!(t.dropped_indices(&[1]));
+
+    a.swap_remove(1);
+    assert!(t.dropped_indices(&[1, 3]));
+}
+
+#[test]
+#[should_panic]
+fn test_swap_remove_panics() {
+    type A = ArrayVec<u8, U8, Pattern<0xAC>, 5>;
+    let mut a = A::from_iter(0..1);
+    assert_eq!(a, [0]);
+    a.swap_remove(2);
+}
+
+#[test]
 fn test_try_push_val() {
     type A = ArrayVec<u8, U8, Uninitialized, 4>;
     let mut a = A::from_iter(0..3);
