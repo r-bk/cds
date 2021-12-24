@@ -4,7 +4,17 @@ use crate::{
     defs::{LengthType, SpareMemoryPolicy},
     errors::{CapacityError, CapacityErrorVal, InsertError, InsertErrorVal},
 };
-use core::{marker::PhantomData, mem, ptr, result::Result, slice};
+use core::{
+    marker::PhantomData,
+    mem,
+    ops::{Bound, RangeBounds},
+    ptr,
+    result::Result,
+    slice,
+};
+
+mod drain;
+pub use drain::*;
 
 /// A continuous non-growable array with vector-like API.
 ///
@@ -1018,6 +1028,85 @@ where
         }
         SM::init(last, 1);
         tmp
+    }
+
+    /// Creates a draining iterator that removes the specified range in the array-vector
+    /// and yields the removed items.
+    ///
+    /// When the iterator is dropped, all elements in the range are removed from the array-vector,
+    /// even if the iterator was not fully consumed.
+    /// If the iterator is not dropped (with [`mem::forget`] for example),
+    /// it is unspecified how many elements are removed.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the starting point is greater than the end point or if the end point is greater
+    /// than the length of the vector.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use cds::array_vec;
+    /// let mut a = array_vec![5; usize; 1, 2, 3, 4, 5];
+    /// assert_eq!(a, [1, 2, 3, 4, 5]);
+    /// for (index, i) in a.drain(0..3).enumerate() {
+    ///     assert_eq!(index + 1, i);
+    /// }
+    /// assert_eq!(a, [4, 5]);
+    /// ```
+    ///
+    /// [`mem::forget`]: core::mem::forget
+    pub fn drain<R>(&mut self, range: R) -> Drain<'_, T, L, SM, C>
+    where
+        R: RangeBounds<usize>,
+    {
+        let end = match range.end_bound() {
+            Bound::Included(e) => e
+                .checked_add(1)
+                .unwrap_or_else(|| panic!("end bound overflows")),
+            Bound::Excluded(e) => *e,
+            Bound::Unbounded => self.len(),
+        };
+
+        if end > self.len() {
+            panic!("invalid end bound");
+        }
+
+        let start = match range.start_bound() {
+            Bound::Included(s) => *s,
+            Bound::Excluded(s) => s
+                .checked_add(1)
+                .unwrap_or_else(|| panic!("start bound overflows")),
+            Bound::Unbounded => 0,
+        };
+
+        if start > end {
+            panic!("invalid range");
+        }
+
+        unsafe {
+            let len = self.len();
+            let (iter, tail, tail_len) = if start < end {
+                // set `len` to reflect the head only
+                self.set_len(start);
+
+                (
+                    slice::from_raw_parts(self.as_ptr().add(start), end - start).iter(),
+                    L::new(end),
+                    L::new(len - end),
+                )
+            } else {
+                // empty drained range, mark it with an impossible combination of `tail/tail_len`
+                ((&[]).iter(), L::new(L::MAX), L::new(L::MAX))
+            };
+
+            Drain {
+                av: ptr::NonNull::new_unchecked(self),
+                iter,
+                tail,
+                tail_len,
+            }
+        }
     }
 }
 

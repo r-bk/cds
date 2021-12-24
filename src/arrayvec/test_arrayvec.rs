@@ -6,7 +6,24 @@ use cds::{
     errors::{CapacityError, InsertError, InsertErrorVal},
     testing::dropped::{Dropped, Track},
 };
-use core::mem;
+use core::{
+    mem,
+    ops::{Bound, RangeBounds},
+};
+
+struct CustomRange<'a> {
+    start: Bound<&'a usize>,
+    end: Bound<&'a usize>,
+}
+
+impl RangeBounds<usize> for CustomRange<'_> {
+    fn start_bound(&self) -> Bound<&usize> {
+        self.start
+    }
+    fn end_bound(&self) -> Bound<&usize> {
+        self.end
+    }
+}
 
 #[test]
 fn test_zst_size() {
@@ -617,4 +634,202 @@ fn test_try_insert_val_dropped() {
 
     drop(res);
     assert!(t.dropped_indices(&[3, 5]));
+}
+
+#[test]
+fn test_drain_empty_range() {
+    let mut a = array_vec![3; 1, 2, 3];
+    assert_eq!(a, [1, 2, 3]);
+    {
+        let d = a.drain(0..0);
+        assert_eq!(d.len(), 0);
+    }
+    assert_eq!(a, [1, 2, 3]);
+}
+
+#[test]
+fn test_drain_unbounded_end() {
+    let mut a = array_vec![3; 1, 2, 3];
+    assert_eq!(a, [1, 2, 3]);
+    {
+        let d = a.drain(1..);
+        assert_eq!(d.len(), 2);
+    }
+    assert_eq!(a, [1]);
+}
+
+#[test]
+fn test_drain_unbounded_start() {
+    let mut a = array_vec![3; 1, 2, 3];
+    assert_eq!(a, [1, 2, 3]);
+    {
+        let d = a.drain(..2);
+        assert_eq!(d.len(), 2);
+    }
+    assert_eq!(a, [3]);
+}
+
+#[test]
+fn test_drain_unbounded_range() {
+    let mut a = array_vec![3; 1, 2, 3];
+    assert_eq!(a, [1, 2, 3]);
+
+    for (i, e) in a.drain(..).enumerate() {
+        assert_eq!(i + 1, e);
+    }
+
+    assert_eq!(a, []);
+}
+
+#[test]
+fn test_drain_included_end() {
+    let mut a = array_vec![3; 1, 2, 3];
+    assert_eq!(a, [1, 2, 3]);
+    {
+        let d = a.drain(0..=1);
+        assert_eq!(d.len(), 2);
+    }
+    assert_eq!(a, [3]);
+}
+
+#[test]
+fn test_drain_excluded_start() {
+    let mut a = array_vec![3; 1, 2, 3];
+    assert_eq!(a, [1, 2, 3]);
+
+    let start: usize = 0;
+    let end: usize = 1;
+
+    let r = CustomRange {
+        start: Bound::Excluded(&start),
+        end: Bound::Included(&end),
+    };
+
+    for (i, e) in a.drain(r).enumerate() {
+        assert_eq!(i + 2, e);
+    }
+
+    assert_eq!(a, [1, 3]);
+}
+
+#[test]
+#[should_panic]
+fn test_drain_start_overflow() {
+    let start = usize::MAX;
+    let end = 1usize;
+
+    let r = CustomRange {
+        start: Bound::Excluded(&start),
+        end: Bound::Included(&end),
+    };
+
+    let mut a = array_vec![3; 1, 2, 3];
+    a.drain(r);
+}
+
+#[test]
+#[should_panic]
+fn test_drain_end_overflow() {
+    let mut a = array_vec![3; 1, 2, 3];
+    a.drain(0..=usize::MAX);
+}
+
+#[test]
+#[should_panic]
+fn test_drain_end_out_of_bounds() {
+    let mut a = array_vec![3; 1, 2, 3];
+    a.drain(0..=3);
+}
+
+#[test]
+#[should_panic]
+fn test_drain_invalid_range() {
+    let mut a = array_vec![3; 1, 2, 3];
+    a.drain(1..0);
+}
+
+#[test]
+fn test_drain_prefix_smp() {
+    type A = ArrayVec<usize, U8, Pattern<0xAB>, 5>;
+    const SPARE_MEM: usize = 0xABABABABABABABAB;
+
+    let mut a = A::from_iter(0..5);
+    assert_eq!(a, [0, 1, 2, 3, 4]);
+    assert_eq!(a.len(), 5);
+
+    {
+        let mut d = a.drain(0..2);
+        assert_eq!(d.len(), 2);
+        assert_eq!(d.next(), Some(0));
+        assert_eq!(d.next(), Some(1));
+        assert_eq!(d.next(), None);
+    }
+
+    assert_eq!(a.len(), 3);
+    assert_eq!(a, [2, 3, 4]);
+    assert_eq!(unsafe { a.as_ptr().add(3).read() }, SPARE_MEM);
+    assert_eq!(unsafe { a.as_ptr().add(4).read() }, SPARE_MEM);
+
+    // do not consume the whole iterator
+    a.drain(0..1);
+    assert_eq!(a, [3, 4]);
+    assert_eq!(unsafe { a.as_ptr().add(2).read() }, SPARE_MEM);
+    assert_eq!(unsafe { a.as_ptr().add(3).read() }, SPARE_MEM);
+    assert_eq!(unsafe { a.as_ptr().add(4).read() }, SPARE_MEM);
+}
+
+#[test]
+fn test_drain_suffix_smp() {
+    type A = ArrayVec<usize, U8, Pattern<0xAB>, 5>;
+    const SPARE_MEM: usize = 0xABABABABABABABAB;
+
+    let mut a = A::from_iter(0..5);
+    assert_eq!(a, [0, 1, 2, 3, 4]);
+    assert_eq!(a.len(), 5);
+
+    {
+        let mut d = a.drain(3..5);
+        assert_eq!(d.len(), 2);
+        assert_eq!(d.next(), Some(3));
+        assert_eq!(d.next(), Some(4));
+        assert_eq!(d.next(), None);
+    }
+
+    assert_eq!(a.len(), 3);
+    assert_eq!(a, [0, 1, 2]);
+    assert_eq!(unsafe { a.as_ptr().add(3).read() }, SPARE_MEM);
+    assert_eq!(unsafe { a.as_ptr().add(4).read() }, SPARE_MEM);
+
+    // do not consume the whole iterator
+    a.drain(2..3);
+    assert_eq!(a, [0, 1]);
+    assert_eq!(unsafe { a.as_ptr().add(2).read() }, SPARE_MEM);
+    assert_eq!(unsafe { a.as_ptr().add(3).read() }, SPARE_MEM);
+    assert_eq!(unsafe { a.as_ptr().add(4).read() }, SPARE_MEM);
+}
+
+#[test]
+fn test_drain_zst() {
+    type A = ArrayVec<(), U8, Uninitialized, 5>;
+    let mut a = A::new();
+    while a.has_spare_capacity() {
+        a.push(());
+    }
+    assert_eq!(a.len(), a.capacity());
+
+    for e in a.drain(1..3) {
+        assert_eq!(e, ());
+    }
+    assert_eq!(a.len(), a.capacity() - 2);
+}
+
+#[test]
+fn test_drain_dropped() {
+    type A<'a> = ArrayVec<Dropped<'a, 16>, U8, Uninitialized, 16>;
+    let t = Track::<16>::new();
+    let mut a = A::from_iter(t.take(5));
+    assert!(t.dropped_indices(&[]));
+
+    a.drain(1..3);
+    assert!(t.dropped_range(1..3));
 }
