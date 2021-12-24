@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.4] - Unreleased
+### Added
+- add `ArrayVec::drain` implementation
+
 ## [0.0.3] - 2021-12-18
 ### Added
 - add `ArrayVec::try_push_val` and `ArrayVec::try_insert_val` methods, to return an element to the caller
