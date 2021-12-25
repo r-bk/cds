@@ -26,6 +26,7 @@ enum Op {
     Truncate(u8),
     Clear,
     Drain(u8, u8, bool),
+    IndexMut(u8),
     CompareShadow,
     CheckSpareMemory,
     CheckDropped,
@@ -139,6 +140,14 @@ fuzz_target!(|ops: Vec<Op>| {
                             }
                         }
                     }
+                }
+            }
+            Op::IndexMut(i) => {
+                if !av.is_empty() {
+                    let index = (i as usize) % av.len();
+                    let e = t.alloc();
+                    shadow[index] = e.idx();
+                    av[index] = e;
                 }
             }
             Op::CompareShadow => {
