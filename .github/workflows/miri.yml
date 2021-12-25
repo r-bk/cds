@@ -4,6 +4,7 @@ on:
   push:
     branches-ignore:
       - '**-wip'
+      - '**-fuzz'
   pull_request:
   schedule:
     - cron: '0 1 * * 0'

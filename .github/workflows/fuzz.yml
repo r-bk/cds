@@ -1,0 +1,67 @@
+name: fuzz
+
+on:
+  push:
+    branches:
+      - '**-fuzz'
+  schedule:
+    - cron: '0 1,18 * * *'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  fuzz:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: default
+          toolchain: nightly
+          override: true
+          components: llvm-tools-preview,rust-src
+
+      - uses: actions-rs/cargo@v1
+        name: install cargo-fuzz
+        with:
+          command: install
+          args: cargo-fuzz
+
+      - uses: actions-rs/cargo@v1
+        name: install rustfilt
+        with:
+          command: install
+          args: rustfilt
+
+      - uses: actions-rs/cargo@v1
+        name: fuzz arrayvec
+        with:
+          command: fuzz
+          args: run arrayvec -- -max_total_time=1800 -jobs=2 -workers=2 -verbosity=0 -max_len=16192
+
+      - uses: actions-rs/cargo@v1
+        name: cover arrayvec
+        with:
+          command: fuzz
+          args: coverage arrayvec
+
+      - id: find_llvmcov
+        name: find llvm-cov
+        run: |
+          LLVM_COV=$(find ~ -name "llvm-cov")
+          echo "Found llvm-cov: $LLVM_COV"
+          echo "::set-output name=llvmcov::$LLVM_COV"
+        shell: bash
+
+      - name: generate coverage.html
+        run: >
+          ${{ steps.find_llvmcov.outputs.llvmcov }} show target/x86_64-unknown-linux-gnu/release/arrayvec
+          --format html --instr-profile=fuzz/coverage/arrayvec/coverage.profdata --Xdemangler=rustfilt >
+          arrayvec.fuzz.coverage.html
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: arrayvec.fuzz.coverage.html
+          path: arrayvec.fuzz.coverage.html
