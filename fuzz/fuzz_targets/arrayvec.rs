@@ -27,6 +27,7 @@ enum Op {
     Clear,
     Drain(u8, u8, bool),
     IndexMut(u8),
+    Extend(u8),
     CompareShadow,
     CheckSpareMemory,
     CheckDropped,
@@ -148,6 +149,16 @@ fuzz_target!(|ops: Vec<Op>| {
                     let e = t.alloc();
                     shadow[index] = e.idx();
                     av[index] = e;
+                }
+            }
+            Op::Extend(n) => {
+                if av.has_spare_capacity() {
+                    let len = av.len();
+                    let num = (n as usize) % av.spare_capacity() + 1;
+                    av.extend(t.take(num));
+                    for i in len..av.len() {
+                        shadow.push(av[i].idx());
+                    }
                 }
             }
             Op::CompareShadow => {

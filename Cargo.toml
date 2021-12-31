@@ -21,5 +21,6 @@ rustdoc-args = ["--cfg", "docsrs"]
 
 [workspace]
 members = [
+    ".",
     "fuzz"
 ]

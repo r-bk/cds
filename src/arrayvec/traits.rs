@@ -7,6 +7,7 @@ mod default;
 mod deref;
 mod drop;
 mod eq;
+mod extend;
 mod from_iterator;
 mod hash;
 mod index;

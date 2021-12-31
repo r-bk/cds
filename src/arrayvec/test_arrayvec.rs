@@ -833,3 +833,18 @@ fn test_drain_dropped() {
     a.drain(1..3);
     assert!(t.dropped_range(1..3));
 }
+
+#[test]
+fn test_extend() {
+    let mut a = array_vec![5; 1, 2, 3];
+    assert_eq!(a, [1, 2, 3]);
+    a.extend(4..6);
+    assert_eq!(a, [1, 2, 3, 4, 5]);
+}
+
+#[test]
+#[should_panic]
+fn test_extend_panics() {
+    let mut a = array_vec![2; 1, 2];
+    a.extend(0..1);
+}
