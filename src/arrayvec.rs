@@ -16,6 +16,9 @@ use core::{
 mod drain;
 pub use drain::*;
 
+mod retain;
+use retain::*;
+
 /// A continuous non-growable array with vector-like API.
 ///
 /// Written as `ArrayVec<T, L, SM, C>`, array vector has the capacity to store `C` elements of type
@@ -1105,6 +1108,102 @@ where
                 iter,
                 tail,
                 tail_len,
+            }
+        }
+    }
+
+    /// Retains only the elements specified by the predicate.
+    ///
+    /// In other words, remove all elements `e` such that `f(&e)` returns `false`.
+    /// This method operates in place, visiting each element exactly once in the original order,
+    /// and preserves the order of the retained elements.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use cds::array_vec;
+    /// let mut a = array_vec![5; 0, 1, 2, 3, 4];
+    /// assert_eq!(a, [0, 1, 2, 3, 4]);
+    /// a.retain(|e| (*e & 1) != 0);
+    /// assert_eq!(a, [1, 3]);
+    /// ```
+    #[inline]
+    pub fn retain<F>(&mut self, mut f: F)
+    where
+        F: FnMut(&T) -> bool,
+    {
+        self.retain_mut(|e| f(e))
+    }
+
+    /// Retains only the elements specified by the predicate, passing a mutable reference to it.
+    ///
+    /// In other words, remove all elements `e` such that `f(&mut e)` returns `false`.
+    /// This method operates in place, visiting each element exactly once in the original order,
+    /// and preserves the order of the retained elements.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use cds::array_vec;
+    /// let mut a = array_vec![5; 0, 1, 2, 3, 4];
+    /// assert_eq!(a, [0, 1, 2, 3, 4]);
+    /// a.retain_mut(|e| if (*e & 1) == 0 {
+    ///    *e *= *e;
+    ///    true
+    /// } else {
+    ///    false
+    /// });
+    /// assert_eq!(a, [0, 4, 16]);
+    /// ```
+    pub fn retain_mut<F>(&mut self, mut f: F)
+    where
+        F: FnMut(&mut T) -> bool,
+    {
+        let len = self.len();
+
+        // set `len` to zero, to avoid double-drop of deleted items.
+        // `len` is restored by RetainGuard.
+        unsafe { self.set_len(0) };
+
+        let mut g = RetainGuard {
+            av: self,
+            len,
+            deleted: 0,
+            processed: 0,
+        };
+
+        unsafe {
+            // no empty slot found yet, so there is nothing to move
+            while g.processed < len {
+                let item_mut_ref = &mut *g.av.as_mut_ptr().add(g.processed);
+                if !f(item_mut_ref) {
+                    // update counters before drop_in_place, as it may panic
+                    g.processed += 1;
+                    g.deleted += 1;
+                    ptr::drop_in_place(item_mut_ref);
+                    break;
+                }
+                g.processed += 1;
+            }
+
+            // If there are items left to process, there must be an empty slot.
+            // Move every retained slot to an empty one.
+            while g.processed < len {
+                let item_mut_ref = &mut *g.av.as_mut_ptr().add(g.processed);
+                if !f(item_mut_ref) {
+                    // update counters before drop_in_place, as it may panic
+                    g.processed += 1;
+                    g.deleted += 1;
+                    ptr::drop_in_place(item_mut_ref);
+                    continue;
+                } else {
+                    ptr::copy_nonoverlapping(
+                        item_mut_ref as *const _,
+                        g.av.as_mut_ptr().add(g.processed - g.deleted),
+                        1,
+                    );
+                }
+                g.processed += 1;
             }
         }
     }

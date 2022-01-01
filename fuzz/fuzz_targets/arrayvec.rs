@@ -28,6 +28,7 @@ enum Op {
     Drain(u8, u8, bool),
     IndexMut(u8),
     Extend(u8),
+    Retain(u8),
     CompareShadow,
     CheckSpareMemory,
     CheckDropped,
@@ -160,6 +161,11 @@ fuzz_target!(|ops: Vec<Op>| {
                         shadow.push(av[i].idx());
                     }
                 }
+            }
+            Op::Retain(n) => {
+                let idx = (n as usize) % 5 + 1;
+                shadow.retain(|e| e % idx != 0);
+                av.retain(|e| e.idx() % idx != 0);
             }
             Op::CompareShadow => {
                 assert_eq!(av.len(), shadow.len());

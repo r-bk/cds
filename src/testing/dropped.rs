@@ -20,6 +20,13 @@ pub struct Dropped<'a, const C: usize> {
 }
 
 #[allow(dead_code)]
+impl<'a, const C: usize> Dropped<'a, C> {
+    pub fn idx(&self) -> usize {
+        self.idx
+    }
+}
+
+#[allow(dead_code)]
 impl<const C: usize> Track<C> {
     pub fn new() -> Self {
         Default::default()

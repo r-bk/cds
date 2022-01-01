@@ -848,3 +848,60 @@ fn test_extend_panics() {
     let mut a = array_vec![2; 1, 2];
     a.extend(0..1);
 }
+
+#[test]
+fn test_retain() {
+    let mut a = array_vec![5; 1, 2, 3, 4, 5];
+    assert_eq!(a, [1, 2, 3, 4, 5]);
+    a.retain(|e| *e < 4);
+    assert_eq!(a, [1, 2, 3]);
+}
+
+#[test]
+fn test_retain_mut() {
+    let mut a = array_vec![5; 1, 2, 3, 4, 5];
+    assert_eq!(a, [1, 2, 3, 4, 5]);
+    a.retain_mut(|e| {
+        *e *= 2;
+        *e > 5
+    });
+    assert_eq!(a, [6, 8, 10]);
+}
+
+#[test]
+fn test_retain_dropped() {
+    type A<'a> = ArrayVec<Dropped<'a, 16>, U8, Pattern<0xBA>, 8>;
+    let t = Track::<16>::new();
+    let mut a = A::from_iter(t.take(A::CAPACITY));
+    assert!(t.dropped_indices(&[]));
+    a.retain(|e| e.idx() < 2);
+    assert!(t.dropped_range(2..8));
+    drop(a);
+    assert!(t.dropped_range(0..8));
+}
+
+#[test]
+fn test_retain_dropped_retain_all() {
+    type A<'a> = ArrayVec<Dropped<'a, 16>, U8, Pattern<0xBA>, 8>;
+    let t = Track::<16>::new();
+    let mut a = A::from_iter(t.take(A::CAPACITY));
+    assert_eq!(a.len(), 8);
+    assert!(t.dropped_range(0..0));
+    a.retain(|_| true);
+    assert!(t.dropped_range(0..0));
+    assert_eq!(a.len(), 8);
+    drop(a);
+    assert!(t.dropped_range(0..8));
+}
+
+#[test]
+fn test_retain_dropped_retain_none() {
+    type A<'a> = ArrayVec<Dropped<'a, 16>, U8, Pattern<0xBA>, 8>;
+    let t = Track::<16>::new();
+    let mut a = A::from_iter(t.take(A::CAPACITY));
+    assert_eq!(a.len(), 8);
+    assert!(t.dropped_range(0..0));
+    a.retain(|_| false);
+    assert_eq!(a.len(), 0);
+    assert!(t.dropped_range(0..8));
+}
