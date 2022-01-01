@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.0.4] - Unreleased
 ### Added
 - add `ArrayVec::drain` implementation
+- add `ArrayVec::retain` implementation
+- add `ArrayVec::retain_mut` implementation
+- implement the `Extend` trait on `ArrayVec`
+- add a fuzz test
 
 ## [0.0.3] - 2021-12-18
 ### Added
