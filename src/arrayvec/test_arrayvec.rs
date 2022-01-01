@@ -2,7 +2,7 @@ use crate as cds;
 use cds::{
     array_vec,
     arrayvec::ArrayVec,
-    defs::{Pattern, Uninitialized, U8},
+    defs::{LengthType, Pattern, SpareMemoryPolicy, Uninitialized, U8},
     errors::{CapacityError, InsertError, InsertErrorVal},
     testing::dropped::{Dropped, Track},
 };
@@ -23,6 +23,37 @@ impl RangeBounds<usize> for CustomRange<'_> {
     fn end_bound(&self) -> Bound<&usize> {
         self.end
     }
+}
+
+fn check_spare_memory_at<T, L, SM, const C: usize>(
+    a: &ArrayVec<T, L, SM, C>,
+    pattern: u8,
+    start: usize,
+    end: usize,
+) where
+    L: LengthType,
+    SM: SpareMemoryPolicy<T>,
+{
+    debug_assert!(start <= end);
+    debug_assert!(end <= a.capacity());
+
+    unsafe {
+        let mut p = a.as_ptr().add(start) as *const u8;
+        let end = a.as_ptr().add(end) as *const u8;
+
+        while p < end {
+            assert_eq!(p.read(), pattern);
+            p = p.add(1);
+        }
+    }
+}
+
+fn check_spare_memory<T, L, SM, const C: usize>(a: &ArrayVec<T, L, SM, C>, pattern: u8)
+where
+    L: LengthType,
+    SM: SpareMemoryPolicy<T>,
+{
+    check_spare_memory_at(a, pattern, a.len(), a.capacity())
 }
 
 #[test]
@@ -876,6 +907,7 @@ fn test_retain_dropped() {
     assert!(t.dropped_indices(&[]));
     a.retain(|e| e.idx() < 2);
     assert!(t.dropped_range(2..8));
+    check_spare_memory_at(&a, 0xBA, 2, 8);
     drop(a);
     assert!(t.dropped_range(0..8));
 }
@@ -903,5 +935,6 @@ fn test_retain_dropped_retain_none() {
     assert!(t.dropped_range(0..0));
     a.retain(|_| false);
     assert_eq!(a.len(), 0);
+    check_spare_memory(&a, 0xBA);
     assert!(t.dropped_range(0..8));
 }
