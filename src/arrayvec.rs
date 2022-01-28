@@ -1207,6 +1207,71 @@ where
             }
         }
     }
+
+    /// Returns the remaining spare capacity of the array-vector as a slice of `MaybeUninit<T>`.
+    ///
+    /// The returned slice can be used to fill the array-vector with data (e.g. by reading from a
+    /// file) before marking the data as initialized using the [`set_len`] method.
+    ///
+    /// # Examples
+    /// ```rust
+    /// # use cds::array_vec;
+    /// let mut a = array_vec![32; 1, 2];   // <-- an array-vector for IO of 32 elements
+    /// assert_eq!(a, [1, 2]);
+    ///
+    /// let spare_capacity = a.spare_capacity_mut();
+    /// spare_capacity[0].write(3);         // <-- read another 2 elements into the array-vector
+    /// spare_capacity[1].write(4);
+    ///
+    /// unsafe { a.set_len(a.len() + 2) };  // <-- reflect the new size
+    ///
+    /// assert_eq!(a, [1, 2, 3, 4]);
+    /// ```
+    ///
+    /// [`set_len`]: ArrayVec::set_len
+    pub fn spare_capacity_mut(&mut self) -> &mut [mem::MaybeUninit<T>] {
+        unsafe {
+            slice::from_raw_parts_mut(self.arr.as_mut_ptr().add(self.len()), self.spare_capacity())
+        }
+    }
+
+    /// Returns array-vector content as a slice of `T`, along with the remaining spare capacity of
+    /// the array-vector as a slice of `MaybeUninit<T>`.
+    ///
+    /// The returned spare capacity slice can be used to fill the array-vector with data
+    /// (e.g. by reading from a file) before marking the data as initialized using the [`set_len`]
+    /// method.
+    ///
+    /// # Examples
+    /// ```rust
+    /// # use cds::array_vec;
+    /// let mut a = array_vec![32; 1, 2];   // <-- an array-vector for IO of 32 elements
+    ///
+    /// let (init, spare) = a.split_at_spare_mut();
+    /// assert_eq!(init, &[1, 2]);
+    ///
+    /// assert_eq!(spare.len(), 30);        // <-- read another 2 elements into the array-vector
+    /// spare[0].write(3);
+    /// spare[1].write(4);
+    ///
+    /// unsafe { a.set_len(a.len() + 2) };  // <-- reflect the new size
+    ///
+    /// assert_eq!(a, [1, 2, 3, 4]);
+    /// ```
+    ///
+    /// [`set_len`]: ArrayVec::set_len
+    pub fn split_at_spare_mut(&mut self) -> (&mut [T], &mut [mem::MaybeUninit<T>]) {
+        let len = self.len();
+        let spare_capacity = self.spare_capacity();
+        let p = self.as_mut_ptr();
+
+        unsafe {
+            (
+                slice::from_raw_parts_mut(p, len),
+                slice::from_raw_parts_mut(p.add(len) as *mut mem::MaybeUninit<T>, spare_capacity),
+            )
+        }
+    }
 }
 
 impl<T, L, SM, const C: usize> ArrayVec<T, L, SM, C>

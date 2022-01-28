@@ -938,3 +938,41 @@ fn test_retain_dropped_retain_none() {
     check_spare_memory(&a, 0xBA);
     assert!(t.dropped_range(0..8));
 }
+
+#[test]
+fn test_spare_capacity_mut_dropped() {
+    type A<'a> = ArrayVec<Dropped<'a, 16>, U8, Pattern<0xBA>, 8>;
+    let t = Track::<16>::new();
+    let mut a = A::new();
+
+    let spare = a.spare_capacity_mut();
+    spare[0].write(t.alloc());
+    spare[1].write(t.alloc());
+
+    unsafe { a.set_len(2) };
+
+    assert!(t.dropped_range(0..0));
+    drop(a);
+    assert!(t.dropped_range(0..2));
+}
+
+#[test]
+fn test_split_at_spare_mut_dropped() {
+    type A<'a> = ArrayVec<Dropped<'a, 16>, U8, Pattern<0xBA>, 8>;
+    let t = Track::<16>::new();
+    let mut a = A::from_iter(t.take(2));
+    assert!(t.dropped_range(0..0));
+
+    let (init, spare) = a.split_at_spare_mut();
+    assert_eq!(init[0].idx(), 0);
+    assert_eq!(init[1].idx(), 1);
+
+    spare[0].write(t.alloc());
+    spare[1].write(t.alloc());
+
+    unsafe { a.set_len(a.len() + 2) };
+
+    assert!(t.dropped_range(0..0));
+    drop(a);
+    assert!(t.dropped_range(0..4));
+}
