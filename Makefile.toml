@@ -37,10 +37,12 @@ command = "cargo"
 args = ["fmt", "--all", "--", "--check"]
 
 [tasks.cover]
+workspace = false
 command = "cargo"
-args = ["tarpaulin", "--all-features", "--out", "Html"]
+args = ["tarpaulin", "-p", "cds", "--all-features", "--out", "Html"]
 
 [tasks.c]
+workspace = false
 dependencies = ["cover"]
 script = '''
 #!/usr/bin/env bash
