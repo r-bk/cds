@@ -29,6 +29,7 @@ enum Op {
     IndexMut(u8),
     Extend(u8),
     Retain(u8),
+    ResizeWith(u8),
     CompareShadow,
     CheckSpareMemory,
     CheckDropped,
@@ -166,6 +167,16 @@ fuzz_target!(|ops: Vec<Op>| {
                 let idx = (n as usize) % 5 + 1;
                 shadow.retain(|e| e % idx != 0);
                 av.retain(|e| e.idx() % idx != 0);
+            }
+            Op::ResizeWith(n) => {
+                let mut len = av.len();
+                let new_len = (n as usize) % av.capacity();
+                av.resize_with(new_len, || t.alloc());
+                shadow.resize_with(new_len, || {
+                    let idx = av[len].idx();
+                    len += 1;
+                    idx
+                })
             }
             Op::CompareShadow => {
                 assert_eq!(av.len(), shadow.len());

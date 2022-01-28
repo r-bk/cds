@@ -976,3 +976,88 @@ fn test_split_at_spare_mut_dropped() {
     drop(a);
     assert!(t.dropped_range(0..4));
 }
+
+#[test]
+fn test_resize() {
+    let mut av = array_vec![5; 1, 2];
+    assert_eq!(av, [1, 2]);
+
+    av.resize(2, 0);
+    assert_eq!(av, [1, 2]);
+
+    av.resize(3, 0);
+    assert_eq!(av, [1, 2, 0]);
+
+    av.resize(av.capacity(), 7);
+    assert_eq!(av, [1, 2, 0, 7, 7]);
+
+    av.resize(1, 2);
+    assert_eq!(av, [1]);
+
+    av.resize(0, 2);
+    assert_eq!(av, []);
+}
+
+#[test]
+#[should_panic]
+fn test_resize_panics() {
+    let mut av = array_vec![5; 1, 2];
+    av.resize(av.capacity() + 1, 0);
+}
+
+#[test]
+fn test_try_resize() {
+    let mut av = array_vec![5; 1, 2];
+    assert_eq!(av, [1, 2]);
+
+    av.try_resize(4, 7).unwrap();
+    assert_eq!(av, [1, 2, 7, 7]);
+
+    // same new_len as before
+    av.try_resize(4, 0).unwrap();
+    assert_eq!(av, [1, 2, 7, 7]);
+
+    av.try_resize(0, 0).unwrap();
+    assert_eq!(av, []);
+
+    assert!(matches!(av.try_resize(10, 0), Err(CapacityError)));
+}
+
+#[test]
+fn test_resize_with_dropped() {
+    type A<'a> = ArrayVec<Dropped<'a, 16>, U8, Pattern<0xBA>, 8>;
+    let t = Track::<16>::new();
+    let mut av = A::from_iter(t.take(2));
+    assert!(t.dropped_range(0..0));
+
+    av.resize_with(av.capacity(), || t.alloc());
+    assert_eq!(av.len(), av.capacity());
+    assert!(t.dropped_range(0..0));
+
+    av.resize_with(1, || t.alloc());
+    assert_eq!(av.len(), 1);
+    assert!(t.dropped_range(1..8));
+}
+
+#[test]
+#[should_panic]
+fn test_resize_with_panics() {
+    let mut av = array_vec![5; 1, 2];
+    av.resize_with(av.capacity() + 1, || 0);
+}
+
+#[test]
+fn test_try_resize_with_dropped() {
+    type A<'a> = ArrayVec<Dropped<'a, 16>, U8, Pattern<0xBA>, 8>;
+    let t = Track::<16>::new();
+    let mut av = A::from_iter(t.take(2));
+    assert!(t.dropped_range(0..0));
+
+    av.resize_with(av.capacity(), || t.alloc());
+    assert_eq!(av.len(), av.capacity());
+    assert!(t.dropped_range(0..0));
+
+    av.resize_with(0, || t.alloc());
+    assert_eq!(av.len(), 0);
+    assert!(t.dropped_range(0..8));
+}

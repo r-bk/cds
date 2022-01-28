@@ -1272,6 +1272,124 @@ where
             )
         }
     }
+
+    /// Resizes the array-vector in-place so that `len` is equal to `new_len`.
+    ///
+    /// If `new_len` is greater than `len`, the array-vector is extended by the difference,
+    /// with each additional slot filled with the result of calling the closure `f`.
+    /// The return values from `f` will end up in the array-vector in the order they have been
+    /// generated.
+    ///
+    /// If `new_len` is less than `len`, the array-vector is simply truncated.
+    ///
+    /// This method uses a closure to create new values on every push.
+    /// If you’d rather [`Clone`] a given value, use [`try_resize`].
+    /// If you want to use the [`Default`] trait to generate values, you can pass
+    /// [`Default::default`] as the second argument.
+    ///
+    /// # Panics
+    ///
+    /// This method panics of `new_len > CAPACITY`. To avoid panic use [`try_resize_with`] which
+    /// returns [`CapacityError`] instead.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use cds::array_vec;
+    /// let mut a = array_vec![5; 1];
+    /// assert_eq!(a, [1]);
+    ///
+    /// let mut g = 1;
+    ///
+    /// a.resize_with(3, || { g += 1; g });
+    /// assert_eq!(a, [1, 2, 3]);
+    ///
+    /// a.resize_with(5, || { g *= 2; g });
+    /// assert_eq!(a, [1, 2, 3, 6, 12]);
+    ///
+    /// a.resize_with(1, || 0);
+    /// assert_eq!(a, [1]);
+    /// ```
+    ///
+    /// [`try_resize`]: ArrayVec::try_resize
+    /// [`try_resize_with`]: ArrayVec::try_resize_with
+    /// [`resize_with`]: ArrayVec::resize_with
+    /// [`Clone`]: core::clone::Clone
+    /// [`Default`]: core::default::Default
+    /// [`Default::default`]: core::default::Default::default
+    #[inline]
+    pub fn resize_with<F>(&mut self, new_len: usize, f: F)
+    where
+        F: FnMut() -> T,
+    {
+        self.try_resize_with(new_len, f)
+            .expect("insufficient capacity")
+    }
+
+    /// Tries to resize the array-vector in-place so that `len` is equal to `new_len`.
+    ///
+    /// This is a non-panic version of [`resize_with`].
+    ///
+    /// If `new_len` is greater than `len`, the array-vector is extended by the difference,
+    /// with each additional slot filled with the result of calling the closure `f`.
+    /// The return values from `f` will end up in the array-vector in the order they have been
+    /// generated.
+    ///
+    /// If `new_len` is less than `len`, the array-vector is simply truncated.
+    ///
+    /// This method uses a closure to create new values on every push.
+    /// If you’d rather [`Clone`] a given value, use [`try_resize`].
+    /// If you want to use the [`Default`] trait to generate values, you can pass
+    /// [`Default::default`] as the second argument.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use cds::{array_vec, errors::CapacityError};
+    /// # fn foo() -> Result<(), CapacityError> {
+    /// let mut a = array_vec![5;];
+    /// assert_eq!(a, []);
+    ///
+    /// a.try_resize_with(3, Default::default)?;
+    /// assert_eq!(a, [0, 0, 0]);
+    ///
+    /// let mut g = 2;
+    /// a.try_resize_with(5, move || { g += 1; g })?;
+    /// assert_eq!(a, [0, 0, 0, 3, 4]);
+    ///
+    /// a.try_resize_with(1, || 1)?;
+    /// assert_eq!(a, [0]);
+    ///
+    /// assert!(matches!(a.try_resize_with(10, || 7), Err(CapacityError)));
+    /// # Ok(())
+    /// # }
+    /// # foo();
+    /// ```
+    ///
+    /// [`try_resize`]: ArrayVec::try_resize
+    /// [`resize_with`]: ArrayVec::resize_with
+    /// [`Clone`]: core::clone::Clone
+    /// [`Default`]: core::default::Default
+    /// [`Default::default`]: core::default::Default::default
+    pub fn try_resize_with<F>(&mut self, new_len: usize, mut f: F) -> Result<(), CapacityError>
+    where
+        F: FnMut() -> T,
+    {
+        if new_len > Self::CAPACITY {
+            return Err(CapacityError);
+        }
+
+        if new_len < self.len() {
+            self.truncate(new_len);
+            return Ok(());
+        }
+
+        while self.len() < new_len {
+            unsafe { self.push_unchecked(f()) };
+        }
+
+        Ok(())
+    }
 }
 
 impl<T, L, SM, const C: usize> ArrayVec<T, L, SM, C>
@@ -1280,6 +1398,95 @@ where
     L: LengthType,
     SM: SpareMemoryPolicy<T>,
 {
+    /// Resizes the array-vector in-place so that `len` is equal to `new_len`.
+    ///
+    /// If `new_len` is greater than `len`, the array-vector is extended by the difference,
+    /// with each additional slot filled with `value`. If `new_len` is less than `len`,
+    /// the array-vector is simply truncated.
+    ///
+    /// If you need only to resize to a smaller size, use [`truncate`].
+    ///
+    /// # Panics
+    ///
+    /// This method panics if `new_len > CAPACITY`. To avoid panic use [`try_resize`] which
+    /// returns [`CapacityError`] instead.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use cds::array_vec;
+    /// let mut a = array_vec![5;];
+    /// assert_eq!(a, []);
+    ///
+    /// a.resize(2, 1);
+    /// assert_eq!(a, [1, 1]);
+    ///
+    /// a.resize(4, 5);
+    /// assert_eq!(a, [1, 1, 5, 5]);
+    ///
+    /// a.resize(1, 7);
+    /// assert_eq!(a, [1]);
+    /// ```
+    ///
+    /// [`truncate`]: ArrayVec::truncate
+    /// [`try_resize`]: ArrayVec::try_resize
+    #[inline]
+    pub fn resize(&mut self, new_len: usize, value: T) {
+        self.try_resize(new_len, value)
+            .expect("insufficient capacity");
+    }
+
+    /// Tries to resize the array-vector in-place so that `len` is equal to `new_len`.
+    ///
+    /// This method returns [`CapacityError`] if `new_len > CAPACITY`.
+    ///
+    /// This is a non-panic version of [`resize`].
+    ///
+    /// If `new_len` is greater than `len`, the array-vector is extended by the difference,
+    /// with each additional slot filled with `value`. If `new_len` is less than `len`,
+    /// the array-vector is simply truncated.
+    ///
+    /// If you need only to resize to a smaller size, use [`truncate`].
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// # use cds::{array_vec, errors::CapacityError};
+    /// # fn foo() -> Result<(), CapacityError> {
+    /// let mut a = array_vec![5; 1];
+    /// assert_eq!(a, [1]);
+    ///
+    /// a.try_resize(5, 7)?;
+    /// assert_eq!(a, [1, 7, 7, 7, 7]);
+    ///
+    /// a.try_resize(2, 0)?;
+    /// assert_eq!(a, [1, 7]);
+    ///
+    /// assert!(matches!(a.try_resize(10, 7), Err(CapacityError)));
+    /// # Ok(())
+    /// # }
+    /// # foo();
+    /// ```
+    ///
+    /// [`truncate`]: ArrayVec::truncate
+    /// [`resize`]: ArrayVec::resize
+    pub fn try_resize(&mut self, new_len: usize, value: T) -> Result<(), CapacityError> {
+        if new_len > Self::CAPACITY {
+            return Err(CapacityError);
+        }
+
+        if new_len < self.len() {
+            self.truncate(new_len);
+            return Ok(());
+        }
+
+        while self.len() < new_len {
+            unsafe { self.push_unchecked(value.clone()) };
+        }
+
+        Ok(())
+    }
+
     #[inline]
     fn _clone_from(&mut self, other: &Self) {
         unsafe {
