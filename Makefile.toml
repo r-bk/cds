@@ -39,7 +39,7 @@ args = ["fmt", "--all", "--", "--check"]
 [tasks.cover]
 workspace = false
 command = "cargo"
-args = ["tarpaulin", "-p", "cds", "--all-features", "--out", "Html"]
+args = ["tarpaulin", "-p", "cds", "--exclude-files", "fuzz/*", "--all-features", "--out", "Html"]
 
 [tasks.c]
 workspace = false
