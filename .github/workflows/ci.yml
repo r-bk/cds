@@ -138,7 +138,7 @@ jobs:
         with:
           toolchain: nightly
           command: tarpaulin
-          args: --all-features --out Html
+          args: -p cds --exclude-files fuzz/* --all-features --out Html
       - uses: actions/upload-artifact@v2
         with:
           name: tarpaulin-report.html
