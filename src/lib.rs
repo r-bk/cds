@@ -1,6 +1,15 @@
 //! *cds* is a Collection of Data Structures.
 //!
-//! *cds* is in development.
+//! *cds* implements handy data structures and associated algorithms.
+//!
+//! It is driven by the following principles:
+//!
+//! 1. **Tested** - for both correctness and performance
+//! 2. **Fast** - even if it requires to use unsafe Rust
+//! 3. **Secure** - wipe unused memory to avoid unnecessarily holding
+//!    a copy of possibly sensitive data
+//! 4. Avoid dynamic memory allocation where possible
+//!
 
 #![cfg_attr(not(feature = "std"), no_std)]
 #![warn(missing_docs)]
