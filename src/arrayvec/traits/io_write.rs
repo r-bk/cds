@@ -56,4 +56,13 @@ mod tests {
         assert_eq!(av.write(b"write").unwrap(), 5);
         assert_eq!(av, b"write");
     }
+
+    #[test]
+    fn test_io_write_flush() {
+        type A = ArrayVec<u8, Usize, Uninitialized, 5>;
+        let mut av = A::new();
+        assert!(av.flush().is_ok());
+        assert_eq!(av.write(b"write").unwrap(), 5);
+        assert!(av.flush().is_ok());
+    }
 }
