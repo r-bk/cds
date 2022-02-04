@@ -29,8 +29,8 @@ Additionally, the following crate features are available:
 
 - `std`- enables usage of the Rust standard library.
 
-  Currently, this feature affects only error types to implement the `std::error::Error` trait,
-  which is not available in `core`.
+  Currently this feature only enables implementation of traits from `std` which are
+  not available in `core`.
 
   Without this feature the crate is `no_std`.
 
