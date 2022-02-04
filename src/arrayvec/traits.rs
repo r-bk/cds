@@ -12,5 +12,7 @@ mod from_iterator;
 mod hash;
 mod index;
 mod into_iterator;
+#[cfg(feature = "std")]
+mod io_write;
 mod ord;
 mod try_from;
