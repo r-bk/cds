@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - add `ArrayVec::copy_from_slice`
 - add `ArrayVec::copy_from_slice_unchecked`
 - add `ArrayVec::try_copy_from_slice`
+- implement `std::io::Write` on `ArrayVec`
 
 ## [0.0.5] - 2022-02-04
 ### Added
