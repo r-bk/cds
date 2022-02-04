@@ -1509,6 +1509,107 @@ where
     }
 }
 
+impl<T, L, SM, const C: usize> ArrayVec<T, L, SM, C>
+where
+    T: Copy,
+    L: LengthType,
+    SM: SpareMemoryPolicy<T>,
+{
+    /// Extends the array-vector by copying elements from a slice.
+    ///
+    /// This is optimized for [`Copy`] types, elements are copied bytewise.
+    ///
+    /// # Panics
+    ///
+    /// This method panics if there is no enough spare capacity to accommodate
+    /// all elements from `s`. See [`try_copy_from_slice`] for a method that returns
+    /// [`CapacityError`] instead.
+    ///
+    /// [`try_copy_from_slice`]: ArrayVec::try_copy_from_slice
+    ///
+    /// # Examples
+    /// ```rust
+    /// # use cds::array_vec;
+    /// let mut a = array_vec![5; 1, 2];
+    /// assert_eq!(a, [1, 2]);
+    /// a.copy_from_slice(&[3, 4]);
+    /// assert_eq!(a, [1, 2, 3, 4]);
+    /// ```
+    /// ```should_panic
+    /// # use cds::array_vec;
+    /// let mut a = array_vec![3; 1, 2];
+    /// a.copy_from_slice(&[3, 4]);  // <-- this panics as there is only one spare slot
+    /// ```
+    #[inline]
+    pub fn copy_from_slice(&mut self, s: &[T]) {
+        if self.len() + s.len() > Self::CAPACITY {
+            panic!("insufficient capacity");
+        }
+        unsafe { self.copy_from_slice_unchecked(s) };
+    }
+
+    /// Tries to extend the array-vector by copying elements from a slice.
+    ///
+    /// This is optimized for [`Copy`] types, elements are copied bytewise.
+    ///
+    /// This method is a non-panic version of [`copy_from_slice`].
+    ///
+    /// It returns [`CapacityError`] if there is no enough spare capacity to accommodate
+    /// all elements from `s`.
+    ///
+    /// [`copy_from_slice`]: ArrayVec::copy_from_slice
+    ///
+    /// # Examples
+    /// ```rust
+    /// # use cds::{array_vec, errors::CapacityError};
+    /// # fn foo() -> Result<(), CapacityError> {
+    /// let mut a = array_vec![5; 1, 2];
+    /// assert_eq!(a, [1, 2]);
+    /// a.try_copy_from_slice(&[1, 2])?;
+    /// assert_eq!(a, [1, 2, 1, 2]);
+    /// assert!(matches!(a.try_copy_from_slice(&[3, 4]), Err(CapacityError)));
+    /// # Ok(())
+    /// # }
+    /// # foo().unwrap();
+    /// ```
+    pub fn try_copy_from_slice(&mut self, s: &[T]) -> Result<(), CapacityError> {
+        if self.len() + s.len() > Self::CAPACITY {
+            return Err(CapacityError);
+        }
+        unsafe { self.copy_from_slice_unchecked(s) };
+        Ok(())
+    }
+
+    /// Extends the array-vector by copying elements from a slice.
+    ///
+    /// This is optimized for [`Copy`] types, elements are copied bytewise.
+    ///
+    /// # Safety
+    ///
+    /// The caller must ensure that there is enough spare capacity to accommodate all elements
+    /// from `s`.
+    ///
+    /// # Panics
+    ///
+    /// This method uses debug assertions to ensure that array-vector's capacity is not exceeded.
+    ///
+    /// # Examples
+    /// ```rust
+    /// # use cds::array_vec;
+    /// let mut a = array_vec![5; 1, 2];
+    /// assert_eq!(a, [1, 2]);
+    /// unsafe { a.copy_from_slice_unchecked(&[1, 2]) };
+    /// assert_eq!(a, [1, 2, 1, 2]);
+    /// ```
+    #[inline]
+    pub unsafe fn copy_from_slice_unchecked(&mut self, s: &[T]) {
+        // SAFETY: it is impossible that regions overlap
+        // as `self` cannot be borrowed as both mutable and immutable
+        ptr::copy_nonoverlapping(s.as_ptr(), self.as_mut_ptr().add(self.len()), s.len());
+        self.len += s.len();
+    }
+}
+
 mod macros;
 mod traits;
 

@@ -1061,3 +1061,43 @@ fn test_try_resize_with_dropped() {
     assert_eq!(av.len(), 0);
     assert!(t.dropped_range(0..8));
 }
+
+#[test]
+fn test_copy_from_slice() {
+    let mut av = array_vec![5;];
+    assert_eq!(av, []);
+    av.copy_from_slice(&[1, 2]);
+    assert_eq!(av, [1, 2]);
+    av.copy_from_slice(&[3, 4]);
+    assert_eq!(av, [1, 2, 3, 4]);
+    av.copy_from_slice(&[5]);
+    assert_eq!(av, [1, 2, 3, 4, 5]);
+}
+
+#[test]
+#[should_panic]
+fn test_copy_from_slice_panics() {
+    let mut av = array_vec![3; 1, 2];
+    assert_eq!(av, [1, 2]);
+    av.copy_from_slice(&[3, 4]);
+}
+
+#[test]
+fn test_try_copy_from_slice() {
+    let mut av = array_vec![5;];
+    assert_eq!(av, []);
+    av.try_copy_from_slice(&[1, 2]).unwrap();
+    assert_eq!(av, [1, 2]);
+    av.try_copy_from_slice(&[3, 4]).unwrap();
+    assert_eq!(av, [1, 2, 3, 4]);
+    av.try_copy_from_slice(&[5]).unwrap();
+    assert_eq!(av, [1, 2, 3, 4, 5]);
+    assert!(matches!(av.try_copy_from_slice(&[6]), Err(CapacityError)));
+}
+
+#[test]
+fn test_copy_from_slice_unchecked() {
+    let mut av = array_vec![5;];
+    unsafe { av.copy_from_slice_unchecked(&[1, 2, 3]) };
+    assert_eq!(av, [1, 2, 3]);
+}
