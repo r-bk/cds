@@ -390,7 +390,10 @@ where
     /// [`push`]: ArrayVec::push
     #[inline]
     pub fn push(&mut self, e: T) {
-        self.try_push(e).expect("insufficient capacity")
+        if self.len >= Self::CAPACITY {
+            panic!("insufficient capacity");
+        }
+        unsafe { self.push_unchecked(e) };
     }
 
     /// Tries to append an element to the back of the array-vector.
@@ -477,8 +480,9 @@ where
     /// ```
     #[inline]
     pub unsafe fn push_unchecked(&mut self, value: T) {
-        self.as_mut_ptr().add(self.len.as_usize()).write(value);
-        self.len += 1;
+        let len = self.len();
+        self.as_mut_ptr().add(len).write(value);
+        self.set_len(len + 1);
     }
 
     /// Removes the last element from an array-vector and returns it, or [`None`] if it is empty.
@@ -560,6 +564,7 @@ where
     /// a.truncate(2);
     /// assert_eq!(a, [1]);
     /// ```
+    #[inline]
     pub fn truncate(&mut self, len: usize) {
         let my_len = self.len.as_usize();
 
@@ -639,6 +644,7 @@ where
     /// # Ok(())
     /// # }
     /// ```
+    #[inline]
     pub fn try_from_iter<I>(iter: I) -> Result<Self, CapacityError>
     where
         I: IntoIterator<Item = T>,
@@ -739,10 +745,11 @@ where
     /// [`insert`]: ArrayVec::insert
     #[inline]
     pub fn try_insert(&mut self, index: usize, value: T) -> Result<(), InsertError> {
-        if index > self.len.as_usize() {
+        let len = self.len();
+        if index > len {
             return Err(InsertError::IndexOutOfBounds);
         }
-        if self.len >= Self::CAPACITY {
+        if len >= Self::CAPACITY {
             return Err(InsertError::CapacityError);
         }
         unsafe {
@@ -832,11 +839,13 @@ where
     /// unsafe { v.insert_unchecked(2, 2) };
     /// assert_eq!(v, [0, 1, 2]);
     /// ```
+    #[inline]
     pub unsafe fn insert_unchecked(&mut self, index: usize, value: T) {
+        let len = self.len();
         let p = self.as_mut_ptr().add(index);
-        ptr::copy(p, p.add(1), self.len.as_usize() - index);
+        ptr::copy(p, p.add(1), len - index);
         p.write(value);
-        self.len += 1;
+        self.set_len(len + 1);
     }
 
     /// Removes and returns the element at position `index` within the vector, shifting all elements
@@ -935,6 +944,7 @@ where
     ///
     /// [`remove`]: ArrayVec::remove
     /// [`swap_remove_unchecked`]: ArrayVec::swap_remove_unchecked
+    #[inline]
     pub unsafe fn remove_unchecked(&mut self, index: usize) -> T {
         let base = self.as_mut_ptr();
         let p = base.add(index);
@@ -965,9 +975,11 @@ where
     /// ```
     #[inline]
     pub fn swap_remove(&mut self, index: usize) -> T {
-        if index >= self.len.as_usize() {
-            panic!("index is out of bounds [0, {}): {}", self.len, index);
+        let len = self.len();
+        if index >= len {
+            panic!("index is out of bounds [0, {}): {}", len, index);
         }
+
         unsafe { self.swap_remove_unchecked(index) }
     }
 
@@ -1020,17 +1032,16 @@ where
     /// assert_eq!(unsafe { v.swap_remove_unchecked(2) }, 3);
     /// assert_eq!(v, [1, 2, 4]);
     /// ```
+    #[inline]
     pub unsafe fn swap_remove_unchecked(&mut self, index: usize) -> T {
         let base = self.as_mut_ptr();
         let p = base.add(index);
-        let tmp = p.read();
+        let value = p.read();
         self.len -= 1;
         let last = base.add(self.len.as_usize());
-        if index < self.len.as_usize() {
-            ptr::copy(last, p, 1);
-        }
+        ptr::copy(last, p, 1);
         SM::init(last, 1);
-        tmp
+        value
     }
 
     /// Creates a draining iterator that removes the specified range in the array-vector
@@ -1059,6 +1070,7 @@ where
     /// ```
     ///
     /// [`mem::forget`]: core::mem::forget
+    #[inline]
     pub fn drain<R>(&mut self, range: R) -> Drain<'_, T, L, SM, C>
     where
         R: RangeBounds<usize>,
@@ -1155,6 +1167,7 @@ where
     /// });
     /// assert_eq!(a, [0, 4, 16]);
     /// ```
+    #[inline]
     pub fn retain_mut<F>(&mut self, mut f: F)
     where
         F: FnMut(&mut T) -> bool,
@@ -1229,6 +1242,7 @@ where
     /// ```
     ///
     /// [`set_len`]: ArrayVec::set_len
+    #[inline]
     pub fn spare_capacity_mut(&mut self) -> &mut [mem::MaybeUninit<T>] {
         unsafe {
             slice::from_raw_parts_mut(self.arr.as_mut_ptr().add(self.len()), self.spare_capacity())
@@ -1260,6 +1274,7 @@ where
     /// ```
     ///
     /// [`set_len`]: ArrayVec::set_len
+    #[inline]
     pub fn split_at_spare_mut(&mut self) -> (&mut [T], &mut [mem::MaybeUninit<T>]) {
         let len = self.len();
         let spare_capacity = self.spare_capacity();
@@ -1371,6 +1386,7 @@ where
     /// [`Clone`]: core::clone::Clone
     /// [`Default`]: core::default::Default
     /// [`Default::default`]: core::default::Default::default
+    #[inline]
     pub fn try_resize_with<F>(&mut self, new_len: usize, mut f: F) -> Result<(), CapacityError>
     where
         F: FnMut() -> T,

@@ -142,6 +142,7 @@ where
     SM: SpareMemoryPolicy<T>,
     T: 'a,
 {
+    #[inline]
     fn drop(&mut self) {
         // Append the tail to the head to preserve array-vector's continuity,
         // and invoke SpareMemoryPolicy as needed.
@@ -176,6 +177,7 @@ where
     SM: SpareMemoryPolicy<T>,
     T: 'a,
 {
+    #[inline]
     fn drop(&mut self) {
         if self.tail_len == L::MAX && self.tail == L::MAX {
             // empty drained range, nothing to do

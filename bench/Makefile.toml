@@ -1,0 +1,6 @@
+[tasks.build]
+command = "cargo"
+args = ["criterion", "--no-run"]
+
+[tasks.d]
+dependencies = ["build"]
