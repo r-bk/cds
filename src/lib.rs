@@ -1,14 +1,34 @@
 //! *cds* is a Collection of Data Structures.
 //!
-//! *cds* implements handy data structures and associated algorithms.
+//! *cds* implements handy data structures and their associated algorithms.
 //!
-//! It is driven by the following principles:
+//!
+//! # Design and Implementation Principles
 //!
 //! 1. **Tested** - for both correctness and performance
 //! 2. **Fast** - even if it requires to use unsafe Rust
-//! 3. **Secure** - wipe unused memory to avoid unnecessarily holding
-//!    a copy of possibly sensitive data
-//! 4. Avoid dynamic memory allocation where possible
+//! 3. **Secure** - do not unnecessarily hold a copy of (possibly sensitive) user data;
+//!    wipe unused memory
+//! 4. **No malloc** - avoid dynamic memory allocation where possible
+//! 5. **Compact** - allow small memory footprint
+//!
+//!
+//! # Fixed-Capacity Data Structures
+//!
+//! Fixed-capacity data structures can be allocated on stack.
+//! They do not allocate memory on the heap, and their capacity cannot be dynamically changed.
+//!
+//! * [`ArrayVec`] - a vector-like array
+//!
+//!
+//! # Crate Features
+//!
+//! * `arrayvec` - enables [`ArrayVec`]
+//! * `std` - enables implementation of [`std`] traits which are not available in [`core`].
+//!   Without this feature the library is [`no_std`].
+//!
+//! [`ArrayVec`]: crate::arrayvec::ArrayVec
+//! [`no_std`]: https://docs.rust-embedded.org/book/intro/no-std.html
 //!
 
 #![cfg_attr(not(feature = "std"), no_std)]
