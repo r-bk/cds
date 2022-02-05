@@ -6,7 +6,7 @@
 //! # Design and Implementation Principles
 //!
 //! 1. **Tested** - for both correctness and performance
-//! 2. **Fast** - even if it requires to use unsafe Rust
+//! 2. **Fast** - even if it requires `unsafe` Rust
 //! 3. **Secure** - do not unnecessarily hold a copy of (possibly sensitive) user data;
 //!    wipe unused memory
 //! 4. **No malloc** - avoid dynamic memory allocation where possible
