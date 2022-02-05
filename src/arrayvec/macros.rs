@@ -1,4 +1,4 @@
-/// Creates an `ArrayVec` containing the arguments.
+/// Creates an [`ArrayVec`] containing the arguments.
 ///
 /// `array_vec!` macro allows creation of an `ArrayVec` using syntax similar to that of the standard
 /// array.
@@ -58,6 +58,8 @@
 /// # Panics
 ///
 /// The macro panics if the number of elements exceeds the requested capacity.
+///
+/// [`ArrayVec`]: crate::arrayvec::ArrayVec
 #[cfg_attr(docsrs, doc(cfg(feature = "arrayvec")))]
 #[macro_export]
 macro_rules! array_vec {
