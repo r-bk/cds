@@ -443,10 +443,7 @@ fn test_try_insert() {
     assert_eq!(unsafe { a.as_ptr().add(3).read() }, 0xAB);
     assert_eq!(unsafe { a.as_ptr().add(4).read() }, 0xAB);
 
-    assert!(matches!(
-        a.try_insert(4, 4),
-        Err(InsertError::IndexOutOfBounds)
-    ));
+    assert!(matches!(a.try_insert(4, 4), Err(InsertError::InvalidIndex)));
 
     a.try_insert(1, 4).expect("try_insert failed");
     assert_eq!(a, [0, 4, 1, 2]);
@@ -456,7 +453,7 @@ fn test_try_insert() {
 
     assert!(matches!(
         a.try_insert(1, 8),
-        Err(InsertError::CapacityError)
+        Err(InsertError::InsufficientCapacity)
     ));
 }
 
@@ -635,14 +632,14 @@ fn test_try_insert_val() {
     assert_eq!(a, [0, 1, 2]);
 
     let res = a.try_insert_val(4, 14);
-    assert!(matches!(res, Err(InsertErrorVal::IndexOutOfBounds(v)) if v == 14));
+    assert!(matches!(res, Err(InsertErrorVal::InvalidIndex(v)) if v == 14));
     assert_eq!(res.unwrap_err().into_value(), 14);
 
     assert!(a.try_insert_val(1, 7).is_ok());
     assert_eq!(a, [0, 7, 1, 2]);
 
     let res = a.try_insert_val(0, 14);
-    assert!(matches!(res, Err(InsertErrorVal::CapacityError(v)) if v == 14));
+    assert!(matches!(res, Err(InsertErrorVal::InsufficientCapacity(v)) if v == 14));
     assert_eq!(a, [0, 7, 1, 2]);
 }
 
@@ -660,7 +657,10 @@ fn test_try_insert_val_dropped() {
     assert!(t.dropped_indices(&[3]));
 
     let res = a.try_insert_val(0, t.alloc());
-    assert!(matches!(res, Err(InsertErrorVal::CapacityError(ref _v))));
+    assert!(matches!(
+        res,
+        Err(InsertErrorVal::InsufficientCapacity(ref _v))
+    ));
     assert!(t.dropped_indices(&[3]));
 
     drop(res);

@@ -10,18 +10,20 @@ use core::{
 /// An error returned from `try_insert` method.
 #[derive(Debug, Copy, Clone)]
 pub enum InsertError {
-    /// Requested index is out of collection bounds.
-    IndexOutOfBounds,
+    /// Requested index is out of collection bounds, or doesn't lie at a required boundary.
+    InvalidIndex,
 
     /// There is no spare capacity to accommodate a new element.
-    CapacityError,
+    InsufficientCapacity,
 }
 
 impl core::fmt::Display for InsertError {
     fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         match *self {
-            InsertError::IndexOutOfBounds => write!(f, "index is out of bounds"),
-            InsertError::CapacityError => write!(f, "insufficient capacity"),
+            InsertError::InvalidIndex => {
+                write!(f, "index is out of bounds or is improperly aligned")
+            }
+            InsertError::InsufficientCapacity => write!(f, "insufficient capacity"),
         }
     }
 }
@@ -35,11 +37,11 @@ impl std::error::Error for InsertError {}
 /// An error returned from `try_insert_val` method.
 #[derive(Copy, Clone)]
 pub enum InsertErrorVal<T> {
-    /// Requested index is out of collection bounds.
-    IndexOutOfBounds(T),
+    /// Requested index is out of collection bounds, or doesn't lie at a required boundary.
+    InvalidIndex(T),
 
     /// There is no spare capacity to accommodate a new element.
-    CapacityError(T),
+    InsufficientCapacity(T),
 }
 
 impl<T> InsertErrorVal<T> {
@@ -47,8 +49,8 @@ impl<T> InsertErrorVal<T> {
     #[inline]
     pub fn value(&self) -> &T {
         match self {
-            Self::IndexOutOfBounds(v) => v,
-            Self::CapacityError(v) => v,
+            Self::InvalidIndex(v) => v,
+            Self::InsufficientCapacity(v) => v,
         }
     }
 
@@ -56,8 +58,8 @@ impl<T> InsertErrorVal<T> {
     #[inline]
     pub fn into_value(self) -> T {
         match self {
-            Self::IndexOutOfBounds(v) => v,
-            Self::CapacityError(v) => v,
+            Self::InvalidIndex(v) => v,
+            Self::InsufficientCapacity(v) => v,
         }
     }
 }
@@ -65,8 +67,8 @@ impl<T> InsertErrorVal<T> {
 impl<T> Display for InsertErrorVal<T> {
     fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         match self {
-            Self::IndexOutOfBounds(_) => write!(f, "index is out of bounds"),
-            Self::CapacityError(_) => write!(f, "insufficient capacity"),
+            Self::InvalidIndex(_) => write!(f, "index is out of bounds or is improperly aligned"),
+            Self::InsufficientCapacity(_) => write!(f, "insufficient capacity"),
         }
     }
 }
@@ -75,8 +77,10 @@ impl<T> Debug for InsertErrorVal<T> {
     fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         let name = type_name::<T>();
         match self {
-            Self::IndexOutOfBounds(_) => write!(f, "InsertErrorVal<{}>::IndexOutOfBounds", name),
-            Self::CapacityError(_) => write!(f, "InsertErrorVal<{}>::CapacityError", name),
+            Self::InvalidIndex(_) => write!(f, "InsertErrorVal<{}>::InvalidIndex", name),
+            Self::InsufficientCapacity(_) => {
+                write!(f, "InsertErrorVal<{}>::InsufficientCapacity", name)
+            }
         }
     }
 }
@@ -93,63 +97,63 @@ mod testing {
 
     #[test]
     fn test_insert_error_display() {
-        let e = InsertError::CapacityError;
+        let e = InsertError::InsufficientCapacity;
         let s = format!("{}", e);
         assert_eq!(s, "insufficient capacity");
 
-        let e = InsertError::IndexOutOfBounds;
+        let e = InsertError::InvalidIndex;
         let s = format!("{}", e);
-        assert_eq!(s, "index is out of bounds");
+        assert_eq!(s, "index is out of bounds or is improperly aligned");
     }
 
     #[test]
     fn test_insert_error_debug() {
-        let e = InsertError::IndexOutOfBounds;
+        let e = InsertError::InvalidIndex;
         let s = format!("{:?}", e);
-        assert_eq!(s, "IndexOutOfBounds");
+        assert_eq!(s, "InvalidIndex");
     }
 
     #[test]
     fn test_insert_error_val_display() {
-        let e = InsertErrorVal::<u64>::IndexOutOfBounds(7);
+        let e = InsertErrorVal::<u64>::InvalidIndex(7);
         let s = format!("{}", e);
-        assert_eq!(s, "index is out of bounds");
+        assert_eq!(s, "index is out of bounds or is improperly aligned");
 
-        let e = InsertErrorVal::<u64>::CapacityError(17);
+        let e = InsertErrorVal::<u64>::InsufficientCapacity(17);
         let s = format!("{}", e);
         assert_eq!(s, "insufficient capacity");
     }
 
     #[test]
     fn test_insert_error_val_debug() {
-        let e = InsertErrorVal::<u64>::IndexOutOfBounds(7);
+        let e = InsertErrorVal::<u64>::InvalidIndex(7);
         let s = format!("{:?}", e);
-        assert_eq!(s, "InsertErrorVal<u64>::IndexOutOfBounds");
+        assert_eq!(s, "InsertErrorVal<u64>::InvalidIndex");
 
-        let e = InsertErrorVal::<u64>::CapacityError(17);
+        let e = InsertErrorVal::<u64>::InsufficientCapacity(17);
         let s = format!("{:?}", e);
-        assert_eq!(s, "InsertErrorVal<u64>::CapacityError");
+        assert_eq!(s, "InsertErrorVal<u64>::InsufficientCapacity");
     }
 
     #[test]
     fn test_insert_error_val_copy() {
-        let e = InsertErrorVal::<u64>::IndexOutOfBounds(17);
+        let e = InsertErrorVal::<u64>::InvalidIndex(17);
         let e2 = e;
         assert_eq!(e.value(), e2.value());
 
-        let e = InsertErrorVal::<u64>::CapacityError(717);
+        let e = InsertErrorVal::<u64>::InsufficientCapacity(717);
         let e2 = e;
         assert_eq!(e.value(), e2.value());
     }
 
     #[test]
     fn test_insert_error_val_clone() {
-        let e = InsertErrorVal::<String>::IndexOutOfBounds("17".into());
+        let e = InsertErrorVal::<String>::InvalidIndex("17".into());
         let e2 = e.clone();
         assert_eq!(e.value(), e2.value());
         assert_eq!(e.value(), "17");
 
-        let e = InsertErrorVal::<String>::CapacityError("717".into());
+        let e = InsertErrorVal::<String>::InsufficientCapacity("717".into());
         let e2 = e.clone();
         assert_eq!(e.value(), e2.value());
         assert_eq!(e.value(), "717");
@@ -157,11 +161,11 @@ mod testing {
 
     #[test]
     fn test_insert_error_val_into_value() {
-        let e = InsertErrorVal::<String>::IndexOutOfBounds("Hello, world!".into());
+        let e = InsertErrorVal::<String>::InvalidIndex("Hello, world!".into());
         let v = e.into_value();
         assert_eq!(v, "Hello, world!");
 
-        let e = InsertErrorVal::<String>::CapacityError("Hello again!".into());
+        let e = InsertErrorVal::<String>::InsufficientCapacity("Hello again!".into());
         let v = e.into_value();
         assert_eq!(v, "Hello again!");
     }

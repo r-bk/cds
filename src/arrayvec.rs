@@ -733,11 +733,11 @@ where
     /// ```rust
     /// # use cds::{array_vec, errors::InsertError};
     /// let mut v = array_vec![3; u64; 1, 2];
-    /// assert!(matches!(v.try_insert(3, 3), Err(InsertError::IndexOutOfBounds)));
+    /// assert!(matches!(v.try_insert(3, 3), Err(InsertError::InvalidIndex)));
     ///
     /// assert!(v.try_insert(0, 0).is_ok());
     /// assert_eq!(v, [0, 1, 2]);
-    /// assert!(matches!(v.try_insert(1, 3), Err(InsertError::CapacityError)));
+    /// assert!(matches!(v.try_insert(1, 3), Err(InsertError::InsufficientCapacity)));
     /// ```
     ///
     /// [`try_push`]: ArrayVec::try_push
@@ -747,10 +747,10 @@ where
     pub fn try_insert(&mut self, index: usize, value: T) -> Result<(), InsertError> {
         let len = self.len();
         if index > len {
-            return Err(InsertError::IndexOutOfBounds);
+            return Err(InsertError::InvalidIndex);
         }
         if len >= Self::CAPACITY {
-            return Err(InsertError::CapacityError);
+            return Err(InsertError::InsufficientCapacity);
         }
         unsafe {
             self.insert_unchecked(index, value);
@@ -780,7 +780,7 @@ where
     /// let mut v = array_vec![3; u64; 1, 2];
     /// assert!(matches!(
     ///     v.try_insert_val(5, 3),
-    ///     Err(InsertErrorVal::IndexOutOfBounds(v)) if v == 3
+    ///     Err(InsertErrorVal::InvalidIndex(v)) if v == 3
     /// ));
     /// assert_eq!(v, [1, 2]);
     ///
@@ -789,7 +789,7 @@ where
     ///
     /// assert!(matches!(
     ///     v.try_insert_val(1, 5),
-    ///     Err(InsertErrorVal::CapacityError(v)) if v == 5
+    ///     Err(InsertErrorVal::InsufficientCapacity(v)) if v == 5
     /// ));
     /// assert_eq!(v, [0, 1, 2]);
     /// ```
@@ -801,10 +801,10 @@ where
     #[inline]
     pub fn try_insert_val(&mut self, index: usize, value: T) -> Result<(), InsertErrorVal<T>> {
         if index > self.len.as_usize() {
-            return Err(InsertErrorVal::IndexOutOfBounds(value));
+            return Err(InsertErrorVal::InvalidIndex(value));
         }
         if self.len >= Self::CAPACITY {
-            return Err(InsertErrorVal::CapacityError(value));
+            return Err(InsertErrorVal::InsufficientCapacity(value));
         }
         unsafe {
             self.insert_unchecked(index, value);
