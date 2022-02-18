@@ -41,11 +41,8 @@ pub mod arrayvec;
 
 pub mod errors;
 
-pub mod defs;
+pub mod len;
 pub mod mem;
-
-#[doc(inline)]
-pub use defs::LengthType;
 
 pub(crate) mod sealed;
 

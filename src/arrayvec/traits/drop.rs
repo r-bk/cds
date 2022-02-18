@@ -1,4 +1,4 @@
-use crate::{arrayvec::ArrayVec, defs::LengthType, mem::SpareMemoryPolicy};
+use crate::{arrayvec::ArrayVec, len::LengthType, mem::SpareMemoryPolicy};
 use core::ops::Drop;
 
 impl<T, L, SM, const C: usize> Drop for ArrayVec<T, L, SM, C>
@@ -17,7 +17,7 @@ mod testing {
     use crate as cds;
     use cds::{
         arrayvec::ArrayVec,
-        defs::Usize,
+        len::Usize,
         mem::Uninitialized,
         testing::dropped::{Dropped, Track},
     };

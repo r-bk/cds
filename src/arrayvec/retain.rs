@@ -1,4 +1,4 @@
-use crate::{arrayvec::ArrayVec, defs::LengthType, mem::SpareMemoryPolicy};
+use crate::{arrayvec::ArrayVec, len::LengthType, mem::SpareMemoryPolicy};
 use core::ptr;
 
 pub struct RetainGuard<'a, T, L, SM, const C: usize>

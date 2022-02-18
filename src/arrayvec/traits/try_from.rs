@@ -1,4 +1,4 @@
-use crate::{arrayvec::ArrayVec, defs::LengthType, errors::CapacityError, mem::SpareMemoryPolicy};
+use crate::{arrayvec::ArrayVec, errors::CapacityError, len::LengthType, mem::SpareMemoryPolicy};
 use core::{convert::TryFrom, mem, ptr};
 
 impl<T, L, SM, const C: usize> TryFrom<&[T]> for ArrayVec<T, L, SM, C>
@@ -68,7 +68,7 @@ where
 #[cfg(test)]
 mod testing {
     use crate as cds;
-    use cds::{arrayvec::ArrayVec, defs::Usize, errors::CapacityError, mem::Uninitialized};
+    use cds::{arrayvec::ArrayVec, errors::CapacityError, len::Usize, mem::Uninitialized};
     type A = ArrayVec<u64, Usize, Uninitialized, 7>;
 
     #[test]

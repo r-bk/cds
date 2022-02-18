@@ -60,7 +60,7 @@ use lt_private::LengthTypeBase;
 /// # #[cfg(feature = "arrayvec")] {
 /// use cds::{
 ///     arrayvec::ArrayVec,
-///     defs::U8,
+///     len::U8,
 ///     mem::Uninitialized,
 /// };
 /// type A = ArrayVec<u8, U8, Uninitialized, 7>;
@@ -74,7 +74,7 @@ use lt_private::LengthTypeBase;
 /// # #[cfg(feature = "arrayvec")] {
 /// use cds::{
 ///     arrayvec::ArrayVec,
-///     defs::U8,
+///     len::U8,
 ///     mem::Uninitialized,
 /// };
 /// type A = ArrayVec<u8, U8, Uninitialized, 256>; // U8::MAX(255) < CAPACITY(256)

@@ -1,4 +1,4 @@
-use crate::{arrayvec::ArrayVec, defs::LengthType, mem::SpareMemoryPolicy};
+use crate::{arrayvec::ArrayVec, len::LengthType, mem::SpareMemoryPolicy};
 use core::convert::AsRef;
 
 impl<T, L, SM, const C: usize> AsRef<[T]> for ArrayVec<T, L, SM, C>
@@ -26,7 +26,7 @@ where
 #[cfg(test)]
 mod testing {
     use crate as cds;
-    use crate::{array_vec, arrayvec::ArrayVec, defs::Usize, mem::Uninitialized};
+    use crate::{array_vec, arrayvec::ArrayVec, len::Usize, mem::Uninitialized};
     use core::convert::AsRef;
 
     #[test]

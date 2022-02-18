@@ -1,4 +1,4 @@
-use crate::{arrayvec::ArrayVec, defs::LengthType, mem::SpareMemoryPolicy};
+use crate::{arrayvec::ArrayVec, len::LengthType, mem::SpareMemoryPolicy};
 use core::{
     fmt::{Debug, Formatter},
     iter::{DoubleEndedIterator, ExactSizeIterator, FusedIterator, Iterator},

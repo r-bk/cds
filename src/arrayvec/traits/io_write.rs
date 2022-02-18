@@ -1,4 +1,4 @@
-use crate::{arrayvec::ArrayVec, defs::LengthType, mem::SpareMemoryPolicy};
+use crate::{arrayvec::ArrayVec, len::LengthType, mem::SpareMemoryPolicy};
 use core::slice;
 
 #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
@@ -22,7 +22,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::{arrayvec::ArrayVec, defs::Usize, mem::Uninitialized};
+    use crate::{arrayvec::ArrayVec, len::Usize, mem::Uninitialized};
     use std::io::Write;
 
     #[test]

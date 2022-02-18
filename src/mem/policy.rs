@@ -31,7 +31,7 @@ pub(crate) mod private {
 /// # #[cfg(feature = "arrayvec")]
 /// use cds::{
 ///     arrayvec::ArrayVec,
-///     defs::U8,
+///     len::U8,
 ///     mem::{Uninitialized, Pattern, Zeroed},
 /// };
 /// use core::convert::TryFrom;

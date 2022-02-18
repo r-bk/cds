@@ -1,4 +1,4 @@
-use crate::{arrayvec::ArrayVec, defs::LengthType, mem::SpareMemoryPolicy};
+use crate::{arrayvec::ArrayVec, len::LengthType, mem::SpareMemoryPolicy};
 use core::{
     ops::{Index, IndexMut},
     slice::SliceIndex,
@@ -34,7 +34,7 @@ mod testing {
     use cds::{
         array_vec,
         arrayvec::ArrayVec,
-        defs::U8,
+        len::U8,
         mem::Uninitialized,
         testing::dropped::{Dropped, Track},
     };
