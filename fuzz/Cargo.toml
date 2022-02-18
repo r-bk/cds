@@ -15,11 +15,18 @@ libfuzzer-sys = { version = "0.4", features = ["arbitrary-derive"] }
 path = ".."
 features = [
     "arrayvec",
+    "arraystring",
     "std",
 ]
 
 [[bin]]
 name = "arrayvec"
 path = "fuzz_targets/arrayvec.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "arraystring"
+path = "fuzz_targets/arraystring.rs"
 test = false
 doc = false
