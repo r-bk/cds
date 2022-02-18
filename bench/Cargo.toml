@@ -15,9 +15,14 @@ heapless = "=0.7.10"
 path = ".."
 features = [
     "arrayvec",
+    "arraystring",
     "std",
 ]
 
 [[bench]]
 name = "arrayvec"
+harness = false
+
+[[bench]]
+name = "arraystring"
 harness = false
