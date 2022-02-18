@@ -19,16 +19,19 @@
 //! They do not allocate memory on the heap, and their capacity cannot be dynamically changed.
 //!
 //! * [`ArrayVec`] - a vector-like array
+//! * [`ArrayString`] - a string-like array
 //!
 //!
 //! # Crate Features
 //!
 //! * `arrayvec` - enables [`ArrayVec`]
+//! * `arraystring` - enables [`ArrayString`]
 //! * `alloc` - enables usage of the standard [`alloc`] crate
 //! * `std` - implies `alloc` and enables implementation of [`std`] traits which are not available
 //!   in [`core`]. Without this feature the library is [`no_std`].
 //!
 //! [`ArrayVec`]: crate::arrayvec::ArrayVec
+//! [`ArrayString`]: crate::arraystring::ArrayString
 //! [`no_std`]: https://docs.rust-embedded.org/book/intro/no-std.html
 //!
 
@@ -42,6 +45,10 @@ extern crate alloc;
 #[cfg(feature = "arrayvec")]
 #[cfg_attr(docsrs, doc(cfg(feature = "arrayvec")))]
 pub mod arrayvec;
+
+#[cfg(feature = "arraystring")]
+#[cfg_attr(docsrs, doc(cfg(feature = "arraystring")))]
+pub mod arraystring;
 
 pub mod errors;
 

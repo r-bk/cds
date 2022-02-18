@@ -18,6 +18,7 @@
 - `LengthType` - a customizable type to track fixed-capacity collection length
   (allows creation of very compact collection types)
 - `ArrayVec` - an array with vector-like API
+- `ArrayString` - an array with string-like API
 
 
 ## Crate Features
@@ -46,7 +47,6 @@ The documentation is at [docs.rs/cds][docs-url]
 
 ## Roadmap
 
-- `ArrayString` - an array with string-like API
 - `SmallVec` - a vector with inline capacity to avoid heap allocation
 - `SmallString` - a string with inline capacity to avoid heap allocation
 
