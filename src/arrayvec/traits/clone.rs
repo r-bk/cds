@@ -1,7 +1,4 @@
-use crate::{
-    arrayvec::ArrayVec,
-    defs::{LengthType, SpareMemoryPolicy},
-};
+use crate::{arrayvec::ArrayVec, defs::LengthType, mem::SpareMemoryPolicy};
 use core::clone::Clone;
 
 impl<T, L, SM, const C: usize> Clone for ArrayVec<T, L, SM, C>
@@ -27,7 +24,8 @@ where
 #[cfg(test)]
 mod testing {
     use super::*;
-    use crate::defs::{Uninitialized, Usize};
+    use crate::defs::Usize;
+    use crate::mem::Uninitialized;
     use crate::testing::dropped::{Dropped, Track};
 
     #[test]

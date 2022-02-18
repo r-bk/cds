@@ -1,7 +1,4 @@
-use crate::{
-    arrayvec::ArrayVec,
-    defs::{LengthType, SpareMemoryPolicy},
-};
+use crate::{arrayvec::ArrayVec, defs::LengthType, mem::SpareMemoryPolicy};
 use core::iter::{FromIterator, IntoIterator};
 
 impl<T, L, SM, const C: usize> FromIterator<T> for ArrayVec<T, L, SM, C>
@@ -30,7 +27,8 @@ mod testing {
     use crate as cds;
     use cds::{
         arrayvec::ArrayVec,
-        defs::{Uninitialized, Usize},
+        defs::Usize,
+        mem::Uninitialized,
         testing::dropped::{Dropped, Track},
     };
 

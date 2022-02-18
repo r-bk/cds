@@ -1,5 +1,5 @@
 #![no_main]
-use cds::defs::{Pattern, U8};
+use cds::{defs::U8, mem::Pattern};
 use libfuzzer_sys::{arbitrary, fuzz_target};
 
 const TRACK_SIZE: usize = 128;

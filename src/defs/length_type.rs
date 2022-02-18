@@ -60,7 +60,8 @@ use lt_private::LengthTypeBase;
 /// # #[cfg(feature = "arrayvec")] {
 /// use cds::{
 ///     arrayvec::ArrayVec,
-///     defs::{Uninitialized, U8}
+///     defs::U8,
+///     mem::Uninitialized,
 /// };
 /// type A = ArrayVec<u8, U8, Uninitialized, 7>;
 /// assert_eq!(core::mem::size_of::<A>(), 8); // 7 element bytes + 1 length byte
@@ -73,7 +74,8 @@ use lt_private::LengthTypeBase;
 /// # #[cfg(feature = "arrayvec")] {
 /// use cds::{
 ///     arrayvec::ArrayVec,
-///     defs::{Uninitialized, U8}
+///     defs::U8,
+///     mem::Uninitialized,
 /// };
 /// type A = ArrayVec<u8, U8, Uninitialized, 256>; // U8::MAX(255) < CAPACITY(256)
 /// let a = A::new();   // <-- this panics

@@ -42,9 +42,7 @@ pub mod arrayvec;
 pub mod errors;
 
 pub mod defs;
-
-#[doc(inline)]
-pub use defs::SpareMemoryPolicy;
+pub mod mem;
 
 #[doc(inline)]
 pub use defs::LengthType;

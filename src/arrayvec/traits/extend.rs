@@ -1,7 +1,4 @@
-use crate::{
-    arrayvec::ArrayVec,
-    defs::{LengthType, SpareMemoryPolicy},
-};
+use crate::{arrayvec::ArrayVec, defs::LengthType, mem::SpareMemoryPolicy};
 use core::iter::Extend;
 
 impl<T, L, SM, const C: usize> Extend<T> for ArrayVec<T, L, SM, C>

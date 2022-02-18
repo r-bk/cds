@@ -1,7 +1,4 @@
-use crate::{
-    arrayvec::ArrayVec,
-    defs::{LengthType, SpareMemoryPolicy},
-};
+use crate::{arrayvec::ArrayVec, defs::LengthType, mem::SpareMemoryPolicy};
 use core::default::Default;
 
 impl<T, L, SM, const C: usize> Default for ArrayVec<T, L, SM, C>
@@ -18,10 +15,7 @@ where
 #[cfg(test)]
 mod testing {
     use crate as cds;
-    use cds::{
-        arrayvec::ArrayVec,
-        defs::{Uninitialized, U8},
-    };
+    use cds::{arrayvec::ArrayVec, defs::U8, mem::Uninitialized};
 
     #[test]
     fn test_default() {

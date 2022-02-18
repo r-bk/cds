@@ -2,8 +2,9 @@ use crate as cds;
 use cds::{
     array_vec,
     arrayvec::ArrayVec,
-    defs::{LengthType, Pattern, SpareMemoryPolicy, Uninitialized, U8},
+    defs::{LengthType, U8},
     errors::{CapacityError, InsertError, InsertErrorVal},
+    mem::{Pattern, SpareMemoryPolicy, Uninitialized},
     testing::dropped::{Dropped, Track},
 };
 use core::{

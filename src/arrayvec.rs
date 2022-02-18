@@ -1,8 +1,9 @@
 //! A vector-like array.
 
 use crate::{
-    defs::{LengthType, SpareMemoryPolicy},
+    defs::LengthType,
     errors::{CapacityError, CapacityErrorVal, InsertError, InsertErrorVal},
+    mem::SpareMemoryPolicy,
 };
 use core::{
     marker::PhantomData,
@@ -44,7 +45,7 @@ use retain::*;
 /// # Examples
 ///
 /// ```rust
-/// # use cds::{arrayvec::ArrayVec, array_vec, defs::{Uninitialized, U8}};
+/// # use cds::{arrayvec::ArrayVec, array_vec, defs::U8, mem::Uninitialized};
 /// let mut v = ArrayVec::<u64, U8, Uninitialized, 12>::new();
 /// assert_eq!(v.len(), 0);
 /// assert_eq!(v.capacity(), 12);
@@ -94,7 +95,7 @@ use retain::*;
 /// An `ArrayVec` can be created from an iterator:
 ///
 /// ```rust
-/// # use cds::{arrayvec::ArrayVec, defs::{Uninitialized, U8}};
+/// # use cds::{arrayvec::ArrayVec, defs::U8, mem::Uninitialized};
 /// type A = ArrayVec<u64, U8, Uninitialized, 5>;
 /// let vec = vec![1, 2, 3, 4, 5];
 /// let a = vec.iter()
@@ -107,7 +108,7 @@ use retain::*;
 /// If the iterator yields more than [`CAPACITY`] elements, the method panics:
 ///
 /// ```should_panic
-/// # use cds::{arrayvec::ArrayVec, defs::{Uninitialized, U64}};
+/// # use cds::{arrayvec::ArrayVec, defs::U64, mem::Uninitialized};
 /// type A = ArrayVec<u64, U64, Uninitialized, 3>; // <-- the capacity is 3
 /// let vec = vec![1, 2, 3, 4, 5];
 /// let a = vec.iter()                             // <-- but the iterator yields 5 elements
@@ -118,7 +119,7 @@ use retain::*;
 /// Avoid a panic with [`try_from_iter`] method, which returns [`CapacityError`] instead:
 ///
 /// ```rust
-/// # use cds::{arrayvec::ArrayVec, errors::CapacityError, defs::{Uninitialized, U64}};
+/// # use cds::{arrayvec::ArrayVec, errors::CapacityError, defs::U64, mem::Uninitialized};
 /// type A = ArrayVec<u64, U64, Uninitialized, 3>;
 /// let vec = vec![1, 2, 3, 4, 5];
 /// let iter = vec.iter().map(|x| x * x);
@@ -151,7 +152,7 @@ where
     ///
     /// # Examples
     /// ```rust
-    /// # use cds::{arrayvec::ArrayVec, defs::{Uninitialized, U8}};
+    /// # use cds::{arrayvec::ArrayVec, defs::U8, mem::Uninitialized};
     /// type A = ArrayVec<u64, U8, Uninitialized, 8>;
     /// let v = A::new();
     /// assert_eq!(A::CAPACITY, 8);
@@ -171,7 +172,7 @@ where
     /// # Examples
     ///
     /// ```rust
-    /// # use cds::{arrayvec::ArrayVec, defs::{Zeroed, U8}};
+    /// # use cds::{arrayvec::ArrayVec, defs::U8, mem::Zeroed};
     /// let a = ArrayVec::<u64, U8, Zeroed, 8>::new();
     /// assert_eq!(a.capacity(), 8);
     /// assert_eq!(a.len(), 0);
@@ -634,7 +635,7 @@ where
     /// # Examples
     ///
     /// ```rust
-    /// # use cds::{arrayvec::ArrayVec, errors::CapacityError, defs::{Uninitialized, U8}};
+    /// # use cds::{arrayvec::ArrayVec, errors::CapacityError, defs::U8, mem::Uninitialized};
     /// # use std::error::Error;
     /// # fn example() -> Result<(), CapacityError> {
     /// type A = ArrayVec<usize, U8, Uninitialized, 3>;

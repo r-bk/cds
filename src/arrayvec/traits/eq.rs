@@ -1,7 +1,4 @@
-use crate::{
-    arrayvec::ArrayVec,
-    defs::{LengthType, SpareMemoryPolicy},
-};
+use crate::{arrayvec::ArrayVec, defs::LengthType, mem::SpareMemoryPolicy};
 use core::cmp::{Eq, PartialEq};
 
 impl<T, L, U, SM, const C: usize, const N: usize> PartialEq<&'_ [U; N]> for ArrayVec<T, L, SM, C>
@@ -87,11 +84,7 @@ impl<T: Eq, L: LengthType, SM: SpareMemoryPolicy<T>, const C: usize> Eq for Arra
 #[cfg(test)]
 mod testing {
     use crate as cds;
-    use cds::{
-        array_vec,
-        arrayvec::ArrayVec,
-        defs::{Uninitialized, Usize},
-    };
+    use cds::{array_vec, arrayvec::ArrayVec, defs::Usize, mem::Uninitialized};
 
     type A = ArrayVec<u64, Usize, Uninitialized, 7>;
 

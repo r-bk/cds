@@ -1,7 +1,4 @@
-use crate::{
-    arrayvec::ArrayVec,
-    defs::{LengthType, SpareMemoryPolicy},
-};
+use crate::{arrayvec::ArrayVec, defs::LengthType, mem::SpareMemoryPolicy};
 use core::cmp::{Ord, Ordering, PartialOrd};
 
 impl<T, L, SM, const C: usize> PartialOrd for ArrayVec<T, L, SM, C>
