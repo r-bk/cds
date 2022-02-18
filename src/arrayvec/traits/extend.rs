@@ -4,26 +4,6 @@ use crate::{
 };
 use core::iter::Extend;
 
-struct Guard<'a, T, L, SM, const C: usize>
-where
-    L: LengthType,
-    SM: SpareMemoryPolicy<T>,
-{
-    av: &'a mut ArrayVec<T, L, SM, C>,
-    len: usize,
-}
-
-impl<'a, T, L, SM, const C: usize> Drop for Guard<'a, T, L, SM, C>
-where
-    L: LengthType,
-    SM: SpareMemoryPolicy<T>,
-{
-    #[inline]
-    fn drop(&mut self) {
-        unsafe { self.av.set_len(self.len) }
-    }
-}
-
 impl<T, L, SM, const C: usize> Extend<T> for ArrayVec<T, L, SM, C>
 where
     L: LengthType,
