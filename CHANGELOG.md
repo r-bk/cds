@@ -18,7 +18,7 @@ This is a small refactoring-only release done in preparation for `ArrayString`.
 - move trait `SpareMemoryPolicy` and its implementors from `cds::defs` to `cds::mem`
 - move trait `LengthType` and its implementors from `cds::defs` to `cds::len`
 
-### Deleted
+### Removed
 - remove the top-level module `cds::defs` as its contents were moved out to other modules
 
 ## [0.1.0] - 2022-02-18
