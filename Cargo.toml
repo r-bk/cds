@@ -1,6 +1,6 @@
 [package]
 name = "cds"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Rafael Buchbinder <rafi@rbk.io>"]
 edition = "2021"
 description = "Collection of Data Structures"
