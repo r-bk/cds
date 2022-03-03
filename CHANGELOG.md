@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2022-03-03
+This is a small refactoring-only release done in preparation for `ArrayString`.
+
+### Added
+- add new top-level module `cds::mem` for code that deals with memory
+- add new top-level module `cds::len` for length types
+
+### Changed
+- rename enum `InsertError` and `InsertErrorVal` variants:
+  - `IndexOutOfBounds` to `InvalidIndex`
+  - `CapacityError` to `InsufficientCapacity`
+- move trait `SpareMemoryPolicy` and its implementors from `cds::defs` to `cds::mem`
+- move trait `LengthType` and its implementors from `cds::defs` to `cds::len`
+
+### Deleted
+- remove the top-level module `cds::defs` as its contents were moved out to other modules
+
 ## [0.1.0] - 2022-02-18
 ### Added
 - add performance tests for `ArrayVec`
