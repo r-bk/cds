@@ -13,7 +13,9 @@ exclude = [".git*", "Makefile.toml"]
 [features]
 default = []
 arrayvec = []
-std = []
+alloc = []
+std = ["alloc"]
+
 
 [package.metadata.docs.rs]
 all-features = true

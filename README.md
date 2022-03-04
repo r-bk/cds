@@ -27,12 +27,16 @@ For example, `arrayvec` enables `ArrayVec`. None of the data structures is enabl
 
 Additionally, the following crate features are available:
 
+- `alloc` - enables usage of the standard [alloc] crate.
+
 - `std`- enables usage of the Rust standard library.
 
-  Currently this feature only enables implementation of traits from `std` which are
-  not available in `core`.
+  Currently, this feature implies `alloc`, and enables implementation of traits from `std`
+  which are not available in `core`.
 
   Without this feature the crate is `no_std`.
+
+[alloc]: https://doc.rust-lang.org/alloc/
 
 
 ## Documentation

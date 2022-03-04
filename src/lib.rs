@@ -24,8 +24,9 @@
 //! # Crate Features
 //!
 //! * `arrayvec` - enables [`ArrayVec`]
-//! * `std` - enables implementation of [`std`] traits which are not available in [`core`].
-//!   Without this feature the library is [`no_std`].
+//! * `alloc` - enables usage of the standard [`alloc`] crate
+//! * `std` - implies `alloc` and enables implementation of [`std`] traits which are not available
+//!   in [`core`]. Without this feature the library is [`no_std`].
 //!
 //! [`ArrayVec`]: crate::arrayvec::ArrayVec
 //! [`no_std`]: https://docs.rust-embedded.org/book/intro/no-std.html
@@ -34,6 +35,9 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![warn(missing_docs)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
+
+#[cfg(feature = "alloc")]
+extern crate alloc;
 
 #[cfg(feature = "arrayvec")]
 #[cfg_attr(docsrs, doc(cfg(feature = "arrayvec")))]
