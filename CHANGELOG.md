@@ -15,6 +15,8 @@ This release is dedicated to `ArrayString`.
 - add initial implementation of `ArrayString`
 - add initial implementation of array-string fuzz test and benchmark
 
+[alloc]: https://doc.rust-lang.org/alloc/
+
 ## [0.2.0] - 2022-03-03
 This is a small refactoring-only release done in preparation for `ArrayString`.
 
