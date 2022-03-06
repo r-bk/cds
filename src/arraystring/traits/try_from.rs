@@ -70,7 +70,7 @@ where
     type Error = CapacityError;
 
     #[inline]
-    fn try_from(string: &String) -> Result<Self, Self::Error> {
+    fn try_from(string: &alloc::string::String) -> Result<Self, Self::Error> {
         Self::try_from(string.as_str())
     }
 }
