@@ -1,6 +1,5 @@
 use crate::{arraystring::ArrayString, len::LengthType, mem::SpareMemoryPolicy};
-use core::cmp::{Ord, PartialOrd};
-use std::cmp::Ordering;
+use core::cmp::{Ord, Ordering, PartialOrd};
 
 impl<L, UL, SM, USM, const C: usize, const UC: usize> PartialOrd<ArrayString<UL, USM, UC>>
     for ArrayString<L, SM, C>
@@ -31,7 +30,7 @@ where
 mod testing {
     use crate as cds;
     use cds::array_str;
-    use std::cmp::Ordering;
+    use core::cmp::Ordering;
 
     #[test]
     fn test_partial_ord() {
