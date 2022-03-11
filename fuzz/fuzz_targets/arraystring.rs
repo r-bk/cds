@@ -11,6 +11,7 @@ type ArrayString = cds::arraystring::ArrayString<U8, Pattern<PATTERN>, CAP>;
 enum Op {
     TryPush(char),
     TryPushStr(String),
+    AddStr(String),
     Pop,
     Insert(u8, char),
     InsertStr(u8, String),
@@ -38,6 +39,17 @@ fuzz_target!(|ops: Vec<Op>| {
                 if sl.len() <= (CAP - shadow.len()) {
                     shadow.push_str(&sl);
                 }
+            }
+            Op::AddStr(sl) => {
+                let mut i = sl.len();
+                if i > s.spare_capacity() {
+                    i = s.spare_capacity();
+                    while !sl.is_char_boundary(i) {
+                        i -= 1;
+                    }
+                }
+                assert_eq!(s.add_str(&sl), i);
+                shadow.push_str(&sl[..i]);
             }
             Op::Pop => {
                 assert_eq!(s.pop(), shadow.pop());

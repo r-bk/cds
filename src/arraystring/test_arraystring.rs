@@ -338,3 +338,24 @@ fn test_truncate_panics() {
     let mut s = array_str![16; "2€"];
     s.truncate(2);
 }
+
+#[test]
+fn test_add_str() {
+    let mut s = array_str![6;];
+    assert_eq!(s.add_str("abcdef"), 6);
+    assert_eq!(s, "abcdef");
+
+    s.clear();
+    assert_eq!(s.add_str("ghijklm"), 6);
+    assert_eq!(s, "ghijkl");
+
+    let mut s = array_str![4;];
+    assert_eq!(s.add_str("€€"), 3);
+    assert_eq!(s, "€");
+
+    assert_eq!(s.add_str("€"), 0);
+    assert_eq!(s, "€");
+
+    assert_eq!(s.add_str("12"), 1);
+    assert_eq!(s, "€1");
+}

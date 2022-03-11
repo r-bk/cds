@@ -347,6 +347,44 @@ where
         unsafe { self.push_str_unchecked(s) };
     }
 
+    /// Appends as much characters of a string slice as spare capacity allows.
+    ///
+    /// Returns the number of bytes copied. Note that the return value represents the size
+    /// of the UTF-8 encoding of the successfully copied characters.
+    ///
+    /// The difference between [`push_str`] and [`add_str`] is that the former panics if there
+    /// is no spare capacity to accommodate the whole string slice, while the latter copies as much
+    /// characters as possible.
+    ///
+    /// # Examples
+    /// ```rust
+    /// # use cds::array_str;
+    /// let mut s = array_str![4;];
+    /// assert_eq!(s.add_str("€€"), 3);
+    /// assert_eq!(s.add_str("€"), 0);
+    /// assert_eq!(s, "€");
+    /// ```
+    ///
+    /// [`push_str`]: ArrayString::push_str
+    /// [`add_str`]: ArrayString::add_str
+    #[inline]
+    pub fn add_str(&mut self, s: &str) -> usize {
+        let spare_bytes = self.spare_capacity();
+        let mut s_len = s.len();
+        if s_len > spare_bytes {
+            s_len = spare_bytes;
+            while !s.is_char_boundary(s_len) {
+                s_len -= 1;
+            }
+        }
+        unsafe {
+            let len = self.len();
+            ptr::copy_nonoverlapping(s.as_ptr(), self.as_mut_ptr().add(len), s_len);
+            self.set_len(len + s_len);
+        }
+        s_len
+    }
+
     /// Tries to append a given string slice to the end of this `ArrayString`.
     ///
     /// This is a non-panic version of [`push_str`].
