@@ -1,4 +1,4 @@
-use criterion::{criterion_group, criterion_main, Criterion};
+use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use std::time::{Duration, Instant};
 
 const CAP: usize = 65535 - 2;
@@ -182,6 +182,21 @@ macro_rules! bf_truncate {
     };
 }
 
+fn bench_format(c: &mut Criterion) {
+    let mut group = c.benchmark_group("arraystring/format");
+    group.bench_function("cds", |b| {
+        b.iter(|| {
+            black_box(cds::format!(8, "cds"));
+        })
+    });
+    group.bench_function("std", |b| {
+        b.iter(|| {
+            black_box(std::format!("cds"));
+        })
+    });
+    group.finish();
+}
+
 bench_group!(
     bench_push,
     "arraystring/push",
@@ -251,5 +266,6 @@ criterion_group!(
     bench_insert_str,
     bench_remove,
     bench_truncate,
+    bench_format,
 );
 criterion_main!(benches);
