@@ -7,6 +7,7 @@ mod default;
 mod deref;
 mod display;
 mod eq;
+mod fmt_write;
 mod from_str;
 mod hash;
 mod ord;
