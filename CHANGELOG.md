@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - rename `cds::arraystring::format` to `cds::arraystring::format_lossy`
 - rename `cds::format!` to `cds::lformat!` to stress the lossiness of the operation
+- add default values for optional generic parameters and place the mandatory parameters first:
+  - `ArrayVec<T, L, SM, C>` is now `ArrayVec<T, C, L = Usize, SM = Uninitialized>`
+  - `ArrayString<L, SM, C>` is now `ArrayString<C, L = Usize, SM = Uninitialized>`
+- the `MSRV` is now `v1.59.0`, which is the first version that supports
+  [interleaved const generics]
+
+[interleaved const generics]: https://blog.rust-lang.org/2022/02/24/Rust-1.59.0.html#const-generics-defaults-and-interleaving
 
 ## [0.4.0] - 2022-03-12
 ### Added
