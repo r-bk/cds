@@ -8,7 +8,7 @@ const PATTERN: u8 = 0xBE;
 
 type Track = cds_fuzz::Track<TRACK_SIZE>;
 type Element<'a> = cds_fuzz::Element<'a, TRACK_SIZE>;
-type ArrayVec<'a> = cds::arrayvec::ArrayVec<Element<'a>, U8, Pattern<PATTERN>, AV_SIZE>;
+type ArrayVec<'a> = cds::arrayvec::ArrayVec<Element<'a>, AV_SIZE, U8, Pattern<PATTERN>>;
 
 #[derive(arbitrary::Arbitrary, Debug)]
 enum Op {

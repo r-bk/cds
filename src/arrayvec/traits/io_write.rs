@@ -2,7 +2,7 @@ use crate::{arrayvec::ArrayVec, len::LengthType, mem::SpareMemoryPolicy};
 use core::slice;
 
 #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
-impl<L, SM, const C: usize> std::io::Write for ArrayVec<u8, L, SM, C>
+impl<L, SM, const C: usize> std::io::Write for ArrayVec<u8, C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<u8>,
@@ -22,12 +22,12 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::{arrayvec::ArrayVec, len::Usize, mem::Uninitialized};
+    use crate::arrayvec::ArrayVec;
     use std::io::Write;
 
     #[test]
     fn test_io_write() {
-        type A = ArrayVec<u8, Usize, Uninitialized, 16>;
+        type A = ArrayVec<u8, 16>;
         let mut av = A::new();
         assert_eq!(av.write(b"thisisatest").unwrap(), 11);
         assert_eq!(av, b"thisisatest");
@@ -37,7 +37,7 @@ mod tests {
 
     #[test]
     fn test_io_write_empty() {
-        type A = ArrayVec<u8, Usize, Uninitialized, 16>;
+        type A = ArrayVec<u8, 16>;
         let mut av = A::new();
         assert_eq!(av.write(b"").unwrap(), 0);
         assert_eq!(av, []);
@@ -45,7 +45,7 @@ mod tests {
 
     #[test]
     fn test_io_write_full() {
-        type A = ArrayVec<u8, Usize, Uninitialized, 5>;
+        type A = ArrayVec<u8, 5>;
         let mut av = A::new();
         assert_eq!(av.write(b"write").unwrap(), 5);
         assert_eq!(av, b"write");
@@ -53,7 +53,7 @@ mod tests {
 
     #[test]
     fn test_io_write_flush() {
-        type A = ArrayVec<u8, Usize, Uninitialized, 5>;
+        type A = ArrayVec<u8, 5>;
         let mut av = A::new();
         assert!(av.flush().is_ok());
         assert_eq!(av.write(b"write").unwrap(), 5);

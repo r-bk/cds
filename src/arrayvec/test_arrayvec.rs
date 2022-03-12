@@ -27,7 +27,7 @@ impl RangeBounds<usize> for CustomRange<'_> {
 }
 
 fn check_spare_memory_at<T, L, SM, const C: usize>(
-    a: &ArrayVec<T, L, SM, C>,
+    a: &ArrayVec<T, C, L, SM>,
     pattern: u8,
     start: usize,
     end: usize,
@@ -49,7 +49,7 @@ fn check_spare_memory_at<T, L, SM, const C: usize>(
     }
 }
 
-fn check_spare_memory<T, L, SM, const C: usize>(a: &ArrayVec<T, L, SM, C>, pattern: u8)
+fn check_spare_memory<T, L, SM, const C: usize>(a: &ArrayVec<T, C, L, SM>, pattern: u8)
 where
     L: LengthType,
     SM: SpareMemoryPolicy<T>,
@@ -137,7 +137,7 @@ fn test_capacity_len_empty_full() {
 
 #[test]
 fn test_push_unchecked() {
-    type A = ArrayVec<u16, U8, Pattern<0xBC>, 5>;
+    type A = ArrayVec<u16, 5, U8, Pattern<0xBC>>;
     let mut a = A::new();
 
     assert_eq!(a, []);
@@ -156,7 +156,7 @@ fn test_push_unchecked() {
 
 #[test]
 fn test_push_unchecked_dropped() {
-    type A<'a> = ArrayVec<Dropped<'a, 16>, U8, Pattern<0xBC>, 16>;
+    type A<'a> = ArrayVec<Dropped<'a, 16>, 16, U8, Pattern<0xBC>>;
     let t = Track::new();
     let mut a = A::from_iter(t.take(3));
 
@@ -172,7 +172,7 @@ fn test_push_unchecked_dropped() {
 
 #[test]
 fn test_try_push() {
-    type A = ArrayVec<u16, U8, Pattern<0xBC>, 3>;
+    type A = ArrayVec<u16, 3, U8, Pattern<0xBC>>;
     let mut a = A::from_iter(0..2);
     assert_eq!(a, [0, 1]);
 
@@ -184,7 +184,7 @@ fn test_try_push() {
 
 #[test]
 fn test_push() {
-    type A = ArrayVec<u16, U8, Pattern<0xBC>, 3>;
+    type A = ArrayVec<u16, 3, U8, Pattern<0xBC>>;
     let mut a = A::from_iter(0..2);
     assert_eq!(a, [0, 1]);
 
@@ -199,7 +199,7 @@ fn test_push() {
 #[test]
 #[should_panic]
 fn test_push_panics() {
-    type A = ArrayVec<u16, U8, Pattern<0xBC>, 3>;
+    type A = ArrayVec<u16, 3, U8, Pattern<0xBC>>;
     let mut a = A::from_iter(0..3);
     assert_eq!(a, [0, 1, 2]);
     assert_eq!(a.spare_capacity(), 0);
@@ -208,7 +208,7 @@ fn test_push_panics() {
 
 #[test]
 fn test_pop() {
-    type A = ArrayVec<u64, U8, Pattern<0xAB>, 2>;
+    type A = ArrayVec<u64, 2, U8, Pattern<0xAB>>;
     let mut a = A::from_iter(1..3);
     assert_eq!(a.pop(), Some(2));
     assert_eq!(unsafe { a.as_ptr().add(0).read() }, 0x1);
@@ -224,7 +224,7 @@ fn test_pop() {
 
 #[test]
 fn test_pop_dropped() {
-    type A<'a> = ArrayVec<Dropped<'a, 16>, U8, Uninitialized, 16>;
+    type A<'a> = ArrayVec<Dropped<'a, 16>, 16, U8>;
     let t = Track::new();
     let mut a = A::from_iter(t.take(3));
     assert!(t.dropped_range(0..0)); // empty range
@@ -236,7 +236,7 @@ fn test_pop_dropped() {
 
 #[test]
 fn test_pop_unchecked() {
-    type A = ArrayVec<u8, U8, Pattern<0xAB>, 4>;
+    type A = ArrayVec<u8, 4, U8, Pattern<0xAB>>;
     let mut a = A::from_iter(5..9);
     assert_eq!(unsafe { a.pop_unchecked() }, 8);
     assert_eq!(unsafe { a.pop_unchecked() }, 7);
@@ -248,7 +248,7 @@ fn test_pop_unchecked() {
 
 #[test]
 fn test_pop_unchecked_dropped() {
-    type A<'a> = ArrayVec<Dropped<'a, 16>, U8, Uninitialized, 16>;
+    type A<'a> = ArrayVec<Dropped<'a, 16>, 16, U8>;
     let t = Track::new();
     let mut a = A::from_iter(t.take(3));
     assert!(t.dropped_range(0..0)); // empty range
@@ -260,7 +260,7 @@ fn test_pop_unchecked_dropped() {
 
 #[test]
 fn test_remove_unchecked() {
-    type A = ArrayVec<u8, U8, Pattern<0xAB>, 5>;
+    type A = ArrayVec<u8, 5, U8, Pattern<0xAB>>;
     let mut a = A::from_iter(1..6);
     assert_eq!(a, [1, 2, 3, 4, 5]);
     assert_eq!(a.len(), 5);
@@ -282,7 +282,7 @@ fn test_remove_unchecked() {
 
 #[test]
 fn test_remove_unchecked_dropped() {
-    type A<'a> = ArrayVec<Dropped<'a, 16>, U8, Uninitialized, 16>;
+    type A<'a> = ArrayVec<Dropped<'a, 16>, 16, U8>;
     let t = Track::new();
     let mut a = A::from_iter(t.take(5));
     assert!(t.dropped_range(0..0)); // empty range
@@ -296,7 +296,7 @@ fn test_remove_unchecked_dropped() {
 
 #[test]
 fn test_remove() {
-    type A = ArrayVec<u8, U8, Pattern<0xAB>, 5>;
+    type A = ArrayVec<u8, 5, U8, Pattern<0xAB>>;
     let mut a = A::from_iter(1..6);
     assert_eq!(a, [1, 2, 3, 4, 5]);
 
@@ -325,7 +325,7 @@ fn test_remove_invalid_index() {
 
 #[test]
 fn test_remove_dropped() {
-    type A<'a> = ArrayVec<Dropped<'a, 16>, U8, Uninitialized, 16>;
+    type A<'a> = ArrayVec<Dropped<'a, 16>, 16, U8>;
     let t = Track::new();
     let mut a = A::from_iter(t.take(5));
     assert!(t.dropped_range(0..0)); // empty range
@@ -342,7 +342,7 @@ fn test_remove_dropped() {
 
 #[test]
 fn test_try_remove() {
-    type A = ArrayVec<u16, U8, Pattern<0xAB>, 5>;
+    type A = ArrayVec<u16, 5, U8, Pattern<0xAB>>;
     let mut a = A::from_iter(1..4);
 
     assert_eq!(a, [1, 2, 3]);
@@ -362,7 +362,7 @@ fn test_try_remove() {
 
 #[test]
 fn test_try_remove_dropped() {
-    type A<'a> = ArrayVec<Dropped<'a, 16>, U8, Uninitialized, 16>;
+    type A<'a> = ArrayVec<Dropped<'a, 16>, 16, U8>;
     let t = Track::new();
     let mut a = A::from_iter(t.take(5));
     assert!(t.dropped_range(0..0)); // empty range
@@ -378,7 +378,7 @@ fn test_try_remove_dropped() {
 
 #[test]
 fn test_try_from_iter() {
-    type A = ArrayVec<usize, U8, Uninitialized, 5>;
+    type A = ArrayVec<usize, 5, U8>;
 
     let a = A::try_from_iter(0..5).expect("try_from_iter failed");
     assert_eq!(a, [0, 1, 2, 3, 4]);
@@ -408,7 +408,7 @@ fn test_iter_mut() {
 
 #[test]
 fn test_insert_unchecked() {
-    type A = ArrayVec<u8, U8, Pattern<0xAB>, 5>;
+    type A = ArrayVec<u8, 5, U8, Pattern<0xAB>>;
     let mut a = A::from_iter(0..4);
     assert_eq!(a, [0, 1, 2, 3]);
     assert_eq!(unsafe { a.as_ptr().add(4).read() }, 0xAB);
@@ -419,7 +419,7 @@ fn test_insert_unchecked() {
 
 #[test]
 fn test_insert_unchecked_dropped() {
-    type A<'a> = ArrayVec<Dropped<'a, 16>, U8, Uninitialized, 16>;
+    type A<'a> = ArrayVec<Dropped<'a, 16>, 16, U8>;
     let t = Track::new();
     let mut a = A::from_iter(t.take(3));
     assert!(t.dropped_range(0..0)); // empty range
@@ -438,7 +438,7 @@ fn test_insert_unchecked_dropped() {
 
 #[test]
 fn test_try_insert() {
-    type A = ArrayVec<u8, U8, Pattern<0xAB>, 5>;
+    type A = ArrayVec<u8, 5, U8, Pattern<0xAB>>;
     let mut a = A::from_iter(0..3);
     assert_eq!(a, [0, 1, 2]);
     assert_eq!(unsafe { a.as_ptr().add(3).read() }, 0xAB);
@@ -460,7 +460,7 @@ fn test_try_insert() {
 
 #[test]
 fn test_insert() {
-    type A = ArrayVec<u8, U8, Pattern<0xAB>, 5>;
+    type A = ArrayVec<u8, 5, U8, Pattern<0xAB>>;
     let mut a = A::from_iter(0..3);
     assert_eq!(a, [0, 1, 2]);
     assert_eq!(unsafe { a.as_ptr().add(3).read() }, 0xAB);
@@ -477,14 +477,14 @@ fn test_insert() {
 #[test]
 #[should_panic]
 fn test_insert_panics() {
-    type A = ArrayVec<u8, U8, Pattern<0xAB>, 5>;
+    type A = ArrayVec<u8, 5, U8, Pattern<0xAB>>;
     let mut a = A::from_iter(0..5);
     a.insert(0, 0);
 }
 
 #[test]
 fn test_swap_remove_unchecked() {
-    type A = ArrayVec<u8, U8, Pattern<0xAC>, 5>;
+    type A = ArrayVec<u8, 5, U8, Pattern<0xAC>>;
     let mut a = A::from_iter(0..4);
     assert_eq!(a, [0, 1, 2, 3]);
     assert_eq!(unsafe { a.as_ptr().add(4).read() }, 0xAC);
@@ -503,7 +503,7 @@ fn test_swap_remove_unchecked() {
 
 #[test]
 fn test_swap_remove_unchecked_dropped() {
-    type A<'a> = ArrayVec<Dropped<'a, 16>, U8, Pattern<0xAC>, 16>;
+    type A<'a> = ArrayVec<Dropped<'a, 16>, 16, U8, Pattern<0xAC>>;
     let t = Track::new();
     let mut a = A::from_iter(t.take(5));
     assert!(t.dropped_indices(&[]));
@@ -517,7 +517,7 @@ fn test_swap_remove_unchecked_dropped() {
 
 #[test]
 fn test_try_swap_remove() {
-    type A = ArrayVec<u8, U8, Pattern<0xAC>, 5>;
+    type A = ArrayVec<u8, 5, U8, Pattern<0xAC>>;
     let mut a = A::from_iter(0..5);
     assert_eq!(a, [0, 1, 2, 3, 4]);
 
@@ -536,7 +536,7 @@ fn test_try_swap_remove() {
 
 #[test]
 fn test_try_swap_remove_dropped() {
-    type A<'a> = ArrayVec<Dropped<'a, 5>, U8, Pattern<0xAC>, 5>;
+    type A<'a> = ArrayVec<Dropped<'a, 5>, 5, U8, Pattern<0xAC>>;
     let t = Track::new();
     let mut a = A::from_iter(t.take(4));
     assert!(t.dropped_indices(&[]));
@@ -552,7 +552,7 @@ fn test_try_swap_remove_dropped() {
 
 #[test]
 fn test_swap_remove() {
-    type A = ArrayVec<u8, U8, Pattern<0xAC>, 5>;
+    type A = ArrayVec<u8, 5, U8, Pattern<0xAC>>;
     let mut a = A::from_iter(0..5);
     assert_eq!(a, [0, 1, 2, 3, 4]);
 
@@ -568,7 +568,7 @@ fn test_swap_remove() {
 
 #[test]
 fn test_swap_remove_dropped() {
-    type A<'a> = ArrayVec<Dropped<'a, 5>, U8, Pattern<0xAC>, 5>;
+    type A<'a> = ArrayVec<Dropped<'a, 5>, 5, U8, Pattern<0xAC>>;
     let t = Track::new();
     let mut a = A::from_iter(t.take(4));
     assert!(t.dropped_indices(&[]));
@@ -583,7 +583,7 @@ fn test_swap_remove_dropped() {
 #[test]
 #[should_panic]
 fn test_swap_remove_panics() {
-    type A = ArrayVec<u8, U8, Pattern<0xAC>, 5>;
+    type A = ArrayVec<u8, 5, U8, Pattern<0xAC>>;
     let mut a = A::from_iter(0..1);
     assert_eq!(a, [0]);
     a.swap_remove(2);
@@ -591,7 +591,7 @@ fn test_swap_remove_panics() {
 
 #[test]
 fn test_try_push_val() {
-    type A = ArrayVec<u8, U8, Uninitialized, 4>;
+    type A = ArrayVec<u8, 4, U8>;
     let mut a = A::from_iter(0..3);
     assert_eq!(a, [0, 1, 2]);
 
@@ -606,7 +606,7 @@ fn test_try_push_val() {
 
 #[test]
 fn test_try_push_val_dropped() {
-    type A<'a> = ArrayVec<Dropped<'a, 5>, U8, Pattern<0xAC>, 4>;
+    type A<'a> = ArrayVec<Dropped<'a, 5>, 4, U8, Pattern<0xAC>>;
     let t = Track::new();
     let mut a = A::from_iter(t.take(3));
     assert!(t.dropped_indices(&[]));
@@ -628,7 +628,7 @@ fn test_try_push_val_dropped() {
 
 #[test]
 fn test_try_insert_val() {
-    type A = ArrayVec<u8, U8, Uninitialized, 4>;
+    type A = ArrayVec<u8, 4, U8, Uninitialized>;
     let mut a = A::from_iter(0..3);
     assert_eq!(a, [0, 1, 2]);
 
@@ -646,7 +646,7 @@ fn test_try_insert_val() {
 
 #[test]
 fn test_try_insert_val_dropped() {
-    type A<'a> = ArrayVec<Dropped<'a, 10>, U8, Uninitialized, 4>;
+    type A<'a> = ArrayVec<Dropped<'a, 10>, 4, U8>;
     let t = Track::new();
     let mut a = A::from_iter(t.take(3));
     assert!(t.dropped_indices(&[]));
@@ -782,7 +782,7 @@ fn test_drain_invalid_range() {
 
 #[test]
 fn test_drain_prefix_smp() {
-    type A = ArrayVec<usize, U8, Pattern<0xAB>, 5>;
+    type A = ArrayVec<usize, 5, U8, Pattern<0xAB>>;
     const SPARE_MEM: usize = 0xABABABABABABABAB;
 
     let mut a = A::from_iter(0..5);
@@ -812,7 +812,7 @@ fn test_drain_prefix_smp() {
 
 #[test]
 fn test_drain_suffix_smp() {
-    type A = ArrayVec<usize, U8, Pattern<0xAB>, 5>;
+    type A = ArrayVec<usize, 5, U8, Pattern<0xAB>>;
     const SPARE_MEM: usize = 0xABABABABABABABAB;
 
     let mut a = A::from_iter(0..5);
@@ -842,7 +842,7 @@ fn test_drain_suffix_smp() {
 
 #[test]
 fn test_drain_zst() {
-    type A = ArrayVec<(), U8, Uninitialized, 5>;
+    type A = ArrayVec<(), 5, U8>;
     let mut a = A::new();
     while a.has_spare_capacity() {
         a.push(());
@@ -857,7 +857,7 @@ fn test_drain_zst() {
 
 #[test]
 fn test_drain_dropped() {
-    type A<'a> = ArrayVec<Dropped<'a, 16>, U8, Uninitialized, 16>;
+    type A<'a> = ArrayVec<Dropped<'a, 16>, 16, U8>;
     let t = Track::<16>::new();
     let mut a = A::from_iter(t.take(5));
     assert!(t.dropped_indices(&[]));
@@ -902,7 +902,7 @@ fn test_retain_mut() {
 
 #[test]
 fn test_retain_dropped() {
-    type A<'a> = ArrayVec<Dropped<'a, 16>, U8, Pattern<0xBA>, 8>;
+    type A<'a> = ArrayVec<Dropped<'a, 16>, 8, U8, Pattern<0xBA>>;
     let t = Track::<16>::new();
     let mut a = A::from_iter(t.take(A::CAPACITY));
     assert!(t.dropped_indices(&[]));
@@ -915,7 +915,7 @@ fn test_retain_dropped() {
 
 #[test]
 fn test_retain_dropped_retain_all() {
-    type A<'a> = ArrayVec<Dropped<'a, 16>, U8, Pattern<0xBA>, 8>;
+    type A<'a> = ArrayVec<Dropped<'a, 16>, 8, U8, Pattern<0xBA>>;
     let t = Track::<16>::new();
     let mut a = A::from_iter(t.take(A::CAPACITY));
     assert_eq!(a.len(), 8);
@@ -929,7 +929,7 @@ fn test_retain_dropped_retain_all() {
 
 #[test]
 fn test_retain_dropped_retain_none() {
-    type A<'a> = ArrayVec<Dropped<'a, 16>, U8, Pattern<0xBA>, 8>;
+    type A<'a> = ArrayVec<Dropped<'a, 16>, 8, U8, Pattern<0xBA>>;
     let t = Track::<16>::new();
     let mut a = A::from_iter(t.take(A::CAPACITY));
     assert_eq!(a.len(), 8);
@@ -942,7 +942,7 @@ fn test_retain_dropped_retain_none() {
 
 #[test]
 fn test_spare_capacity_mut_dropped() {
-    type A<'a> = ArrayVec<Dropped<'a, 16>, U8, Pattern<0xBA>, 8>;
+    type A<'a> = ArrayVec<Dropped<'a, 16>, 8, U8, Pattern<0xBA>>;
     let t = Track::<16>::new();
     let mut a = A::new();
 
@@ -959,7 +959,7 @@ fn test_spare_capacity_mut_dropped() {
 
 #[test]
 fn test_split_at_spare_mut_dropped() {
-    type A<'a> = ArrayVec<Dropped<'a, 16>, U8, Pattern<0xBA>, 8>;
+    type A<'a> = ArrayVec<Dropped<'a, 16>, 8, U8, Pattern<0xBA>>;
     let t = Track::<16>::new();
     let mut a = A::from_iter(t.take(2));
     assert!(t.dropped_range(0..0));
@@ -1026,7 +1026,7 @@ fn test_try_resize() {
 
 #[test]
 fn test_resize_with_dropped() {
-    type A<'a> = ArrayVec<Dropped<'a, 16>, U8, Pattern<0xBA>, 8>;
+    type A<'a> = ArrayVec<Dropped<'a, 16>, 8, U8, Pattern<0xBA>>;
     let t = Track::<16>::new();
     let mut av = A::from_iter(t.take(2));
     assert!(t.dropped_range(0..0));
@@ -1049,7 +1049,7 @@ fn test_resize_with_panics() {
 
 #[test]
 fn test_try_resize_with_dropped() {
-    type A<'a> = ArrayVec<Dropped<'a, 16>, U8, Pattern<0xBA>, 8>;
+    type A<'a> = ArrayVec<Dropped<'a, 16>, 8, U8, Pattern<0xBA>>;
     let t = Track::<16>::new();
     let mut av = A::from_iter(t.take(2));
     assert!(t.dropped_range(0..0));

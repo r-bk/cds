@@ -18,7 +18,7 @@ where
     T: 'a,
 {
     // the owner ArrayVec
-    pub(super) av: ptr::NonNull<ArrayVec<T, L, SM, C>>,
+    pub(super) av: ptr::NonNull<ArrayVec<T, C, L, SM>>,
     // an iterator over the slice to be drained
     pub(super) iter: slice::Iter<'a, T>,
     // the index of the first element past the drained range; or L::MAX for empty drained range

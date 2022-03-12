@@ -1,7 +1,7 @@
 use crate::{arrayvec::ArrayVec, len::LengthType, mem::SpareMemoryPolicy};
 use core::cmp::{Ord, Ordering, PartialOrd};
 
-impl<T, L, SM, const C: usize> PartialOrd for ArrayVec<T, L, SM, C>
+impl<T, L, SM, const C: usize> PartialOrd for ArrayVec<T, C, L, SM>
 where
     T: PartialOrd,
     L: LengthType,
@@ -13,7 +13,7 @@ where
     }
 }
 
-impl<T, L, SM, const C: usize> Ord for ArrayVec<T, L, SM, C>
+impl<T, L, SM, const C: usize> Ord for ArrayVec<T, C, L, SM>
 where
     T: Ord,
     L: LengthType,

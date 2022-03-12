@@ -1,7 +1,7 @@
 use crate::{arrayvec::ArrayVec, len::LengthType, mem::SpareMemoryPolicy};
 use core::ops::Drop;
 
-impl<T, L, SM, const C: usize> Drop for ArrayVec<T, L, SM, C>
+impl<T, L, SM, const C: usize> Drop for ArrayVec<T, C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<T>,
@@ -17,14 +17,12 @@ mod testing {
     use crate as cds;
     use cds::{
         arrayvec::ArrayVec,
-        len::Usize,
-        mem::Uninitialized,
         testing::dropped::{Dropped, Track},
     };
 
     #[test]
     fn test_drop() {
-        type A<'a> = ArrayVec<Dropped<'a, 16>, Usize, Uninitialized, 8>;
+        type A<'a> = ArrayVec<Dropped<'a, 16>, 8>;
         let t = Track::<16>::new();
         let a = A::try_from_iter(t.take(5)).unwrap();
         assert_eq!(t.n_allocated(), 5);
@@ -37,7 +35,7 @@ mod testing {
 
     #[test]
     fn test_drop_copy() {
-        type A = ArrayVec<usize, Usize, Uninitialized, 7>;
+        type A = ArrayVec<usize, 7>;
         let a = A::try_from_iter((0..5).into_iter()).unwrap();
         drop(a);
     }

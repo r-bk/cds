@@ -40,7 +40,7 @@ pub(crate) mod private {
 ///
 /// // --- Uninitialized ---
 ///
-/// type A = ArrayVec<u16, U8, Uninitialized, 3>;
+/// type A = ArrayVec<u16, 3, U8, Uninitialized>;
 ///
 /// // all memory is uninitialized
 /// let mut a = A::new();
@@ -56,7 +56,7 @@ pub(crate) mod private {
 ///
 /// // --- Pattern ---
 ///
-/// type B = ArrayVec<u16, U8, Pattern<0xAB>, 3>;
+/// type B = ArrayVec<u16, 3, U8, Pattern<0xAB>>;
 ///
 /// // all memory is initialized with P
 /// let mut a = B::new();
@@ -79,7 +79,7 @@ pub(crate) mod private {
 ///
 /// // --- Zeroed ---
 ///
-/// type C = ArrayVec<u16, U8, Zeroed, 2>;
+/// type C = ArrayVec<u16, 2, U8, Zeroed>;
 ///
 /// // all memory is zeroed
 /// let a = C::new();

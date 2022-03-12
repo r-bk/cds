@@ -1,7 +1,7 @@
 use crate::{arrayvec::ArrayVec, len::LengthType, mem::SpareMemoryPolicy};
 use core::clone::Clone;
 
-impl<T, L, SM, const C: usize> Clone for ArrayVec<T, L, SM, C>
+impl<T, L, SM, const C: usize> Clone for ArrayVec<T, C, L, SM>
 where
     T: Clone,
     L: LengthType,
@@ -24,13 +24,11 @@ where
 #[cfg(test)]
 mod testing {
     use super::*;
-    use crate::len::Usize;
-    use crate::mem::Uninitialized;
     use crate::testing::dropped::{Dropped, Track};
 
     #[test]
     fn test_clone_from() {
-        type A<'a> = ArrayVec<Dropped<'a, 64>, Usize, Uninitialized, 8>;
+        type A<'a> = ArrayVec<Dropped<'a, 64>, 8>;
         let track = Track::<64>::new();
 
         let mut a = A::try_from_iter(track.take(5)).unwrap();
@@ -54,7 +52,7 @@ mod testing {
 
     #[test]
     fn test_clone() {
-        type A<'a> = ArrayVec<Dropped<'a, 64>, Usize, Uninitialized, 8>;
+        type A<'a> = ArrayVec<Dropped<'a, 64>, 8>;
         let track = Track::<64>::new();
 
         let a = A::try_from_iter(track.take(3)).unwrap();

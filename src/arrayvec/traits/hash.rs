@@ -1,7 +1,7 @@
 use crate::{arrayvec::ArrayVec, len::LengthType, mem::SpareMemoryPolicy};
 use core::hash::{Hash, Hasher};
 
-impl<T, L, SM, const C: usize> Hash for ArrayVec<T, L, SM, C>
+impl<T, L, SM, const C: usize> Hash for ArrayVec<T, C, L, SM>
 where
     T: Hash,
     L: LengthType,

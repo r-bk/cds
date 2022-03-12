@@ -1,19 +1,19 @@
 use crate::{arrayvec::ArrayVec, len::LengthType, mem::SpareMemoryPolicy};
 use core::ptr;
 
-pub struct RetainGuard<'a, T, L, SM, const C: usize>
+pub struct RetainGuard<'a, T, const C: usize, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<T>,
     T: 'a,
 {
-    pub(super) av: &'a mut ArrayVec<T, L, SM, C>,
+    pub(super) av: &'a mut ArrayVec<T, C, L, SM>,
     pub(super) len: usize,
     pub(super) processed: usize,
     pub(super) deleted: usize,
 }
 
-impl<'a, T, L, SM, const C: usize> Drop for RetainGuard<'a, T, L, SM, C>
+impl<'a, T, L, SM, const C: usize> Drop for RetainGuard<'a, T, C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<T>,

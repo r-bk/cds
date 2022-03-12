@@ -2,8 +2,8 @@
 
 use crate::{
     errors::{CapacityError, CapacityErrorVal, InsertError, InsertErrorVal},
-    len::LengthType,
-    mem::SpareMemoryPolicy,
+    len::{LengthType, Usize},
+    mem::{SpareMemoryPolicy, Uninitialized},
 };
 use core::{
     marker::PhantomData,
@@ -22,7 +22,7 @@ use retain::*;
 
 /// A continuous non-growable array with vector-like API.
 ///
-/// Written as `ArrayVec<T, L, SM, C>`, array vector has the capacity to store `C` elements of type
+/// Written as `ArrayVec<T, C, L, SM>`, array vector has the capacity to store `C` elements of type
 /// `T`.
 ///
 /// It uses type `L` as [`length type`], and `SM` as [`spare memory policy`].
@@ -45,8 +45,8 @@ use retain::*;
 /// # Examples
 ///
 /// ```rust
-/// # use cds::{arrayvec::ArrayVec, array_vec, len::U8, mem::Uninitialized};
-/// let mut v = ArrayVec::<u64, U8, Uninitialized, 12>::new();
+/// # use cds::{arrayvec::ArrayVec, array_vec, len::U8};
+/// let mut v = ArrayVec::<u64, 12, U8>::new();
 /// assert_eq!(v.len(), 0);
 /// assert_eq!(v.capacity(), 12);
 /// assert_eq!(v.spare_capacity(), 12);
@@ -95,8 +95,8 @@ use retain::*;
 /// An `ArrayVec` can be created from an iterator:
 ///
 /// ```rust
-/// # use cds::{arrayvec::ArrayVec, len::U8, mem::Uninitialized};
-/// type A = ArrayVec<u64, U8, Uninitialized, 5>;
+/// # use cds::{arrayvec::ArrayVec, len::U8};
+/// type A = ArrayVec<u64, 5, U8>;
 /// let vec = vec![1, 2, 3, 4, 5];
 /// let a = vec.iter()
 ///            .map(|x| x * x)
@@ -109,7 +109,7 @@ use retain::*;
 ///
 /// ```should_panic
 /// # use cds::{arrayvec::ArrayVec, len::U64, mem::Uninitialized};
-/// type A = ArrayVec<u64, U64, Uninitialized, 3>; // <-- the capacity is 3
+/// type A = ArrayVec<u64, 3, U64, Uninitialized>; // <-- the capacity is 3
 /// let vec = vec![1, 2, 3, 4, 5];
 /// let a = vec.iter()                             // <-- but the iterator yields 5 elements
 ///            .map(|x| x * x)
@@ -119,8 +119,8 @@ use retain::*;
 /// Avoid a panic with [`try_from_iter`] method, which returns [`CapacityError`] instead:
 ///
 /// ```rust
-/// # use cds::{arrayvec::ArrayVec, errors::CapacityError, len::U64, mem::Uninitialized};
-/// type A = ArrayVec<u64, U64, Uninitialized, 3>;
+/// # use cds::{arrayvec::ArrayVec, errors::CapacityError, len::U64};
+/// type A = ArrayVec<u64, 3, U64>;
 /// let vec = vec![1, 2, 3, 4, 5];
 /// let iter = vec.iter().map(|x| x * x);
 /// assert!(matches!(A::try_from_iter(iter), Err(CapacityError)));
@@ -131,7 +131,7 @@ use retain::*;
 /// [`try_from_iter`]: ArrayVec::try_from_iter
 /// [`try_push`]: ArrayVec::try_push
 /// [`push`]: ArrayVec::push
-pub struct ArrayVec<T, L, SM, const C: usize>
+pub struct ArrayVec<T, const C: usize, L = Usize, SM = Uninitialized>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<T>,
@@ -141,7 +141,7 @@ where
     phantom1: PhantomData<SM>,
 }
 
-impl<T, L, SM, const C: usize> ArrayVec<T, L, SM, C>
+impl<T, L, SM, const C: usize> ArrayVec<T, C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<T>,
@@ -153,7 +153,7 @@ where
     /// # Examples
     /// ```rust
     /// # use cds::{arrayvec::ArrayVec, len::U8, mem::Uninitialized};
-    /// type A = ArrayVec<u64, U8, Uninitialized, 8>;
+    /// type A = ArrayVec<u64, 8, U8, Uninitialized>;
     /// let v = A::new();
     /// assert_eq!(A::CAPACITY, 8);
     /// assert_eq!(v.capacity(), A::CAPACITY);
@@ -173,7 +173,7 @@ where
     ///
     /// ```rust
     /// # use cds::{arrayvec::ArrayVec, len::U8, mem::Zeroed};
-    /// let a = ArrayVec::<u64, U8, Zeroed, 8>::new();
+    /// let a = ArrayVec::<u64, 8, U8, Zeroed>::new();
     /// assert_eq!(a.capacity(), 8);
     /// assert_eq!(a.len(), 0);
     /// ```
@@ -638,7 +638,7 @@ where
     /// # use cds::{arrayvec::ArrayVec, errors::CapacityError, len::U8, mem::Uninitialized};
     /// # use std::error::Error;
     /// # fn example() -> Result<(), CapacityError> {
-    /// type A = ArrayVec<usize, U8, Uninitialized, 3>;
+    /// type A = ArrayVec<usize, 3, U8, Uninitialized>;
     /// let a = [1, 2, 3];
     /// let v = A::try_from_iter(a.iter().filter(|x| **x % 2 == 0).cloned())?;
     /// assert_eq!(v, [2]);
@@ -1409,7 +1409,7 @@ where
     }
 }
 
-impl<T, L, SM, const C: usize> ArrayVec<T, L, SM, C>
+impl<T, L, SM, const C: usize> ArrayVec<T, C, L, SM>
 where
     T: Clone,
     L: LengthType,
@@ -1526,7 +1526,7 @@ where
     }
 }
 
-impl<T, L, SM, const C: usize> ArrayVec<T, L, SM, C>
+impl<T, L, SM, const C: usize> ArrayVec<T, C, L, SM>
 where
     T: Copy,
     L: LengthType,

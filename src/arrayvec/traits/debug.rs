@@ -1,7 +1,7 @@
 use crate::{arrayvec::ArrayVec, len::LengthType, mem::SpareMemoryPolicy};
 use core::fmt::{Debug, Formatter, Result};
 
-impl<T, L, SM, const C: usize> Debug for ArrayVec<T, L, SM, C>
+impl<T, L, SM, const C: usize> Debug for ArrayVec<T, C, L, SM>
 where
     T: Debug,
     L: LengthType,

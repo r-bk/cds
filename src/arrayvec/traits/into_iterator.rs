@@ -1,7 +1,7 @@
 use crate::{arrayvec::ArrayVec, len::LengthType, mem::SpareMemoryPolicy};
 use core::{iter::IntoIterator, slice};
 
-impl<'a, T, L, SM, const C: usize> IntoIterator for &'a ArrayVec<T, L, SM, C>
+impl<'a, T, L, SM, const C: usize> IntoIterator for &'a ArrayVec<T, C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<T>,
@@ -15,7 +15,7 @@ where
     }
 }
 
-impl<'a, T, L, SM, const C: usize> IntoIterator for &'a mut ArrayVec<T, L, SM, C>
+impl<'a, T, L, SM, const C: usize> IntoIterator for &'a mut ArrayVec<T, C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<T>,
@@ -32,8 +32,8 @@ where
 #[cfg(test)]
 mod testing {
     use crate as cds;
-    use cds::{arrayvec::ArrayVec, len::Usize, mem::Uninitialized};
-    type A = ArrayVec<u64, Usize, Uninitialized, 7>;
+    use cds::arrayvec::ArrayVec;
+    type A = ArrayVec<u64, 7>;
 
     fn use_iterator(a: &A) -> u64 {
         let mut sum = 0;

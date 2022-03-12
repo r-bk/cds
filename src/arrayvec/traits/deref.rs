@@ -1,7 +1,7 @@
 use crate::{arrayvec::ArrayVec, len::LengthType, mem::SpareMemoryPolicy};
 use core::ops::{Deref, DerefMut};
 
-impl<T, L, SM, const C: usize> Deref for ArrayVec<T, L, SM, C>
+impl<T, L, SM, const C: usize> Deref for ArrayVec<T, C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<T>,
@@ -14,7 +14,7 @@ where
     }
 }
 
-impl<T, L, SM, const C: usize> DerefMut for ArrayVec<T, L, SM, C>
+impl<T, L, SM, const C: usize> DerefMut for ArrayVec<T, C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<T>,

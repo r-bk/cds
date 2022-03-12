@@ -1,7 +1,7 @@
 use crate::{arrayvec::ArrayVec, errors::CapacityError, len::LengthType, mem::SpareMemoryPolicy};
 use core::{convert::TryFrom, mem, ptr};
 
-impl<T, L, SM, const C: usize> TryFrom<&[T]> for ArrayVec<T, L, SM, C>
+impl<T, L, SM, const C: usize> TryFrom<&[T]> for ArrayVec<T, C, L, SM>
 where
     T: Clone,
     L: LengthType,
@@ -22,7 +22,7 @@ where
     }
 }
 
-impl<T, L, SM, const C: usize> TryFrom<&mut [T]> for ArrayVec<T, L, SM, C>
+impl<T, L, SM, const C: usize> TryFrom<&mut [T]> for ArrayVec<T, C, L, SM>
 where
     T: Clone,
     L: LengthType,
@@ -43,7 +43,7 @@ where
     }
 }
 
-impl<T, L, SM, const C: usize, const N: usize> TryFrom<[T; N]> for ArrayVec<T, L, SM, C>
+impl<T, L, SM, const C: usize, const N: usize> TryFrom<[T; N]> for ArrayVec<T, C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<T>,
@@ -68,8 +68,8 @@ where
 #[cfg(test)]
 mod testing {
     use crate as cds;
-    use cds::{arrayvec::ArrayVec, errors::CapacityError, len::Usize, mem::Uninitialized};
-    type A = ArrayVec<u64, Usize, Uninitialized, 7>;
+    use cds::{arrayvec::ArrayVec, errors::CapacityError};
+    type A = ArrayVec<u64, 7>;
 
     #[test]
     fn test_try_from_slice() {

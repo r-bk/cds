@@ -4,7 +4,7 @@ use core::{
     slice::SliceIndex,
 };
 
-impl<T, L, SM, I: SliceIndex<[T]>, const C: usize> Index<I> for ArrayVec<T, L, SM, C>
+impl<T, L, SM, I: SliceIndex<[T]>, const C: usize> Index<I> for ArrayVec<T, C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<T>,
@@ -17,7 +17,7 @@ where
     }
 }
 
-impl<T, L, SM, I: SliceIndex<[T]>, const C: usize> IndexMut<I> for ArrayVec<T, L, SM, C>
+impl<T, L, SM, I: SliceIndex<[T]>, const C: usize> IndexMut<I> for ArrayVec<T, C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<T>,
@@ -35,7 +35,6 @@ mod testing {
         array_vec,
         arrayvec::ArrayVec,
         len::U8,
-        mem::Uninitialized,
         testing::dropped::{Dropped, Track},
     };
 
@@ -86,7 +85,7 @@ mod testing {
 
     #[test]
     fn test_index_mut_dropped() {
-        type A<'a> = ArrayVec<Dropped<'a, 5>, U8, Uninitialized, 5>;
+        type A<'a> = ArrayVec<Dropped<'a, 5>, 5, U8>;
         let t = Track::new();
         let mut a = A::from_iter(t.take(3));
         assert!(t.dropped_indices(&[]));

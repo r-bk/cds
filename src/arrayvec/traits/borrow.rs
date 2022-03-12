@@ -1,7 +1,7 @@
 use crate::{arrayvec::ArrayVec, len::LengthType, mem::SpareMemoryPolicy};
 use core::borrow::{Borrow, BorrowMut};
 
-impl<T, L, SM, const C: usize> Borrow<[T]> for ArrayVec<T, L, SM, C>
+impl<T, L, SM, const C: usize> Borrow<[T]> for ArrayVec<T, C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<T>,
@@ -12,7 +12,7 @@ where
     }
 }
 
-impl<T, L, SM, const C: usize> BorrowMut<[T]> for ArrayVec<T, L, SM, C>
+impl<T, L, SM, const C: usize> BorrowMut<[T]> for ArrayVec<T, C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<T>,
