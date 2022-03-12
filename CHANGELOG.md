@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2022-03-12
+### Added
+- add `ArrayString::add_str`. The method copies characters from a string slice,
+  as much as the spare capacity allows, and returns the number of bytes copied.
+- add `arraystring::format` function that formats and returns an `ArrayString`
+- add `cds::format!` macro for convenient `ArrayString` formatting
+
 ## [0.3.0] - 2022-03-06
 This release is dedicated to `ArrayString`.
 
@@ -87,3 +94,4 @@ This is a small refactoring-only release done in preparation for `ArrayString`.
 [0.1.0]: https://github.com/r-bk/cds/compare/v0.0.6...v0.1.0
 [0.2.0]: https://github.com/r-bk/cds/compare/v0.1.0...v0.2.0
 [0.3.0]: https://github.com/r-bk/cds/compare/v0.2.0...v0.3.0
+[0.4.0]: https://github.com/r-bk/cds/compare/v0.3.0...v0.4.0
