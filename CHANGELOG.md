@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - Unreleased
+### Added
+- add `core::fmt::Write` implementation for `ArrayString`
+
+### Changed
+- rename `cds::arraystring::format` to `cds::arraystring::format_lossy`
+- rename `cds::format!` to `cds::lformat!` to stress the lossiness of the operation
+
 ## [0.4.0] - 2022-03-12
 ### Added
 - add `ArrayString::add_str`. The method copies characters from a string slice,
@@ -95,3 +103,4 @@ This is a small refactoring-only release done in preparation for `ArrayString`.
 [0.2.0]: https://github.com/r-bk/cds/compare/v0.1.0...v0.2.0
 [0.3.0]: https://github.com/r-bk/cds/compare/v0.2.0...v0.3.0
 [0.4.0]: https://github.com/r-bk/cds/compare/v0.3.0...v0.4.0
+[0.5.0]: https://github.com/r-bk/cds/compare/v0.4.0...master
