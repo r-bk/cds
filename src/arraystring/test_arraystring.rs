@@ -7,7 +7,7 @@ use crate::{
     mem::{Pattern, SpareMemoryPolicy},
 };
 
-pub(crate) fn check_spare_memory<L, SM, const C: usize>(s: &ArrayString<L, SM, C>, pattern: u8)
+pub(crate) fn check_spare_memory<L, SM, const C: usize>(s: &ArrayString<C, L, SM>, pattern: u8)
 where
     L: LengthType,
     SM: SpareMemoryPolicy<u8>,
@@ -25,7 +25,7 @@ where
 
 #[test]
 fn test_new() {
-    type S = ArrayString<U8, Pattern<0xBA>, 16>;
+    type S = ArrayString<16, U8, Pattern<0xBA>>;
     let s = S::new();
     assert_eq!(s, "");
     assert_eq!(s.len(), 0);
@@ -47,7 +47,7 @@ fn test_is_empty() {
 
 #[test]
 fn test_clear() {
-    type AS = ArrayString<U8, Pattern<0xBA>, 16>;
+    type AS = ArrayString<16, U8, Pattern<0xBA>>;
     let mut s = AS::try_from("cds").unwrap();
     assert_eq!(s, "cds");
     s.clear();
@@ -126,7 +126,7 @@ fn test_push_str_panics() {
 
 #[test]
 fn test_pop() {
-    type S = ArrayString<U8, Pattern<0xAF>, 8>;
+    type S = ArrayString<8, U8, Pattern<0xAF>>;
     let mut s = S::try_from("2€").unwrap();
 
     assert_eq!(Some('€'), s.pop());
@@ -254,7 +254,7 @@ fn test_insert_str_no_spare_capacity() {
 
 #[test]
 fn test_try_remove() {
-    type AS = ArrayString<U8, Pattern<0xBE>, 16>;
+    type AS = ArrayString<16, U8, Pattern<0xBE>>;
     let mut s = AS::try_from("2€ +").unwrap();
     assert_eq!(s, "2€ +");
 
@@ -271,7 +271,7 @@ fn test_try_remove() {
 #[test]
 fn test_remove() {
     const S: &str = "cds";
-    type AS = ArrayString<U8, Pattern<0xBE>, 16>;
+    type AS = ArrayString<16, U8, Pattern<0xBE>>;
     let mut s = AS::try_from(S).unwrap();
     for i in 0..S.len() {
         s.remove(0);
@@ -303,7 +303,7 @@ fn test_remove_index_exceeds_length() {
 
 #[test]
 fn test_try_truncate() {
-    type AS = ArrayString<U8, Pattern<0xEF>, 16>;
+    type AS = ArrayString<16, U8, Pattern<0xEF>>;
     let mut s = AS::try_from("2€").unwrap();
 
     assert!(matches!(s.try_truncate(2), Err(IndexError)));
@@ -320,7 +320,7 @@ fn test_try_truncate() {
 
 #[test]
 fn test_truncate() {
-    type AS = ArrayString<U8, Pattern<0xEF>, 16>;
+    type AS = ArrayString<16, U8, Pattern<0xEF>>;
     let mut s = AS::try_from("2€").unwrap();
 
     s.truncate(1);

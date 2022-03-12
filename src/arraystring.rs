@@ -2,14 +2,14 @@
 
 use crate::{
     errors::{CapacityError, IndexError, InsertError},
-    len::LengthType,
-    mem::SpareMemoryPolicy,
+    len::{LengthType, Usize},
+    mem::{SpareMemoryPolicy, Uninitialized},
 };
 use core::{marker::PhantomData, mem, ptr, slice};
 
 /// A non-growable array with string-like API.
 ///
-/// Written as `ArrayString<L, SM, C>`, array-string has the capacity of `C` bytes.
+/// Written as `ArrayString<C, L, SM>`, array-string has the capacity of `C` bytes.
 ///
 /// It uses type `L` as [`length type`], and `SM` as [`spare memory policy`].
 ///
@@ -17,7 +17,7 @@ use core::{marker::PhantomData, mem, ptr, slice};
 ///
 /// [`spare memory policy`]: SpareMemoryPolicy
 /// [`length type`]: LengthType
-pub struct ArrayString<L, SM, const C: usize>
+pub struct ArrayString<const C: usize, L = Usize, SM = Uninitialized>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<u8>,
@@ -27,7 +27,7 @@ where
     phantom: PhantomData<SM>,
 }
 
-impl<L, SM, const C: usize> ArrayString<L, SM, C>
+impl<L, SM, const C: usize> ArrayString<C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<u8>,
@@ -38,8 +38,8 @@ where
     ///
     /// # Examples
     /// ```rust
-    /// # use cds::{arraystring::ArrayString, len::U8, mem::Uninitialized};
-    /// type S = ArrayString<U8, Uninitialized, 8>;
+    /// # use cds::{arraystring::ArrayString, len::U8};
+    /// type S = ArrayString<8, U8>;
     /// let s = S::new();
     /// assert_eq!(S::CAPACITY, 8);
     /// assert_eq!(s.capacity(), S::CAPACITY);
@@ -93,8 +93,8 @@ where
     /// # Examples
     ///
     /// ```rust
-    /// # use cds::{arraystring::ArrayString, len::U8, mem::Uninitialized};
-    /// type AS = ArrayString<U8, Uninitialized, 7>;
+    /// # use cds::{arraystring::ArrayString, len::U8};
+    /// type AS = ArrayString<7, U8>;
     /// let s = AS::new();
     /// ```
     #[inline]

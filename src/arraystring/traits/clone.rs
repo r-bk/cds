@@ -1,7 +1,7 @@
 use crate::{arraystring::ArrayString, len::LengthType, mem::SpareMemoryPolicy};
 use core::{clone::Clone, ptr};
 
-impl<L, SM, const C: usize> Clone for ArrayString<L, SM, C>
+impl<L, SM, const C: usize> Clone for ArrayString<C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<u8>,
@@ -43,7 +43,7 @@ mod testing {
     };
 
     const PATTERN: u8 = 0xBC;
-    type AS = ArrayString<U8, Pattern<PATTERN>, 16>;
+    type AS = ArrayString<16, U8, Pattern<PATTERN>>;
 
     #[test]
     fn test_clone() {

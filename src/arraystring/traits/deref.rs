@@ -1,7 +1,7 @@
 use crate::{arraystring::ArrayString, len::LengthType, mem::SpareMemoryPolicy};
 use core::ops::{Deref, DerefMut};
 
-impl<L, SM, const C: usize> Deref for ArrayString<L, SM, C>
+impl<L, SM, const C: usize> Deref for ArrayString<C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<u8>,
@@ -14,7 +14,7 @@ where
     }
 }
 
-impl<L, SM, const C: usize> DerefMut for ArrayString<L, SM, C>
+impl<L, SM, const C: usize> DerefMut for ArrayString<C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<u8>,

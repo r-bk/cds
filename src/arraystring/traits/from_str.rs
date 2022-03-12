@@ -2,7 +2,7 @@ use crate::{
     arraystring::ArrayString, errors::CapacityError, len::LengthType, mem::SpareMemoryPolicy,
 };
 
-impl<L, SM, const C: usize> core::str::FromStr for ArrayString<L, SM, C>
+impl<L, SM, const C: usize> core::str::FromStr for ArrayString<C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<u8>,
@@ -18,12 +18,12 @@ where
 #[cfg(test)]
 mod testing {
     use crate as cds;
-    use cds::{arraystring::ArrayString, errors::CapacityError, len::U8, mem::Uninitialized};
+    use cds::{arraystring::ArrayString, errors::CapacityError, len::U8};
     use core::str::FromStr;
 
     #[test]
     fn test_from_str() {
-        type AS = ArrayString<U8, Uninitialized, 4>;
+        type AS = ArrayString<4, U8>;
 
         let s = AS::from_str("cds").unwrap();
         assert_eq!(s, "cds");

@@ -1,7 +1,7 @@
 use crate::{arraystring::ArrayString, len::LengthType, mem::SpareMemoryPolicy};
 use core::hash::{Hash, Hasher};
 
-impl<L, SM, const C: usize> Hash for ArrayString<L, SM, C>
+impl<L, SM, const C: usize> Hash for ArrayString<C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<u8>,

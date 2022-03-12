@@ -2,7 +2,7 @@ use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use std::time::{Duration, Instant};
 
 const CAP: usize = 65535 - 2;
-type S = cds::arraystring::ArrayString<cds::len::U16, cds::mem::Uninitialized, CAP>;
+type S = cds::arraystring::ArrayString<CAP, cds::len::U16>;
 
 macro_rules! bench_group {
     ($gsfx:ident, $gname:literal, $(($fname:literal, $f:expr)),*) => {

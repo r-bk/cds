@@ -1,7 +1,7 @@
 use crate::{arraystring::ArrayString, len::LengthType, mem::SpareMemoryPolicy};
 use core::cmp::{Eq, PartialEq};
 
-impl<'a, L, SM, const C: usize> PartialEq<&'a str> for ArrayString<L, SM, C>
+impl<'a, L, SM, const C: usize> PartialEq<&'a str> for ArrayString<C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<u8>,
@@ -12,29 +12,29 @@ where
     }
 }
 
-impl<'a, L, SM, const C: usize> PartialEq<ArrayString<L, SM, C>> for &'a str
+impl<'a, L, SM, const C: usize> PartialEq<ArrayString<C, L, SM>> for &'a str
 where
     L: LengthType,
     SM: SpareMemoryPolicy<u8>,
 {
     #[inline]
-    fn eq(&self, other: &ArrayString<L, SM, C>) -> bool {
+    fn eq(&self, other: &ArrayString<C, L, SM>) -> bool {
         PartialEq::eq(*self, other.as_str())
     }
 }
 
-impl<L, SM, const C: usize> PartialEq<ArrayString<L, SM, C>> for str
+impl<L, SM, const C: usize> PartialEq<ArrayString<C, L, SM>> for str
 where
     L: LengthType,
     SM: SpareMemoryPolicy<u8>,
 {
     #[inline]
-    fn eq(&self, other: &ArrayString<L, SM, C>) -> bool {
+    fn eq(&self, other: &ArrayString<C, L, SM>) -> bool {
         PartialEq::eq(self, other.as_str())
     }
 }
 
-impl<L, SM, const C: usize> PartialEq<str> for ArrayString<L, SM, C>
+impl<L, SM, const C: usize> PartialEq<str> for ArrayString<C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<u8>,
@@ -45,8 +45,8 @@ where
     }
 }
 
-impl<L, UL, SM, USM, const C: usize, const UC: usize> PartialEq<ArrayString<UL, USM, UC>>
-    for ArrayString<L, SM, C>
+impl<L, UL, SM, USM, const C: usize, const UC: usize> PartialEq<ArrayString<UC, UL, USM>>
+    for ArrayString<C, L, SM>
 where
     L: LengthType,
     UL: LengthType,
@@ -54,14 +54,14 @@ where
     USM: SpareMemoryPolicy<u8>,
 {
     #[inline]
-    fn eq(&self, other: &ArrayString<UL, USM, UC>) -> bool {
+    fn eq(&self, other: &ArrayString<UC, UL, USM>) -> bool {
         PartialEq::eq(self.as_str(), other.as_str())
     }
 }
 
 #[cfg(feature = "alloc")]
 #[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
-impl<L, SM, const C: usize> PartialEq<alloc::string::String> for ArrayString<L, SM, C>
+impl<L, SM, const C: usize> PartialEq<alloc::string::String> for ArrayString<C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<u8>,
@@ -72,7 +72,7 @@ where
     }
 }
 
-impl<L, SM, const C: usize> Eq for ArrayString<L, SM, C>
+impl<L, SM, const C: usize> Eq for ArrayString<C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<u8>,

@@ -1,7 +1,7 @@
 use crate::{arraystring::ArrayString, len::LengthType, mem::SpareMemoryPolicy};
 use core::default::Default;
 
-impl<L, SM, const C: usize> Default for ArrayString<L, SM, C>
+impl<L, SM, const C: usize> Default for ArrayString<C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<u8>,
@@ -15,11 +15,11 @@ where
 #[cfg(test)]
 mod testing {
     use crate as cds;
-    use cds::{arraystring::ArrayString, len::U8, mem::Uninitialized};
+    use cds::{arraystring::ArrayString, len::U8};
 
     #[test]
     fn test_default() {
-        type A = ArrayString<U8, Uninitialized, 7>;
+        type A = ArrayString<7, U8>;
         let a: A = Default::default();
         assert_eq!(a.len(), 0);
         assert_eq!(a.capacity(), 7);

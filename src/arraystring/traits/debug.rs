@@ -1,7 +1,7 @@
 use crate::{arraystring::ArrayString, len::LengthType, mem::SpareMemoryPolicy};
 use core::fmt::{Debug, Formatter, Result};
 
-impl<L, SM, const C: usize> Debug for ArrayString<L, SM, C>
+impl<L, SM, const C: usize> Debug for ArrayString<C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<u8>,

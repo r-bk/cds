@@ -5,7 +5,7 @@ use libfuzzer_sys::{arbitrary, fuzz_target};
 const CAP: usize = 255;
 const PATTERN: u8 = 0xBE;
 
-type ArrayString = cds::arraystring::ArrayString<U8, Pattern<PATTERN>, CAP>;
+type ArrayString = cds::arraystring::ArrayString<CAP, U8, Pattern<PATTERN>>;
 
 #[derive(arbitrary::Arbitrary, Debug)]
 enum Op {

@@ -1,7 +1,7 @@
 use crate::{arraystring::ArrayString, len::LengthType, mem::SpareMemoryPolicy};
 use core::borrow::{Borrow, BorrowMut};
 
-impl<L, SM, const C: usize> Borrow<str> for ArrayString<L, SM, C>
+impl<L, SM, const C: usize> Borrow<str> for ArrayString<C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<u8>,
@@ -12,7 +12,7 @@ where
     }
 }
 
-impl<L, SM, const C: usize> BorrowMut<str> for ArrayString<L, SM, C>
+impl<L, SM, const C: usize> BorrowMut<str> for ArrayString<C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<u8>,

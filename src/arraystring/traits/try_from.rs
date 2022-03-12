@@ -3,7 +3,7 @@ use crate::{
 };
 use core::{convert::TryFrom, ptr, slice};
 
-impl<L, SM, const C: usize> TryFrom<&str> for ArrayString<L, SM, C>
+impl<L, SM, const C: usize> TryFrom<&str> for ArrayString<C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<u8>,
@@ -25,7 +25,7 @@ where
     }
 }
 
-impl<L, SM, const C: usize> TryFrom<&mut str> for ArrayString<L, SM, C>
+impl<L, SM, const C: usize> TryFrom<&mut str> for ArrayString<C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<u8>,
@@ -38,7 +38,7 @@ where
     }
 }
 
-impl<L, SM, const C: usize> TryFrom<char> for ArrayString<L, SM, C>
+impl<L, SM, const C: usize> TryFrom<char> for ArrayString<C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<u8>,
@@ -62,7 +62,7 @@ where
 
 #[cfg(feature = "alloc")]
 #[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
-impl<L, SM, const C: usize> TryFrom<&alloc::string::String> for ArrayString<L, SM, C>
+impl<L, SM, const C: usize> TryFrom<&alloc::string::String> for ArrayString<C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<u8>,
@@ -90,7 +90,7 @@ mod testing {
 
     #[test]
     fn test_try_from_str() {
-        type S = ArrayString<U8, Pattern<PATTERN>, 255>;
+        type S = ArrayString<255, U8, Pattern<PATTERN>>;
         let s = S::try_from("cds").unwrap();
         assert_eq!(s, "cds");
         check_spare_memory(&s, PATTERN);
@@ -98,7 +98,7 @@ mod testing {
 
     #[test]
     fn test_try_from_mut_str() {
-        type S = ArrayString<U8, Pattern<PATTERN>, 255>;
+        type S = ArrayString<255, U8, Pattern<PATTERN>>;
         let mut src = array_str![8; "one"];
         let s = S::try_from(src.as_mut_str()).unwrap();
         assert_eq!(s, "one");
@@ -107,20 +107,20 @@ mod testing {
 
     #[test]
     fn test_try_from_str_err() {
-        type S = ArrayString<U8, Pattern<PATTERN>, 2>;
+        type S = ArrayString<2, U8, Pattern<PATTERN>>;
         assert!(matches!(S::try_from("cds"), Err(CapacityError)));
     }
 
     #[test]
     fn test_try_from_mut_str_err() {
-        type S = ArrayString<U8, Pattern<PATTERN>, 2>;
+        type S = ArrayString<2, U8, Pattern<PATTERN>>;
         let mut src = array_str![8; "one"];
         assert!(matches!(S::try_from(src.as_mut_str()), Err(CapacityError)));
     }
 
     #[test]
     fn test_try_from_char() {
-        type S = ArrayString<U8, Pattern<PATTERN>, 16>;
+        type S = ArrayString<16, U8, Pattern<PATTERN>>;
         let s = S::try_from('a').unwrap();
         assert_eq!(s, "a");
         check_spare_memory(&s, PATTERN);
@@ -128,7 +128,7 @@ mod testing {
 
     #[test]
     fn test_try_from_char_fails() {
-        type S = ArrayString<U8, Pattern<PATTERN>, 2>;
+        type S = ArrayString<2, U8, Pattern<PATTERN>>;
         assert!(matches!(S::try_from('€'), Err(CapacityError)));
     }
 
@@ -136,7 +136,7 @@ mod testing {
     #[test]
     fn test_try_from_string() {
         let string = alloc::string::String::from("cds");
-        type S = ArrayString<U8, Pattern<PATTERN>, 16>;
+        type S = ArrayString<16, U8, Pattern<PATTERN>>;
         let s = S::try_from(&string).unwrap();
         assert_eq!(s, "cds");
     }
@@ -145,7 +145,7 @@ mod testing {
     #[test]
     fn test_try_from_string_fails() {
         let string = alloc::string::String::from("cds");
-        type S = ArrayString<U8, Pattern<PATTERN>, 2>;
+        type S = ArrayString<2, U8, Pattern<PATTERN>>;
         assert!(matches!(S::try_from(&string), Err(CapacityError)));
     }
 }

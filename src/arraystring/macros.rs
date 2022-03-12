@@ -44,10 +44,10 @@
 #[macro_export]
 macro_rules! array_str {
     ($c:expr;) => {{
-        cds::arraystring::ArrayString::<cds::len::Usize, cds::mem::Uninitialized, $c>::new()
+        cds::arraystring::ArrayString::<$c>::new()
     }};
     ($c:expr; $e:expr) => {{
-        cds::arraystring::ArrayString::<cds::len::Usize, cds::mem::Uninitialized, $c>::try_from($e)
+        cds::arraystring::ArrayString::<$c>::try_from($e)
             .expect("failed to initialize ArrayString")
     }};
 }
@@ -79,7 +79,7 @@ macro_rules! array_str {
 ///
 /// ```rust
 /// # use cds::{lformat, len::U8, mem::Pattern, arraystring::ArrayString};
-/// type A = ArrayString<U8, Pattern<0xCD>, 16>;
+/// type A = ArrayString<16, U8, Pattern<0xCD>>;
 /// let s = lformat!(A, "Hello, world!");
 /// assert_eq!(s, "Hello, world!");
 /// ```
@@ -102,7 +102,7 @@ macro_rules! array_str {
 #[macro_export]
 macro_rules! lformat {
     ($c:literal, $($arg:tt)*) => {{
-        let res = cds::arraystring::format_lossy::<cds::len::Usize, cds::mem::Uninitialized, $c>(
+        let res = cds::arraystring::format_lossy::<$c, cds::len::Usize, cds::mem::Uninitialized>(
             core::format_args!($($arg)*),
         );
         res

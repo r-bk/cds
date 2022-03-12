@@ -1,7 +1,7 @@
 use crate::{arraystring::ArrayString, len::LengthType, mem::SpareMemoryPolicy};
 use core::convert::AsMut;
 
-impl<L, SM, const C: usize> AsMut<str> for ArrayString<L, SM, C>
+impl<L, SM, const C: usize> AsMut<str> for ArrayString<C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<u8>,

@@ -1,7 +1,7 @@
 use crate::{arraystring::ArrayString, len::LengthType, mem::SpareMemoryPolicy};
 use core::convert::AsRef;
 
-impl<L, SM, const C: usize> AsRef<str> for ArrayString<L, SM, C>
+impl<L, SM, const C: usize> AsRef<str> for ArrayString<C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<u8>,
@@ -12,7 +12,7 @@ where
     }
 }
 
-impl<L, SM, const C: usize> AsRef<[u8]> for ArrayString<L, SM, C>
+impl<L, SM, const C: usize> AsRef<[u8]> for ArrayString<C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<u8>,
@@ -25,7 +25,7 @@ where
 
 #[cfg(feature = "std")]
 #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
-impl<L, SM, const C: usize> AsRef<std::ffi::OsStr> for ArrayString<L, SM, C>
+impl<L, SM, const C: usize> AsRef<std::ffi::OsStr> for ArrayString<C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<u8>,
@@ -38,7 +38,7 @@ where
 
 #[cfg(feature = "std")]
 #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
-impl<L, SM, const C: usize> AsRef<std::path::Path> for ArrayString<L, SM, C>
+impl<L, SM, const C: usize> AsRef<std::path::Path> for ArrayString<C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<u8>,

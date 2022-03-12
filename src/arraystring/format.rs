@@ -1,11 +1,11 @@
 use crate::{arraystring::ArrayString, len::LengthType, mem::SpareMemoryPolicy};
 use core::fmt::{Arguments, Write};
 
-struct LossyWriter<'a, L: LengthType, SM: SpareMemoryPolicy<u8>, const C: usize>(
-    &'a mut ArrayString<L, SM, C>,
+struct LossyWriter<'a, const C: usize, L: LengthType, SM: SpareMemoryPolicy<u8>>(
+    &'a mut ArrayString<C, L, SM>,
 );
 
-impl<'a, L, SM, const C: usize> Write for LossyWriter<'a, L, SM, C>
+impl<'a, L, SM, const C: usize> Write for LossyWriter<'a, C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<u8>,
@@ -37,9 +37,9 @@ where
 /// # Examples
 ///
 /// ```rust
-/// # use cds::{arraystring::{format_lossy, ArrayString}, len::U8, mem::Uninitialized};
+/// # use cds::{arraystring::{format_lossy, ArrayString}, len::U8};
 /// # use core::format_args;
-/// type S = ArrayString<U8, Uninitialized, 16>;
+/// type S = ArrayString<16, U8>;
 /// let s: S = format_lossy(format_args!("Hello, world!"));
 /// assert_eq!(s, "Hello, world!");
 /// ```
@@ -47,9 +47,9 @@ where
 /// The result may be silently truncated if there is no enough capacity. Use only when lossy
 /// formatting is appropriate.
 /// ```rust
-/// # use cds::{arraystring::{format_lossy, ArrayString}, len::U8, mem::Uninitialized};
+/// # use cds::{arraystring::{format_lossy, ArrayString}, len::U8};
 /// # use core::format_args;
-/// type S = ArrayString<U8, Uninitialized, 4>;  // <-- not enough capacity
+/// type S = ArrayString<4, U8>;  // <-- not enough capacity
 /// let s: S = format_lossy(format_args!("25€"));
 /// assert_eq!(s, "25");  // <-- the result is truncated on character boundary
 ///
@@ -60,12 +60,12 @@ where
 /// [`format`]: std::fmt::format
 /// [`format_args!`]: core::format_args
 #[inline]
-pub fn format_lossy<L, SM, const C: usize>(args: Arguments<'_>) -> ArrayString<L, SM, C>
+pub fn format_lossy<const C: usize, L, SM>(args: Arguments<'_>) -> ArrayString<C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<u8>,
 {
-    let mut s = ArrayString::<L, SM, C>::new();
+    let mut s = ArrayString::<C, L, SM>::new();
     let mut pw = LossyWriter(&mut s);
     pw.write_fmt(args).ok();
     s

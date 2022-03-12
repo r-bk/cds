@@ -9,7 +9,7 @@ use core::fmt::{Error, Result, Write};
 /// See [`lformat!`] for lossy formatting.
 ///
 /// [`lformat!`]: crate::lformat
-impl<L, SM, const C: usize> Write for ArrayString<L, SM, C>
+impl<L, SM, const C: usize> Write for ArrayString<C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<u8>,

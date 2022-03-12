@@ -1,8 +1,8 @@
 use crate::{arraystring::ArrayString, len::LengthType, mem::SpareMemoryPolicy};
 use core::cmp::{Ord, Ordering, PartialOrd};
 
-impl<L, UL, SM, USM, const C: usize, const UC: usize> PartialOrd<ArrayString<UL, USM, UC>>
-    for ArrayString<L, SM, C>
+impl<L, UL, SM, USM, const C: usize, const UC: usize> PartialOrd<ArrayString<UC, UL, USM>>
+    for ArrayString<C, L, SM>
 where
     L: LengthType,
     UL: LengthType,
@@ -10,12 +10,12 @@ where
     USM: SpareMemoryPolicy<u8>,
 {
     #[inline]
-    fn partial_cmp(&self, other: &ArrayString<UL, USM, UC>) -> Option<Ordering> {
+    fn partial_cmp(&self, other: &ArrayString<UC, UL, USM>) -> Option<Ordering> {
         PartialOrd::partial_cmp(self.as_str(), other.as_str())
     }
 }
 
-impl<L, SM, const C: usize> Ord for ArrayString<L, SM, C>
+impl<L, SM, const C: usize> Ord for ArrayString<C, L, SM>
 where
     L: LengthType,
     SM: SpareMemoryPolicy<u8>,
