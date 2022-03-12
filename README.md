@@ -19,7 +19,7 @@
   (allows creation of very compact collection types)
 - `ArrayVec` - an array with vector-like API
 - `ArrayString` - an array with string-like API
-- `format!` - a macro to format a string on stack, without memory allocation
+- `lformat!` - a macro to format a string on stack, without memory allocation
   (yields an `ArrayString`)
 
 

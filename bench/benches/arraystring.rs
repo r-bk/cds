@@ -182,11 +182,11 @@ macro_rules! bf_truncate {
     };
 }
 
-fn bench_format(c: &mut Criterion) {
-    let mut group = c.benchmark_group("arraystring/format");
+fn bench_lformat(c: &mut Criterion) {
+    let mut group = c.benchmark_group("arraystring/lformat");
     group.bench_function("cds", |b| {
         b.iter(|| {
-            black_box(cds::format!(8, "cds"));
+            black_box(cds::lformat!(8, "cds"));
         })
     });
     group.bench_function("std", |b| {
@@ -266,6 +266,6 @@ criterion_group!(
     bench_insert_str,
     bench_remove,
     bench_truncate,
-    bench_format,
+    bench_lformat,
 );
 criterion_main!(benches);

@@ -52,7 +52,7 @@ macro_rules! array_str {
     }};
 }
 
-/// Formats an [`ArrayString`] with the arguments.
+/// Formats an [`ArrayString`] possibly truncating the result.
 ///
 /// This macro, similar to the standard [`std::format!`], formats a string but with [`ArrayString`]
 /// as the resulting type. This allows formatting a string on stack, without memory allocation.
@@ -60,7 +60,7 @@ macro_rules! array_str {
 /// Note that, as `ArrayString` is a fixed-capacity non-growable string,
 /// the result may be truncated (on character boundary) to fit the given capacity.
 ///
-/// This macro is a convenience wrapper of the [`format`] function.
+/// This macro is a convenience wrapper of the [`format_lossy`] function.
 ///
 /// # Examples
 ///
@@ -68,48 +68,47 @@ macro_rules! array_str {
 /// length type and [`Uninitialized`] as spare memory policy.
 ///
 /// ```rust
-/// # use cds::format;
-/// let s = format!(16, "Hello, world!");
+/// # use cds::lformat;
+/// let s = lformat!(16, "Hello, world!");
 /// assert_eq!(s, "Hello, world!");
 /// assert_eq!(s.capacity(), 16);
 /// ```
 ///
-/// Format an `ArrayString` specifying the whole type. This allows customization of the length type
-/// and spare memory policy.
+/// Format an `ArrayString` specifying the array-string type.
+/// This allows customization of length type and spare memory policy.
 ///
 /// ```rust
-/// # use cds::{format, len::U8, mem::Pattern, arraystring::ArrayString};
+/// # use cds::{lformat, len::U8, mem::Pattern, arraystring::ArrayString};
 /// type A = ArrayString<U8, Pattern<0xCD>, 16>;
-/// let s = format!(A, "Hello, world!");
+/// let s = lformat!(A, "Hello, world!");
 /// assert_eq!(s, "Hello, world!");
 /// ```
 ///
-/// The result may be truncated if `ArrayString` capacity is not enough to accommodate the whole
-/// formatted string.
+/// Note that the result may be truncated if `ArrayString` capacity is not enough to accommodate the
+/// whole formatted string. In some use case this may yield wrong results. Thus use only where lossy
+/// formatting is appropriate.
 ///
 /// ```rust
-/// # use cds::format;
-/// let s = format!(5, "100€");  // <-- '€' in UTF-8 is 3 bytes long
-/// assert_eq!(s, "100");        // <-- the result is truncated on character boundary
+/// # use cds::lformat;
+/// let s = lformat!(5, "a=2500");
+/// assert_eq!(s, "a=250");  // <-- !! the result may be wrong in some use cases
 /// ```
 ///
-/// [`std::format`]: std::format
 /// [`ArrayString`]: crate::arraystring::ArrayString
-/// [`format`]: crate::arraystring::format
-/// [`format!`]: crate::format
+/// [`format_lossy`]: crate::arraystring::format_lossy
 /// [`Usize`]: crate::len::Usize
 /// [`Uninitialized`]: crate::mem::Uninitialized
 #[cfg_attr(docsrs, doc(cfg(feature = "arraystring")))]
 #[macro_export]
-macro_rules! format {
+macro_rules! lformat {
     ($c:literal, $($arg:tt)*) => {{
-        let res = cds::arraystring::format::<cds::len::Usize, cds::mem::Uninitialized, $c>(
+        let res = cds::arraystring::format_lossy::<cds::len::Usize, cds::mem::Uninitialized, $c>(
             core::format_args!($($arg)*),
         );
         res
     }};
     ($s:ty, $($arg:tt)*) => {{
-        let res: $s = cds::arraystring::format(core::format_args!($($arg)*));
+        let res: $s = cds::arraystring::format_lossy(core::format_args!($($arg)*));
         res
     }};
 }
