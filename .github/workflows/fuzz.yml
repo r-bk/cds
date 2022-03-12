@@ -48,6 +48,12 @@ jobs:
           args: run arraystring -- -max_total_time=900 -jobs=2 -workers=2 -verbosity=0 -max_len=16192
 
       - uses: actions-rs/cargo@v1
+        name: fuzz smallvec
+        with:
+          command: fuzz
+          args: run smallvec -- -max_total_time=900 -jobs=2 -workers=2 -verbosity=0 -max_len=16192
+
+      - uses: actions-rs/cargo@v1
         name: cover arrayvec
         with:
           command: fuzz
@@ -58,6 +64,12 @@ jobs:
         with:
           command: fuzz
           args: coverage arraystring
+
+      - uses: actions-rs/cargo@v1
+        name: cover smallvec
+        with:
+          command: fuzz
+          args: coverage smallvec
 
       - id: find_llvmcov
         name: find llvm-cov
@@ -79,6 +91,12 @@ jobs:
           --format html --instr-profile=fuzz/coverage/arraystring/coverage.profdata --Xdemangler=rustfilt >
           arraystring.fuzz.coverage.html
 
+      - name: generate smallvec.coverage.html
+        run: >
+          ${{ steps.find_llvmcov.outputs.llvmcov }} show target/x86_64-unknown-linux-gnu/release/smallvec
+          --format html --instr-profile=fuzz/coverage/smallvec/coverage.profdata --Xdemangler=rustfilt >
+          smallvec.fuzz.coverage.html
+
       - uses: actions/upload-artifact@v2
         with:
           name: arrayvec.fuzz.coverage.html
@@ -88,3 +106,8 @@ jobs:
         with:
           name: arraystring.fuzz.coverage.html
           path: arraystring.fuzz.coverage.html
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: smallvec.fuzz.coverage.html
+          path: smallvec.fuzz.coverage.html

@@ -22,16 +22,29 @@
 //! * [`ArrayString`] - a string-like array
 //!
 //!
-//! # Crate Features
+//! # Hybrid-Capacity Data Structures
 //!
-//! * `arrayvec` - enables [`ArrayVec`]
-//! * `arraystring` - enables [`ArrayString`]
+//! Hybrid-capacity data structures use both local and heap capacity.
+//! They have some local capacity, which, if not exceeded, avoids heap allocation.
+//! Once the amount of needed capacity exceeds the local capacity, a heap
+//! allocation is made, existing data is copied to the heap, and the data structure continues its
+//! operation from there.
+//!
+//! * [`SmallVec`] - a vector with “small size” optimization
+//!
+//!
+//! # Optional Features
+//!
 //! * `alloc` - enables usage of the standard [`alloc`] crate
 //! * `std` - implies `alloc` and enables implementation of [`std`] traits which are not available
 //!   in [`core`]. Without this feature the library is [`no_std`].
+//! * `arrayvec` - enables [`ArrayVec`]
+//! * `arraystring` - enables [`ArrayString`]
+//! * `smallvec` - implies `alloc` and enables [`SmallVec`]
 //!
 //! [`ArrayVec`]: crate::arrayvec::ArrayVec
 //! [`ArrayString`]: crate::arraystring::ArrayString
+//! [`SmallVec`]: crate::smallvec::SmallVec
 //! [`no_std`]: https://docs.rust-embedded.org/book/intro/no-std.html
 //!
 
@@ -49,6 +62,10 @@ pub mod arrayvec;
 #[cfg(feature = "arraystring")]
 #[cfg_attr(docsrs, doc(cfg(feature = "arraystring")))]
 pub mod arraystring;
+
+#[cfg(feature = "smallvec")]
+#[cfg_attr(docsrs, doc(cfg(feature = "smallvec")))]
+pub mod smallvec;
 
 pub mod len;
 pub mod mem;

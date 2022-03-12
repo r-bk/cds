@@ -5,7 +5,7 @@ authors = ["Rafael Buchbinder <rafi@rbk.io>"]
 edition = "2021"
 description = "Collection of Optimized Data Structures"
 license = "MIT OR Apache-2.0"
-keywords = ["collections"]
+keywords = ["small", "vector", "string"]
 categories = ["data-structures", "no-std"]
 repository = "https://github.com/r-bk/cds"
 exclude = [".git*", "Makefile.toml"]
@@ -16,6 +16,7 @@ arrayvec = []
 arraystring = []
 alloc = []
 std = ["alloc"]
+smallvec = ["alloc"]
 
 
 [package.metadata.docs.rs]

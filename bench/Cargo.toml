@@ -8,14 +8,16 @@ edition = "2021"
 [dependencies]
 criterion = { version = "=0.3.5", features = ["cargo_bench_support", "html_reports"] }
 arrayvec = "=0.7.2"
-smallvec = "=1.8.0"
+smallvec = { version = "=1.8.0", features = ["union", "const_generics"] }
 heapless = "=0.7.10"
+tinyvec = { version = "=1.5.1", features = ["alloc", "std", "rustc_1_55", "tinyvec_macros"] }
 
 [dependencies.cds]
 path = ".."
 features = [
     "arrayvec",
     "arraystring",
+    "smallvec",
     "std",
 ]
 
@@ -25,4 +27,8 @@ harness = false
 
 [[bench]]
 name = "arraystring"
+harness = false
+
+[[bench]]
+name = "smallvec"
 harness = false

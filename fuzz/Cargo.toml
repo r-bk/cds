@@ -16,6 +16,7 @@ path = ".."
 features = [
     "arrayvec",
     "arraystring",
+    "smallvec",
     "std",
 ]
 
@@ -28,5 +29,11 @@ doc = false
 [[bin]]
 name = "arraystring"
 path = "fuzz_targets/arraystring.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "smallvec"
+path = "fuzz_targets/smallvec.rs"
 test = false
 doc = false

@@ -24,8 +24,17 @@ mod lt_private {
         /// The maximal length allowed by the underlying type.
         const MAX: usize;
 
+        /// The underlying type.
+        type U;
+
         /// Creates a new length-type value from `usize`.
         fn new(value: usize) -> Self;
+
+        /// Returns `None` if calculation of `self + rhs` overflows, or the result otherwise
+        fn checked_add_usize(&self, rhs: usize) -> Option<Self>;
+
+        /// Returns the next power of two or Self::MAX if that overflows.
+        fn next_power_of_two_or_max(&self) -> Self;
 
         /// Converts the underlying type to `usize`.
         fn as_usize(&self) -> usize;
@@ -108,11 +117,25 @@ macro_rules! length_type {
 
         impl LengthTypeBase for $N {
             const MAX: usize = <$U>::MAX as usize;
+            type U = $U;
 
             #[inline]
             fn new(val: usize) -> $N {
                 debug_assert!(val <= Self::MAX);
                 $N(val as $U)
+            }
+
+            #[inline]
+            fn checked_add_usize(&self, rhs: usize) -> Option<Self> {
+                <$U>::try_from(rhs)
+                    .ok()
+                    .and_then(|v| self.0.checked_add(v))
+                    .map(|u| $N(u))
+            }
+
+            #[inline]
+            fn next_power_of_two_or_max(&self) -> Self {
+                $N(self.0.checked_next_power_of_two().unwrap_or(<$U>::MAX))
             }
 
             #[inline]
@@ -132,7 +155,8 @@ macro_rules! length_type {
         impl AddAssign<usize> for $N {
             #[inline]
             fn add_assign(&mut self, rhs: usize) {
-                debug_assert!(self.0 as usize + rhs <= <Self as LengthTypeBase>::MAX);
+                debug_assert!((rhs <= <Self as LengthTypeBase>::MAX) &&
+                                self.0.checked_add(rhs as $U).is_some());
                 self.0 += rhs as $U
             }
         }
