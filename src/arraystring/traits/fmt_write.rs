@@ -1,6 +1,14 @@
 use crate::{arraystring::ArrayString, len::LengthType, mem::SpareMemoryPolicy};
 use core::fmt::{Error, Result, Write};
 
+/// Implementation of [`Write`] for [`ArrayString`].
+///
+/// Note that, as `ArrayString` is a fixed-capacity non-growable writer,
+/// these methods may fail due to capacity constraints.
+///
+/// See [`lformat!`] for lossy formatting.
+///
+/// [`lformat!`]: crate::lformat
 impl<L, SM, const C: usize> Write for ArrayString<L, SM, C>
 where
     L: LengthType,
