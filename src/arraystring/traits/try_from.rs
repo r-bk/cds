@@ -1,5 +1,7 @@
 use crate::{
-    arraystring::ArrayString, errors::CapacityError, len::LengthType, mem::SpareMemoryPolicy,
+    arraystring::{errors::InsufficientCapacityError, ArrayString},
+    len::LengthType,
+    mem::SpareMemoryPolicy,
 };
 use core::{convert::TryFrom, ptr, slice};
 
@@ -8,13 +10,13 @@ where
     L: LengthType,
     SM: SpareMemoryPolicy<u8>,
 {
-    type Error = CapacityError;
+    type Error = InsufficientCapacityError;
 
     #[inline]
     fn try_from(s: &str) -> Result<Self, Self::Error> {
         let len = s.len();
         if len > Self::CAPACITY {
-            return Err(CapacityError {});
+            return Err(InsufficientCapacityError {});
         }
         let mut tmp = Self::new_raw(len);
         unsafe {
@@ -30,7 +32,7 @@ where
     L: LengthType,
     SM: SpareMemoryPolicy<u8>,
 {
-    type Error = CapacityError;
+    type Error = InsufficientCapacityError;
 
     #[inline]
     fn try_from(s: &mut str) -> Result<Self, Self::Error> {
@@ -43,13 +45,13 @@ where
     L: LengthType,
     SM: SpareMemoryPolicy<u8>,
 {
-    type Error = CapacityError;
+    type Error = InsufficientCapacityError;
 
     #[inline]
     fn try_from(ch: char) -> Result<Self, Self::Error> {
         let ch_len = ch.len_utf8();
         if ch_len > Self::CAPACITY {
-            return Err(CapacityError {});
+            return Err(InsufficientCapacityError {});
         }
         let mut s = Self::new_raw(ch_len);
         unsafe {
@@ -67,7 +69,7 @@ where
     L: LengthType,
     SM: SpareMemoryPolicy<u8>,
 {
-    type Error = CapacityError;
+    type Error = InsufficientCapacityError;
 
     #[inline]
     fn try_from(string: &alloc::string::String) -> Result<Self, Self::Error> {
@@ -80,8 +82,9 @@ mod testing {
     use crate as cds;
     use cds::{
         array_str,
-        arraystring::{test_arraystring::check_spare_memory, ArrayString},
-        errors::CapacityError,
+        arraystring::{
+            errors::InsufficientCapacityError, test_arraystring::check_spare_memory, ArrayString,
+        },
         len::U8,
         mem::Pattern,
     };
@@ -108,14 +111,14 @@ mod testing {
     #[test]
     fn test_try_from_str_err() {
         type S = ArrayString<2, U8, Pattern<PATTERN>>;
-        assert!(matches!(S::try_from("cds"), Err(CapacityError)));
+        assert!(matches!(S::try_from("cds"), Err(e) if e == InsufficientCapacityError));
     }
 
     #[test]
     fn test_try_from_mut_str_err() {
         type S = ArrayString<2, U8, Pattern<PATTERN>>;
         let mut src = array_str![8; "one"];
-        assert!(matches!(S::try_from(src.as_mut_str()), Err(CapacityError)));
+        assert!(matches!(S::try_from(src.as_mut_str()), Err(e) if e == InsufficientCapacityError));
     }
 
     #[test]
@@ -129,7 +132,7 @@ mod testing {
     #[test]
     fn test_try_from_char_fails() {
         type S = ArrayString<2, U8, Pattern<PATTERN>>;
-        assert!(matches!(S::try_from('€'), Err(CapacityError)));
+        assert!(matches!(S::try_from('€'), Err(e) if e == InsufficientCapacityError));
     }
 
     #[cfg(feature = "alloc")]
@@ -146,6 +149,6 @@ mod testing {
     fn test_try_from_string_fails() {
         let string = alloc::string::String::from("cds");
         type S = ArrayString<2, U8, Pattern<PATTERN>>;
-        assert!(matches!(S::try_from(&string), Err(CapacityError)));
+        assert!(matches!(S::try_from(&string), Err(e) if e == InsufficientCapacityError));
     }
 }

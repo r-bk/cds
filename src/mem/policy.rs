@@ -36,7 +36,7 @@ pub(crate) mod private {
 /// };
 /// use core::convert::TryFrom;
 /// # #[cfg(feature = "arrayvec")]
-/// # fn example() -> Result<(), cds::errors::CapacityError> {
+/// # fn example() -> Result<(), cds::arrayvec::errors::InsufficientCapacityError> {
 ///
 /// // --- Uninitialized ---
 ///

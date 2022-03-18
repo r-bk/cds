@@ -1,4 +1,8 @@
-use crate::{arrayvec::ArrayVec, errors::CapacityError, len::LengthType, mem::SpareMemoryPolicy};
+use crate::{
+    arrayvec::{errors::InsufficientCapacityError, ArrayVec},
+    len::LengthType,
+    mem::SpareMemoryPolicy,
+};
 use core::{convert::TryFrom, mem, ptr};
 
 impl<T, L, SM, const C: usize> TryFrom<&[T]> for ArrayVec<T, C, L, SM>
@@ -7,12 +11,12 @@ where
     L: LengthType,
     SM: SpareMemoryPolicy<T>,
 {
-    type Error = CapacityError;
+    type Error = InsufficientCapacityError;
 
     #[inline]
     fn try_from(s: &[T]) -> Result<Self, Self::Error> {
         if s.len() > Self::CAPACITY {
-            return Err(CapacityError {});
+            return Err(InsufficientCapacityError {});
         }
         let mut tmp = Self::new();
         unsafe {
@@ -28,12 +32,12 @@ where
     L: LengthType,
     SM: SpareMemoryPolicy<T>,
 {
-    type Error = CapacityError;
+    type Error = InsufficientCapacityError;
 
     #[inline]
     fn try_from(s: &mut [T]) -> Result<Self, Self::Error> {
         if s.len() > Self::CAPACITY {
-            return Err(CapacityError {});
+            return Err(InsufficientCapacityError {});
         }
         let mut tmp = Self::new();
         unsafe {
@@ -48,12 +52,12 @@ where
     L: LengthType,
     SM: SpareMemoryPolicy<T>,
 {
-    type Error = CapacityError;
+    type Error = InsufficientCapacityError;
 
     #[inline]
     fn try_from(a: [T; N]) -> Result<Self, Self::Error> {
         if N > Self::CAPACITY {
-            return Err(CapacityError {});
+            return Err(InsufficientCapacityError {});
         }
         let mut tmp = Self::new();
         unsafe {
@@ -68,7 +72,7 @@ where
 #[cfg(test)]
 mod testing {
     use crate as cds;
-    use cds::{arrayvec::ArrayVec, errors::CapacityError};
+    use cds::arrayvec::{errors::InsufficientCapacityError, ArrayVec};
     type A = ArrayVec<u64, 7>;
 
     #[test]
@@ -81,7 +85,7 @@ mod testing {
     fn test_try_from_slice_err() {
         assert!(matches!(
             A::try_from([1, 2, 3, 4, 5, 6, 7, 8].as_ref()),
-            Err(CapacityError)
+            Err(e) if e == InsufficientCapacityError
         ));
     }
 
@@ -95,7 +99,7 @@ mod testing {
     fn test_try_from_mut_slice_err() {
         assert!(matches!(
             A::try_from([1, 2, 3, 4, 5, 6, 7, 8].as_mut()),
-            Err(CapacityError)
+            Err(e) if e == InsufficientCapacityError
         ));
     }
 
@@ -109,7 +113,7 @@ mod testing {
     fn test_try_from_array_err() {
         assert!(matches!(
             A::try_from([1, 2, 3, 4, 5, 6, 7, 8]),
-            Err(CapacityError)
+            Err(e) if e == InsufficientCapacityError
         ));
     }
 }

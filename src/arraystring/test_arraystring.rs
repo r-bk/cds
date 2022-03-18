@@ -1,8 +1,10 @@
 use crate as cds;
 use crate::{
     array_str,
-    arraystring::ArrayString,
-    errors::{CapacityError, IndexError, InsertError},
+    arraystring::{
+        errors::{IndexError, InsertError, InsufficientCapacityError},
+        ArrayString,
+    },
     len::{LengthType, U8},
     mem::{Pattern, SpareMemoryPolicy},
 };
@@ -75,7 +77,7 @@ fn test_try_push() {
     s.try_push('c').unwrap();
     assert_eq!(s, "abc");
     assert_eq!(s.len(), 3);
-    assert!(matches!(s.try_push('d'), Err(CapacityError)));
+    assert!(matches!(s.try_push('d'), Err(e) if e == InsufficientCapacityError));
 }
 
 #[test]
@@ -107,7 +109,10 @@ fn test_try_push_str() {
     let mut s = array_str![8; "abc"];
     s.try_push_str("def").unwrap();
     assert_eq!(s, "abcdef");
-    assert!(matches!(s.try_push_str("ghi"), Err(CapacityError)));
+    assert!(matches!(
+        s.try_push_str("ghi"),
+        Err(e) if e == InsufficientCapacityError
+    ));
 }
 
 #[test]

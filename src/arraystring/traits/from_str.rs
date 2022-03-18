@@ -1,5 +1,7 @@
 use crate::{
-    arraystring::ArrayString, errors::CapacityError, len::LengthType, mem::SpareMemoryPolicy,
+    arraystring::{errors::InsufficientCapacityError, ArrayString},
+    len::LengthType,
+    mem::SpareMemoryPolicy,
 };
 
 impl<L, SM, const C: usize> core::str::FromStr for ArrayString<C, L, SM>
@@ -7,7 +9,7 @@ where
     L: LengthType,
     SM: SpareMemoryPolicy<u8>,
 {
-    type Err = CapacityError;
+    type Err = InsufficientCapacityError;
 
     #[inline]
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -18,7 +20,10 @@ where
 #[cfg(test)]
 mod testing {
     use crate as cds;
-    use cds::{arraystring::ArrayString, errors::CapacityError, len::U8};
+    use cds::{
+        arraystring::{errors::InsufficientCapacityError, ArrayString},
+        len::U8,
+    };
     use core::str::FromStr;
 
     #[test]
@@ -31,6 +36,6 @@ mod testing {
         let s = AS::from_str("").unwrap();
         assert_eq!(s, "");
 
-        assert!(matches!(AS::from_str("abcdef"), Err(CapacityError)));
+        assert!(matches!(AS::from_str("abcdef"), Err(e) if e == InsufficientCapacityError));
     }
 }

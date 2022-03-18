@@ -1,7 +1,6 @@
 //! A vector-like array.
 
 use crate::{
-    errors::{CapacityError, CapacityErrorVal, InsertError, InsertErrorVal},
     len::{LengthType, Usize},
     mem::{SpareMemoryPolicy, Uninitialized},
 };
@@ -16,6 +15,9 @@ use core::{
 
 mod drain;
 pub use drain::*;
+
+pub mod errors;
+use errors::*;
 
 mod retain;
 use retain::*;
@@ -78,18 +80,18 @@ use retain::*;
 /// [`push`] panics if there is no spare capacity:
 ///
 /// ```should_panic
-/// # use cds::{array_vec, errors::CapacityError};
+/// # use cds::array_vec;
 /// let mut v = array_vec![3; 6, 7, 8];
 /// assert_eq!(v.has_spare_capacity(), false);
 /// v.push(9);  // <-- this panics as there is no spare capacity
 /// ```
 ///
-/// Avoid a panic with [`try_push`] method, which returns [`CapacityError`] instead:
+/// Avoid a panic with [`try_push`] method, which returns [`InsufficientCapacityError`] instead:
 ///
 /// ```rust
-/// # use cds::{array_vec, errors::CapacityError};
+/// # use cds::{array_vec, arrayvec::errors::InsufficientCapacityError};
 /// let mut v = array_vec![3; 6, 7, 8];
-/// assert!(matches!(v.try_push(9), Err(CapacityError)));
+/// assert!(matches!(v.try_push(9), Err(e) if e == InsufficientCapacityError));
 /// ```
 ///
 /// An `ArrayVec` can be created from an iterator:
@@ -116,14 +118,15 @@ use retain::*;
 ///            .collect::<A>();                    // <-- this panics
 /// ```
 ///
-/// Avoid a panic with [`try_from_iter`] method, which returns [`CapacityError`] instead:
+/// Avoid a panic with [`try_from_iter`] method, which returns [`InsufficientCapacityError`]
+/// instead:
 ///
 /// ```rust
-/// # use cds::{arrayvec::ArrayVec, errors::CapacityError, len::U64};
+/// # use cds::{arrayvec::{ArrayVec, errors::InsufficientCapacityError}, len::U64};
 /// type A = ArrayVec<u64, 3, U64>;
 /// let vec = vec![1, 2, 3, 4, 5];
 /// let iter = vec.iter().map(|x| x * x);
-/// assert!(matches!(A::try_from_iter(iter), Err(CapacityError)));
+/// assert!(matches!(A::try_from_iter(iter), Err(e) if e == InsufficientCapacityError));
 /// ```
 ///
 /// [`array_vec!`]: crate::array_vec
@@ -399,35 +402,37 @@ where
 
     /// Tries to append an element to the back of the array-vector.
     ///
-    /// Returns [`CapacityError`] if there is no spare capacity to accommodate a new element.
+    /// Returns [`InsufficientCapacityError`] if there is no spare capacity to accommodate a new
+    /// element.
     ///
     /// This is a non-panic version of [`push`].
     ///
     /// # Examples
     ///
     /// ```rust
-    /// # use cds::{array_vec, errors::CapacityError};
+    /// # use cds::{array_vec, arrayvec::errors::InsufficientCapacityError};
     /// let mut v = array_vec![2; u64];
     /// assert!(v.try_push(1).is_ok());
     /// assert!(v.try_push(2).is_ok());
-    /// assert!(matches!(v.try_push(3), Err(CapacityError)));
+    /// assert!(matches!(v.try_push(3), Err(e) if e == InsufficientCapacityError));
     /// assert_eq!(v, [1, 2]);
     /// ```
     ///
     /// [`push`]: ArrayVec::push
     #[inline]
-    pub fn try_push(&mut self, e: T) -> Result<(), CapacityError> {
+    pub fn try_push(&mut self, e: T) -> Result<(), InsufficientCapacityError> {
         if self.len < Self::CAPACITY {
             unsafe { self.push_unchecked(e) };
             Ok(())
         } else {
-            Err(CapacityError {})
+            Err(InsufficientCapacityError {})
         }
     }
 
     /// Tries to append an element to the back of the array-vector.
     ///
-    /// Returns [`CapacityErrorVal`] if there is no spare capacity to accommodate a new element.
+    /// Returns [`InsufficientCapacityErrorVal`] if there is no spare capacity to accommodate a new
+    /// element.
     ///
     /// The difference between this method and [`try_push`] is that in case of an error
     /// [`try_push_val`] returns the element back to the caller.
@@ -436,7 +441,7 @@ where
     ///
     /// # Examples
     /// ```rust
-    /// # use cds::{array_vec, errors::CapacityErrorVal};
+    /// # use cds::{array_vec, arrayvec::errors::InsufficientCapacityErrorVal};
     /// let mut v = array_vec![2; u64];
     /// assert_eq!(v, []);
     ///
@@ -444,7 +449,7 @@ where
     /// assert!(v.try_push_val(2).is_ok());
     /// assert_eq!(v, [1, 2]);
     ///
-    /// assert!(matches!(v.try_push_val(3), Err(CapacityErrorVal(e)) if e == 3));
+    /// assert!(matches!(v.try_push_val(3), Err(InsufficientCapacityErrorVal(e)) if e == 3));
     /// assert_eq!(v, [1, 2]);
     /// ```
     ///
@@ -452,12 +457,12 @@ where
     /// [`try_push`]: ArrayVec::try_push
     /// [`push`]: ArrayVec::push
     #[inline]
-    pub fn try_push_val(&mut self, value: T) -> Result<(), CapacityErrorVal<T>> {
+    pub fn try_push_val(&mut self, value: T) -> Result<(), InsufficientCapacityErrorVal<T>> {
         if self.len < Self::CAPACITY {
             unsafe { self.push_unchecked(value) };
             Ok(())
         } else {
-            Err(CapacityErrorVal(value))
+            Err(InsufficientCapacityErrorVal(value))
         }
     }
 
@@ -628,16 +633,20 @@ where
 
     /// Creates an array-vector from an iterator.
     ///
-    /// Returns [`CapacityError`] if the iterator yields more than [`CAPACITY`] elements.
+    /// Returns [`InsufficientCapacityError`] if the iterator yields more than [`CAPACITY`]
+    /// elements.
     ///
     /// [`CAPACITY`]: ArrayVec::CAPACITY
     ///
     /// # Examples
     ///
     /// ```rust
-    /// # use cds::{arrayvec::ArrayVec, errors::CapacityError, len::U8, mem::Uninitialized};
+    /// # use cds::{
+    /// #     arrayvec::{ArrayVec, errors::InsufficientCapacityError},
+    /// #     len::U8, mem::Uninitialized
+    /// # };
     /// # use std::error::Error;
-    /// # fn example() -> Result<(), CapacityError> {
+    /// # fn example() -> Result<(), InsufficientCapacityError> {
     /// type A = ArrayVec<usize, 3, U8, Uninitialized>;
     /// let a = [1, 2, 3];
     /// let v = A::try_from_iter(a.iter().filter(|x| **x % 2 == 0).cloned())?;
@@ -646,7 +655,7 @@ where
     /// # }
     /// ```
     #[inline]
-    pub fn try_from_iter<I>(iter: I) -> Result<Self, CapacityError>
+    pub fn try_from_iter<I>(iter: I) -> Result<Self, InsufficientCapacityError>
     where
         I: IntoIterator<Item = T>,
     {
@@ -655,7 +664,7 @@ where
 
         for e in iter {
             if tmp.len >= Self::CAPACITY {
-                return Err(CapacityError {});
+                return Err(InsufficientCapacityError {});
             }
             unsafe {
                 p.write(e);
@@ -732,7 +741,7 @@ where
     /// # Examples
     ///
     /// ```rust
-    /// # use cds::{array_vec, errors::InsertError};
+    /// # use cds::{array_vec, arrayvec::errors::InsertError};
     /// let mut v = array_vec![3; u64; 1, 2];
     /// assert!(matches!(v.try_insert(3, 3), Err(InsertError::InvalidIndex)));
     ///
@@ -777,7 +786,7 @@ where
     /// # Examples
     ///
     /// ```rust
-    /// # use cds::{array_vec, errors::InsertErrorVal};
+    /// # use cds::{array_vec, arrayvec::errors::InsertErrorVal};
     /// let mut v = array_vec![3; u64; 1, 2];
     /// assert!(matches!(
     ///     v.try_insert_val(5, 3),
@@ -1306,7 +1315,7 @@ where
     /// # Panics
     ///
     /// This method panics of `new_len > CAPACITY`. To avoid panic use [`try_resize_with`] which
-    /// returns [`CapacityError`] instead.
+    /// returns [`InsufficientCapacityError`] instead.
     ///
     /// # Examples
     ///
@@ -1361,8 +1370,8 @@ where
     /// # Examples
     ///
     /// ```rust
-    /// # use cds::{array_vec, errors::CapacityError};
-    /// # fn foo() -> Result<(), CapacityError> {
+    /// # use cds::{array_vec, arrayvec::errors::InsufficientCapacityError};
+    /// # fn foo() -> Result<(), InsufficientCapacityError> {
     /// let mut a = array_vec![5;];
     /// assert_eq!(a, []);
     ///
@@ -1376,7 +1385,7 @@ where
     /// a.try_resize_with(1, || 1)?;
     /// assert_eq!(a, [0]);
     ///
-    /// assert!(matches!(a.try_resize_with(10, || 7), Err(CapacityError)));
+    /// assert!(matches!(a.try_resize_with(10, || 7), Err(e) if e == InsufficientCapacityError));
     /// # Ok(())
     /// # }
     /// # foo();
@@ -1388,12 +1397,16 @@ where
     /// [`Default`]: core::default::Default
     /// [`Default::default`]: core::default::Default::default
     #[inline]
-    pub fn try_resize_with<F>(&mut self, new_len: usize, mut f: F) -> Result<(), CapacityError>
+    pub fn try_resize_with<F>(
+        &mut self,
+        new_len: usize,
+        mut f: F,
+    ) -> Result<(), InsufficientCapacityError>
     where
         F: FnMut() -> T,
     {
         if new_len > Self::CAPACITY {
-            return Err(CapacityError);
+            return Err(InsufficientCapacityError {});
         }
 
         if new_len < self.len() {
@@ -1426,7 +1439,7 @@ where
     /// # Panics
     ///
     /// This method panics if `new_len > CAPACITY`. To avoid panic use [`try_resize`] which
-    /// returns [`CapacityError`] instead.
+    /// returns [`InsufficientCapacityError`] instead.
     ///
     /// # Examples
     ///
@@ -1455,7 +1468,7 @@ where
 
     /// Tries to resize the array-vector in-place so that `len` is equal to `new_len`.
     ///
-    /// This method returns [`CapacityError`] if `new_len > CAPACITY`.
+    /// This method returns [`InsufficientCapacityError`] if `new_len > CAPACITY`.
     ///
     /// This is a non-panic version of [`resize`].
     ///
@@ -1468,8 +1481,8 @@ where
     /// # Examples
     ///
     /// ```rust
-    /// # use cds::{array_vec, errors::CapacityError};
-    /// # fn foo() -> Result<(), CapacityError> {
+    /// # use cds::{array_vec, arrayvec::errors::InsufficientCapacityError};
+    /// # fn foo() -> Result<(), InsufficientCapacityError> {
     /// let mut a = array_vec![5; 1];
     /// assert_eq!(a, [1]);
     ///
@@ -1479,7 +1492,7 @@ where
     /// a.try_resize(2, 0)?;
     /// assert_eq!(a, [1, 7]);
     ///
-    /// assert!(matches!(a.try_resize(10, 7), Err(CapacityError)));
+    /// assert!(matches!(a.try_resize(10, 7), Err(e) if e == InsufficientCapacityError));
     /// # Ok(())
     /// # }
     /// # foo();
@@ -1487,9 +1500,13 @@ where
     ///
     /// [`truncate`]: ArrayVec::truncate
     /// [`resize`]: ArrayVec::resize
-    pub fn try_resize(&mut self, new_len: usize, value: T) -> Result<(), CapacityError> {
+    pub fn try_resize(
+        &mut self,
+        new_len: usize,
+        value: T,
+    ) -> Result<(), InsufficientCapacityError> {
         if new_len > Self::CAPACITY {
-            return Err(CapacityError);
+            return Err(InsufficientCapacityError {});
         }
 
         if new_len < self.len() {
@@ -1540,7 +1557,7 @@ where
     ///
     /// This method panics if there is no enough spare capacity to accommodate
     /// all elements from `s`. See [`try_copy_from_slice`] for a method that returns
-    /// [`CapacityError`] instead.
+    /// [`InsufficientCapacityError`] instead.
     ///
     /// [`try_copy_from_slice`]: ArrayVec::try_copy_from_slice
     ///
@@ -1571,27 +1588,27 @@ where
     ///
     /// This method is a non-panic version of [`copy_from_slice`].
     ///
-    /// It returns [`CapacityError`] if there is no enough spare capacity to accommodate
+    /// It returns [`InsufficientCapacityError`] if there is no enough spare capacity to accommodate
     /// all elements from `s`.
     ///
     /// [`copy_from_slice`]: ArrayVec::copy_from_slice
     ///
     /// # Examples
     /// ```rust
-    /// # use cds::{array_vec, errors::CapacityError};
-    /// # fn foo() -> Result<(), CapacityError> {
+    /// # use cds::{array_vec, arrayvec::errors::InsufficientCapacityError};
+    /// # fn foo() -> Result<(), InsufficientCapacityError> {
     /// let mut a = array_vec![5; 1, 2];
     /// assert_eq!(a, [1, 2]);
     /// a.try_copy_from_slice(&[1, 2])?;
     /// assert_eq!(a, [1, 2, 1, 2]);
-    /// assert!(matches!(a.try_copy_from_slice(&[3, 4]), Err(CapacityError)));
+    /// assert!(matches!(a.try_copy_from_slice(&[3, 4]), Err(e) if e == InsufficientCapacityError));
     /// # Ok(())
     /// # }
     /// # foo().unwrap();
     /// ```
-    pub fn try_copy_from_slice(&mut self, s: &[T]) -> Result<(), CapacityError> {
+    pub fn try_copy_from_slice(&mut self, s: &[T]) -> Result<(), InsufficientCapacityError> {
         if self.len() + s.len() > Self::CAPACITY {
-            return Err(CapacityError);
+            return Err(InsufficientCapacityError {});
         }
         unsafe { self.copy_from_slice_unchecked(s) };
         Ok(())

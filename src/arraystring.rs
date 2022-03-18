@@ -1,7 +1,6 @@
 //! A string-like array.
 
 use crate::{
-    errors::{CapacityError, IndexError, InsertError},
     len::{LengthType, Usize},
     mem::{SpareMemoryPolicy, Uninitialized},
 };
@@ -240,7 +239,7 @@ where
     /// This method panics if the array-string doesn't have enough spare capacity to
     /// accommodate the UTF-8 encoded character.
     ///
-    /// See [`try_push`] for a method which returns [`CapacityError`] instead.
+    /// See [`try_push`] for a method that returns [`InsufficientCapacityError`] instead.
     ///
     /// # Examples
     /// ```rust
@@ -271,22 +270,22 @@ where
     ///
     /// This is a non-panic version of [`push`].
     ///
-    /// Returns [`CapacityError`] if there is no spare capacity to accommodate the UTF-8 encoded
-    /// character.
+    /// Returns [`InsufficientCapacityError`] if there is no spare capacity to accommodate the UTF-8
+    /// encoded character.
     ///
     /// # Examples
     /// ```rust
-    /// # use cds::{array_str, errors::CapacityError};
+    /// # use cds::{array_str, arraystring::errors::InsufficientCapacityError};
     /// let mut s = array_str![3; "ab"];
     /// assert!(s.try_push('c').is_ok());
-    /// assert!(matches!(s.try_push('d'), Err(CapacityError)));
+    /// assert!(matches!(s.try_push('d'), Err(e) if e == InsufficientCapacityError));
     /// ```
     ///
     /// [`push`]: ArrayString::push
     #[inline]
-    pub fn try_push(&mut self, ch: char) -> Result<(), CapacityError> {
+    pub fn try_push(&mut self, ch: char) -> Result<(), InsufficientCapacityError> {
         if ch.len_utf8() > self.spare_capacity() {
-            return Err(CapacityError);
+            return Err(InsufficientCapacityError);
         }
         unsafe { self.push_unchecked(ch) };
         Ok(())
@@ -321,7 +320,7 @@ where
     /// The method panics if there is no enough spare capacity to accommodate the whole string
     /// slice.
     ///
-    /// See [`try_push_str`] for a method which returns [`CapacityError`] instead.
+    /// See [`try_push_str`] for a method that returns [`InsufficientCapacityError`] instead.
     ///
     /// # Examples
     /// ```rust
@@ -389,22 +388,23 @@ where
     ///
     /// This is a non-panic version of [`push_str`].
     ///
-    /// Returns [`CapacityError`] if there is no enough spare capacity to accommodate the whole
-    /// string slice.
+    /// Returns [`InsufficientCapacityError`] if there is no enough spare capacity to accommodate
+    /// the whole string slice.
     ///
     /// # Examples
+    ///
     /// ```rust
-    /// # use cds::{array_str, errors::CapacityError};
+    /// # use cds::{array_str, arraystring::errors::InsufficientCapacityError};
     /// let mut s = array_str![8;];
     /// assert!(s.try_push_str("Hello").is_ok());
-    /// assert!(matches!(s.try_push_str(", world!"), Err(CapacityError)));
+    /// assert!(matches!(s.try_push_str(", world!"), Err(e) if e == InsufficientCapacityError));
     /// ```
     ///
     /// [`push_str`]: ArrayString::push_str
     #[inline]
-    pub fn try_push_str(&mut self, s: &str) -> Result<(), CapacityError> {
+    pub fn try_push_str(&mut self, s: &str) -> Result<(), InsufficientCapacityError> {
         if s.len() > self.spare_capacity() {
-            return Err(CapacityError);
+            return Err(InsufficientCapacityError);
         }
         unsafe { self.push_str_unchecked(s) };
         Ok(())
@@ -470,7 +470,7 @@ where
     /// - `idx` is greater than array-string's length
     /// - there is no spare capacity to accommodate the UTF-8 encoded character
     ///
-    /// See [`try_insert`] for a method which returns [`InsertError`] instead.
+    /// See [`try_insert`] for a method that returns [`InsertError`] instead.
     ///
     /// # Examples
     /// ```rust
@@ -501,7 +501,7 @@ where
     ///
     /// # Examples
     /// ```rust
-    /// # use cds::{array_str, errors::InsertError};
+    /// # use cds::{array_str, arraystring::errors::InsertError};
     /// let mut s = array_str![6; "2"];
     /// assert!(s.try_insert(1, '€').is_ok());
     /// assert_eq!(s, "2€");
@@ -545,7 +545,7 @@ where
     /// - `idx` is greater then array-string length
     /// - there is no enough spare capacity to accommodate the whole string slice
     ///
-    /// See [`try_insert_str`] for a method which returns [`InsertError`] instead.
+    /// See [`try_insert_str`] for a method that returns [`InsertError`] instead.
     ///
     /// # Examples
     ///
@@ -571,7 +571,7 @@ where
     /// # Examples
     ///
     /// ```rust
-    /// # use cds::{array_str, errors::InsertError};
+    /// # use cds::{array_str, arraystring::errors::InsertError};
     /// let mut s = array_str![5; "2"];
     /// assert!(s.try_insert_str(1, "€").is_ok());
     /// assert_eq!(s, "2€");
@@ -614,7 +614,7 @@ where
     /// - `idx` doesn't lie on a [`char`] boundary
     /// - `idx` is greater than or equal the array-string length
     ///
-    /// See [`try_remove`] for a method which returns [`IndexError`] instead.
+    /// See [`try_remove`] for a method that returns [`IndexError`] instead.
     ///
     /// # Examples
     ///
@@ -640,7 +640,7 @@ where
     /// # Examples
     ///
     /// ```rust
-    /// # use cds::{array_str, errors::IndexError};
+    /// # use cds::{array_str, arraystring::errors::IndexError};
     /// # fn foo() -> Result<(), IndexError> {
     /// let mut s = array_str![4; "2€"];
     /// for i in 2..=5 {
@@ -688,7 +688,7 @@ where
     ///
     /// This method panics if `new_len` doesn't lie on a [`char`] boundary.
     ///
-    /// See [`try_truncate`] for a method which returns [`IndexError`] instead.
+    /// See [`try_truncate`] for a method that returns [`IndexError`] instead.
     ///
     /// # Examples
     ///
@@ -716,7 +716,7 @@ where
     /// # Examples
     ///
     /// ```rust
-    /// # use cds::{array_str, errors::IndexError};
+    /// # use cds::{array_str, arraystring::errors::IndexError};
     /// let mut s = array_str![8; "2€"];
     /// assert!(matches!(s.try_truncate(2), Err(IndexError))); // <-- 2 is not a char boundary
     /// assert!(s.try_truncate(4).is_ok());  // <-- new_len equals the current array-string length
@@ -745,6 +745,9 @@ where
         Ok(())
     }
 }
+
+pub mod errors;
+use errors::*;
 
 mod format;
 pub use format::*;

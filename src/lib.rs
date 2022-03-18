@@ -50,8 +50,6 @@ pub mod arrayvec;
 #[cfg_attr(docsrs, doc(cfg(feature = "arraystring")))]
 pub mod arraystring;
 
-pub mod errors;
-
 pub mod len;
 pub mod mem;
 

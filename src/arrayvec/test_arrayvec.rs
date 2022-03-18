@@ -1,8 +1,10 @@
 use crate as cds;
 use cds::{
     array_vec,
-    arrayvec::ArrayVec,
-    errors::{CapacityError, InsertError, InsertErrorVal},
+    arrayvec::{
+        errors::{InsertError, InsertErrorVal, InsufficientCapacityError},
+        ArrayVec,
+    },
     len::{LengthType, U8},
     mem::{Pattern, SpareMemoryPolicy, Uninitialized},
     testing::dropped::{Dropped, Track},
@@ -179,7 +181,7 @@ fn test_try_push() {
     a.try_push(2).expect("try_push failed");
     assert_eq!(a, [0, 1, 2]);
 
-    assert!(matches!(a.try_push(3), Err(CapacityError)));
+    assert!(matches!(a.try_push(3), Err(e) if e == InsufficientCapacityError));
 }
 
 #[test]
@@ -385,7 +387,7 @@ fn test_try_from_iter() {
 
     assert!(matches!(
         A::try_from_iter(0..A::CAPACITY + 1),
-        Err(CapacityError)
+        Err(e) if e == InsufficientCapacityError
     ));
 }
 
@@ -1021,7 +1023,7 @@ fn test_try_resize() {
     av.try_resize(0, 0).unwrap();
     assert_eq!(av, []);
 
-    assert!(matches!(av.try_resize(10, 0), Err(CapacityError)));
+    assert!(matches!(av.try_resize(10, 0), Err(e) if e == InsufficientCapacityError));
 }
 
 #[test]
@@ -1093,7 +1095,7 @@ fn test_try_copy_from_slice() {
     assert_eq!(av, [1, 2, 3, 4]);
     av.try_copy_from_slice(&[5]).unwrap();
     assert_eq!(av, [1, 2, 3, 4, 5]);
-    assert!(matches!(av.try_copy_from_slice(&[6]), Err(CapacityError)));
+    assert!(matches!(av.try_copy_from_slice(&[6]), Err(e) if e == InsufficientCapacityError));
 }
 
 #[test]
