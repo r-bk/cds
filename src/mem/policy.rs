@@ -114,6 +114,7 @@ pub trait SpareMemoryPolicy<T>: private::SpareMemoryPolicyBase<T> {}
 ///   element after it is moved out, until the region is overwritten (if at all)
 /// - a region of memory occupied by a collection remains untouched when the collection is dropped,
 ///   until the region is overwritten (if at all)
+#[derive(Debug)]
 pub struct Uninitialized;
 
 /// Pattern-initialized spare memory policy.
@@ -128,6 +129,7 @@ pub struct Uninitialized;
 ///   element
 /// - when a collection is dropped all memory of elements dropped with the collection is
 ///   bytewise initialized with the value `P`
+#[derive(Debug)]
 pub struct Pattern<const P: u8>;
 
 /// Zeroed spare memory policy.
