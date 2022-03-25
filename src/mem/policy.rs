@@ -2,6 +2,8 @@ use core::ptr;
 
 pub(crate) mod private {
     pub trait SpareMemoryPolicyBase<T> {
+        // is the policy a no-op?
+        const NOOP: bool;
         unsafe fn init(dst: *mut T, count: usize);
     }
 }
@@ -140,6 +142,8 @@ pub type Zeroed = Pattern<0>;
 impl<T> SpareMemoryPolicy<T> for Uninitialized {}
 
 impl<T> private::SpareMemoryPolicyBase<T> for Uninitialized {
+    const NOOP: bool = true;
+
     #[inline]
     unsafe fn init(_dst: *mut T, _count: usize) {
         // noop
@@ -149,6 +153,8 @@ impl<T> private::SpareMemoryPolicyBase<T> for Uninitialized {
 impl<T, const P: u8> SpareMemoryPolicy<T> for Pattern<P> {}
 
 impl<T, const P: u8> private::SpareMemoryPolicyBase<T> for Pattern<P> {
+    const NOOP: bool = false;
+
     #[inline]
     unsafe fn init(dst: *mut T, count: usize) {
         ptr::write_bytes(dst, P, count)
