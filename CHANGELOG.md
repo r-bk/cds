@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2022-03-25
+This release changes the error types to belong to the modules they are used in
+instead of "trying" to be generic.
+
+### Changed
+- rename `CapacityError` to `InsufficientCapacityError`
+- move the error types from the common module `cds::errors` into per-collection modules
+  `cds::arrayvec::errors` and `cds::arraystring::errors`. Every collection module
+  has its own error types now, even if part of the types are very similar.
+- update the `Display` implementation of the error types to reflect the collection
+  module they belong to
+
+### Removed
+- remove the top-level `cds::errors` module as all of its contents were moved out
+
 ## [0.5.0] - 2022-03-18
 ### Added
 - add `core::fmt::Write` implementation for `ArrayString`
@@ -111,3 +126,4 @@ This is a small refactoring-only release done in preparation for `ArrayString`.
 [0.3.0]: https://github.com/r-bk/cds/compare/v0.2.0...v0.3.0
 [0.4.0]: https://github.com/r-bk/cds/compare/v0.3.0...v0.4.0
 [0.5.0]: https://github.com/r-bk/cds/compare/v0.4.0...v0.5.0
+[0.6.0]: https://github.com/r-bk/cds/compare/v0.5.0...v0.6.0
