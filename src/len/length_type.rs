@@ -88,7 +88,7 @@ pub trait LengthType: LengthTypeBase {}
 macro_rules! length_type {
     ($(#[$outer:meta])* $N:ident, $U:ty) => {
         $(#[$outer])*
-        #[derive(Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
+        #[derive(Debug, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Hash)]
         #[repr(transparent)]
         pub struct $N($U);
 
