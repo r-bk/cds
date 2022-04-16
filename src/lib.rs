@@ -1,6 +1,6 @@
-//! *cds* is a Collection of Data Structures.
+//! *cds* is a Collection of Optimized Data Structures.
 //!
-//! *cds* implements handy data structures and their associated algorithms.
+//! *cds* implements optimized data structures and their associated algorithms.
 //!
 //!
 //! # Design and Implementation Principles
@@ -8,7 +8,7 @@
 //! 1. **Tested** - for both correctness and performance
 //! 2. **Fast** - even if it requires `unsafe` Rust
 //! 3. **Secure** - do not unnecessarily hold a copy of (possibly sensitive) user data;
-//!    wipe unused memory
+//!    allow wiping of unused memory
 //! 4. **No malloc** - avoid dynamic memory allocation where possible
 //! 5. **Compact** - allow small memory footprint
 //!

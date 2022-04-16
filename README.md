@@ -7,15 +7,16 @@
 [docs-url]: https://docs.rs/cds/latest/cds
 
 
-# cds - Collection of Data Structures
+# cds - Collection of Optimized Data Structures
 
-`cds` implements handy data structures written for speed and ergonomic API.
+`cds` implements handy data structures written for speed, small memory footprint and security.
 
 
 ## What's included?
 
-- `SpareMemoryPolicy` - a custom policy for handling spare memory in collections
-- `LengthType` - a customizable type to track fixed-capacity collection length
+- `SpareMemoryPolicy` - a customizable policy for handling spare memory in collections
+  (allows wiping unused memory to delete potentially sensitive data)
+- `LengthType` - a customizable type to track collection length
   (allows creation of very compact collection types)
 - `ArrayVec` - an array with vector-like API
 - `ArrayString` - an array with string-like API
