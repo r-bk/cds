@@ -183,23 +183,21 @@ where
 
         let av = unsafe { self.av.as_mut() };
 
+        // move the iterator to stack, to be able to borrow it read-only even when
+        // `self` is borrowed for write in the DropGuard below
+        let iter = mem::replace(&mut self.iter, (&[]).iter());
+        let remaining = iter.len();
+
         if mem::size_of::<T>() == 0 {
             // ZST doesn't need any mem copy, just truncate the correct number of elements
             let head = av.len();
-            let tail = self.tail.as_usize();
             let tail_len = self.tail_len.as_usize();
-            unsafe { av.set_len(head + (tail - head) + tail_len) };
+            unsafe { av.set_len(head + remaining + tail_len) };
             av.truncate(head + tail_len);
         } else {
-            // move the iterator to stack, to be able to borrow it read-only even when
-            // `self` is borrowed for write in the DropGuard below
-            let iter = mem::replace(&mut self.iter, (&[]).iter());
-
             // ensure array-vec continuity is preserved and SpareMemoryPolicy is invoked
             // even if one of the drained elements panics while dropped.
             let _guard = DropGuard(self);
-
-            let remaining = iter.len();
 
             if remaining > 0 {
                 // the iterator wasn't fully consumed, drop the remaining elements
