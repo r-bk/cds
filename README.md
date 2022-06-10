@@ -22,7 +22,7 @@
 - `ArrayString` - an array with string-like API
 - `lformat!` - a macro to format a string on stack, without memory allocation
   (yields an `ArrayString`)
-- `SmallVec` - a vector with optimization for small capacities
+- `SmallVec` - a growable array with optimization for small capacities
 
 
 ## Crate Features
@@ -51,7 +51,7 @@ The documentation is at [docs.rs/cds][docs-url]
 
 ## Roadmap
 
-- `SmallString` - a string with inline capacity to avoid heap allocation
+- `SmallString` - a string with local capacity to avoid heap allocation
 
 
 ## Changelog
