@@ -48,3 +48,48 @@ script = '''
 #!/usr/bin/env bash
 browse ./tarpaulin-report.html >/dev/null 2>&1 &
 '''
+
+[tasks.miri]
+workspace = false
+script = '''
+#!/usr/bin/env bash -e
+
+INSTALLED_TOOLCHAINS=$(rustup toolchain list)
+MIRI=''
+for t in $INSTALLED_TOOLCHAINS; do
+    if [[ $t =~ nightly-[0-9]{4}-[0-9]{2}-[0-9]{2}-.+ ]]; then
+        echo "Found miri toolchain: $t"
+        MIRI=$t
+    fi
+done
+if [[ -z $MIRI ]]; then
+    echo "miri not found"
+    exit 1
+fi
+
+rustup run $MIRI cargo miri test --all-features
+'''
+
+[tasks.install-miri]
+workspace = false
+script = '''
+#!/usr/bin/env bash -e
+MIRI_NIGHTLY=nightly-$(curl -s https://rust-lang.github.io/rustup-components-history/x86_64-unknown-linux-gnu/miri)
+echo "Found miri: $MIRI_NIGHTLY"
+
+INSTALLED_TOOLCHAINS=$(rustup toolchain list)
+if echo "$INSTALLED_TOOLCHAINS" | grep -q "$MIRI_NIGHTLY"; then
+    echo "$MIRI_NIGHTLY already installed..."
+    exit 0
+fi
+
+for t in $INSTALLED_TOOLCHAINS; do
+    if [[ $t =~ nightly-[0-9]{4}-[0-9]{2}-[0-9]{2}-.+ ]]; then
+        echo "Uninstalling old toolchain $t..."
+        rustup toolchain uninstall $t
+    fi
+done
+
+rustup toolchain install -c miri rust-src --profile minimal $MIRI_NIGHTLY
+rustup run $MIRI_NIGHTLY cargo miri setup
+'''
