@@ -319,7 +319,7 @@ where
 
     /// Checks if there is spare capacity in the array-vector.
     ///
-    /// Equivalent to `len() < capacity()`, `spare_capacity_len() != 0` and `!is_full()`.
+    /// Equivalent to `len() < capacity()`, `spare_capacity() != 0` and `!is_full()`.
     ///
     /// # Examples
     ///
