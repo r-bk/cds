@@ -15,22 +15,7 @@ env:
 
 jobs:
   ci:
-    runs-on: ${{ matrix.runs_on }}
-    strategy:
-      matrix:
-        runs_on:
-          - ubuntu-latest
-        feature:
-          - all
-          - ''
-          - default
-          - std
-          - alloc
-          - arrayvec
-          - arrayvec,std
-          - arraystring
-          - arraystring,alloc
-          - arraystring,std
+    runs-on: ubuntu-latest
     steps:
       - id: find_miri
         run: |
@@ -49,22 +34,7 @@ jobs:
           components: miri, rust-src
 
       - uses: actions-rs/cargo@v1
-        name: test cds
-        if: ${{ matrix.feature != 'all' && matrix.feature != '' }}
-        with:
-          command: miri
-          args: test --no-default-features --features ${{ matrix.feature }}
-
-      - uses: actions-rs/cargo@v1
         name: test all cds
-        if: ${{ matrix.feature == 'all' }}
         with:
           command: miri
           args: test --all-features
-
-      - uses: actions-rs/cargo@v1
-        name: test no-default-features cds
-        if: ${{ matrix.feature == '' }}
-        with:
-          command: miri
-          args: test --no-default-features
