@@ -1,4 +1,4 @@
-//! Types for dealing with fixed-capacity collection length.
+//! Types for dealing with collections' length.
 //!
 //! See [`LengthType`] for more information.
 mod length_type;

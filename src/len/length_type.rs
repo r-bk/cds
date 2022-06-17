@@ -52,7 +52,7 @@ use lt_private::LengthTypeBase;
 
 /// A trait of custom length types.
 ///
-/// *cds* fixed capacity collections allow customization of the type used to track the collection
+/// *cds* collections allow customization of the type used to track the collection
 /// length. This allows more compact representation of a collection type, especially
 /// when low capacity is required.
 ///
@@ -63,7 +63,7 @@ use lt_private::LengthTypeBase;
 ///
 /// # Examples
 ///
-/// `LengthType` allows creation of very compact fixed-capacity collections:
+/// `LengthType` allows creation of very compact collections:
 ///
 /// ```rust
 /// # #[cfg(feature = "arrayvec")] {
@@ -76,7 +76,8 @@ use lt_private::LengthTypeBase;
 /// # }
 /// ```
 ///
-/// The requested capacity may not exceed the length-type's maximal value:
+/// In fixed-capacity collections, the requested capacity may not exceed the length-type's maximal
+/// value:
 ///
 /// ```should_panic
 /// # #[cfg(feature = "arrayvec")] {
