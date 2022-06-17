@@ -80,4 +80,4 @@ dual licensed as above, without any additional terms or conditions.
 
 ## Tags
 
-`small` `secure` `vector` `string` `array`
+`small` `secure` `vector` `string` `array` `smallvec` `smallstr`
