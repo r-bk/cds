@@ -80,5 +80,4 @@ dual licensed as above, without any additional terms or conditions.
 
 ## Tags
 
-[small](#tags) [secure](#tags)
-[vector](#tags) [string](#tags) [array](#tags)
+`small` `secure` `vector` `string` `array`
