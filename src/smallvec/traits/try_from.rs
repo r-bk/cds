@@ -63,7 +63,7 @@ where
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "std"))]
 mod testing {
     use crate as cds;
     use cds::{

@@ -1959,5 +1959,5 @@ pub use drain::*;
 mod macros;
 mod traits;
 
-#[cfg(test)]
+#[cfg(all(test, feature = "std"))]
 mod test_smallvec;
