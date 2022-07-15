@@ -52,8 +52,8 @@ mod testing {
         assert!(t.dropped_range(0..0)); // empty range
         assert!(v.is_local());
 
-        let p = v.as_ptr();
         v.truncate(0);
+        let p = v.as_ptr();
         unsafe { check_spare_mem(p.cast(), p.add(v.capacity()).cast(), PATTERN) };
 
         drop(v);
@@ -71,8 +71,8 @@ mod testing {
         assert!(t.dropped_range(0..0)); // empty range
         assert!(v.is_heap());
 
-        let p = v.as_ptr();
         v.truncate(0);
+        let p = v.as_ptr();
         unsafe { check_spare_mem(p.cast(), p.add(v.capacity()).cast(), PATTERN) };
 
         drop(v);
