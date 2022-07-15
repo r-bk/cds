@@ -29,13 +29,14 @@ where
         // Set the correct length, and invoke spare memory policy if needed.
         unsafe {
             if self.deleted > 0 {
+                let base_p = self.av.as_mut_ptr();
                 ptr::copy(
-                    self.av.as_ptr().add(self.processed),
-                    self.av.as_mut_ptr().add(self.processed - self.deleted),
+                    base_p.add(self.processed),
+                    base_p.add(self.processed - self.deleted),
                     self.len - self.processed,
                 );
 
-                SM::init(self.av.as_mut_ptr().add(new_len), self.deleted)
+                SM::init(base_p.add(new_len), self.deleted)
             }
             self.av.set_len(new_len);
         }
