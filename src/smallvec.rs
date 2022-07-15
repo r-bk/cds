@@ -1669,13 +1669,13 @@ where
                 self.set_len(start);
 
                 (
-                    slice::from_raw_parts(self.as_ptr().add(start), end - start).iter(),
+                    slice::from_raw_parts_mut(self.as_mut_ptr().add(start), end - start).iter_mut(),
                     L::new(end),
                     L::new(len - end),
                 )
             } else {
                 // empty drained range, mark it with an impossible combination of `tail/tail_len`
-                ((&[]).iter(), L::new(L::MAX), L::new(L::MAX))
+                ((&mut []).iter_mut(), L::new(L::MAX), L::new(L::MAX))
             };
 
             Drain {
