@@ -145,6 +145,7 @@ where
         // and invoke SpareMemoryPolicy as needed.
 
         let av = unsafe { self.0.av.as_mut() };
+        let base_p = av.as_mut_ptr();
         let head = av.len(); // `ArrayVec::drain` sets `len` to reflect the head only.
         let tail = self.0.tail.as_usize();
         let tail_len = self.0.tail_len.as_usize();
@@ -155,14 +156,12 @@ where
             if tail_len > 0 {
                 let new_len = head + tail_len;
                 if mem::size_of::<T>() != 0 {
-                    let src = av.as_ptr().add(tail);
-                    let dst = av.as_mut_ptr().add(head);
-                    ptr::copy(src, dst, tail_len);
-                    SM::init(av.as_mut_ptr().add(new_len), tail - head);
+                    ptr::copy(base_p.add(tail), base_p.add(head), tail_len);
+                    SM::init(base_p.add(new_len), tail - head);
                 }
                 av.set_len(new_len);
             } else {
-                SM::init(av.as_mut_ptr().add(head), tail - head);
+                SM::init(base_p.add(head), tail - head);
             }
         }
     }
