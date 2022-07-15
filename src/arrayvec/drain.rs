@@ -20,7 +20,7 @@ where
     // the owner ArrayVec
     pub(super) av: ptr::NonNull<ArrayVec<T, C, L, SM>>,
     // an iterator over the slice to be drained
-    pub(super) iter: slice::Iter<'a, T>,
+    pub(super) iter: slice::IterMut<'a, T>,
     // the index of the first element past the drained range; or L::MAX for empty drained range
     pub(super) tail: L,
     // the length of the tail to preserve; or L::MAX for empty drained range
@@ -181,14 +181,13 @@ where
             return;
         }
 
-        let av = unsafe { self.av.as_mut() };
-
         // move the iterator to stack, to be able to borrow it read-only even when
         // `self` is borrowed for write in the DropGuard below
-        let iter = mem::replace(&mut self.iter, (&[]).iter());
+        let iter = mem::replace(&mut self.iter, (&mut []).iter_mut());
         let remaining = iter.len();
 
         if mem::size_of::<T>() == 0 {
+            let av = unsafe { self.av.as_mut() };
             // ZST doesn't need any mem copy, just truncate the correct number of elements
             let head = av.len();
             let tail_len = self.tail_len.as_usize();
@@ -202,9 +201,7 @@ where
             if remaining > 0 {
                 // the iterator wasn't fully consumed, drop the remaining elements
                 unsafe {
-                    let ptr = iter.as_slice().as_ptr() as *mut T;
-                    let s = slice::from_raw_parts_mut(ptr, remaining);
-                    ptr::drop_in_place(s);
+                    ptr::drop_in_place(iter.into_slice());
                 }
             }
         }
