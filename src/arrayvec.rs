@@ -1212,7 +1212,8 @@ where
             // If there are items left to process, there must be an empty slot.
             // Move every retained slot to an empty one.
             while g.processed < len {
-                let item_mut_ref = &mut *g.av.as_mut_ptr().add(g.processed);
+                let base_p = g.av.as_mut_ptr();
+                let item_mut_ref = &mut *base_p.add(g.processed);
                 if !f(item_mut_ref) {
                     // update counters before drop_in_place, as it may panic
                     g.processed += 1;
@@ -1221,8 +1222,8 @@ where
                     continue;
                 } else {
                     ptr::copy_nonoverlapping(
-                        item_mut_ref as *const _,
-                        g.av.as_mut_ptr().add(g.processed - g.deleted),
+                        item_mut_ref as *mut _,
+                        base_p.add(g.processed - g.deleted),
                         1,
                     );
                 }
