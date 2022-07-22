@@ -11,6 +11,8 @@ arrayvec = "=0.7.2"
 smallvec = { version = "=1.8.0", features = ["union", "const_generics"] }
 heapless = "=0.7.10"
 tinyvec = { version = "=1.5.1", features = ["alloc", "std", "rustc_1_55", "tinyvec_macros"] }
+smartstring = "1.0.1"
+compact_str = "0.7.0"
 
 [dependencies.cds]
 path = ".."
@@ -31,4 +33,8 @@ harness = false
 
 [[bench]]
 name = "smallvec"
+harness = false
+
+[[bench]]
+name = "smallstring"
 harness = false

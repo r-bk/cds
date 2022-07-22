@@ -11,12 +11,13 @@ repository = "https://github.com/r-bk/cds"
 exclude = [".git*", "Makefile.toml"]
 
 [features]
-default = ["std", "arrayvec", "arraystring", "smallvec"]
+default = ["std", "arrayvec", "arraystring", "smallvec", "smallstring"]
 arrayvec = []
 arraystring = []
 alloc = []
 std = ["alloc"]
 smallvec = ["alloc"]
+smallstring = ["alloc"]
 
 
 [package.metadata.docs.rs]

@@ -37,6 +37,8 @@ jobs:
           - arraystring,std
           - smallvec
           - smallvec,std
+          - smallstring
+          - smallstring,std
     steps:
       - uses: actions/checkout@v3
       - uses: dtolnay/rust-toolchain@v1

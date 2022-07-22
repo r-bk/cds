@@ -31,6 +31,7 @@
 //! operation from there.
 //!
 //! * [`SmallVec`] - a vector with “small size” optimization
+//! * [`SmallString`] - a string with "small size" optimization
 //!
 //!
 //! # Optional Features
@@ -41,6 +42,7 @@
 //! * `arrayvec` - enables [`ArrayVec`]
 //! * `arraystring` - enables [`ArrayString`]
 //! * `smallvec` - implies `alloc` and enables [`SmallVec`]
+//! * `smallstring` - implies `alloc` and enables [`SmallString`]
 //!
 //! By default, all optional features are enabled. To build in `no_std` environment, or to avoid
 //! compilation of unneeded functionality, disable default features and cherry pick the required
@@ -49,6 +51,7 @@
 //! [`ArrayVec`]: crate::arrayvec::ArrayVec
 //! [`ArrayString`]: crate::arraystring::ArrayString
 //! [`SmallVec`]: crate::smallvec::SmallVec
+//! [`SmallString`]: crate::smallstring::SmallString
 //! [`no_std`]: https://docs.rust-embedded.org/book/intro/no-std.html
 //!
 
@@ -56,7 +59,7 @@
 #![warn(missing_docs)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
-#[cfg(feature = "alloc")]
+#[cfg(any(feature = "alloc", feature = "test"))]
 extern crate alloc;
 
 #[cfg(feature = "arrayvec")]
@@ -70,6 +73,10 @@ pub mod arraystring;
 #[cfg(feature = "smallvec")]
 #[cfg_attr(docsrs, doc(cfg(feature = "smallvec")))]
 pub mod smallvec;
+
+#[cfg(feature = "smallstring")]
+#[cfg_attr(docsrs, doc(cfg(feature = "smallstring")))]
+pub mod smallstring;
 
 pub mod len;
 pub mod mem;

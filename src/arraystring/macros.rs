@@ -163,7 +163,7 @@ macro_rules! lformat {
 /// ```
 ///
 /// [`ArrayString`]: crate::arraystring::ArrayString
-/// [`format`]: crate::arraystring::format
+/// [`format`]: crate::arraystring::format()
 /// [`Usize`]: crate::len::Usize
 /// [`Uninitialized`]: crate::mem::Uninitialized
 #[cfg_attr(docsrs, doc(cfg(feature = "arraystring")))]
