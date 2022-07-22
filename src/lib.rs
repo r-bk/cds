@@ -31,6 +31,7 @@
 //! operation from there.
 //!
 //! * [`SmallVec`] - a vector with “small size” optimization
+//! * [`SmallString`] - a string with "small size" optimization
 //!
 //!
 //! # Optional Features
@@ -41,10 +42,12 @@
 //! * `arrayvec` - enables [`ArrayVec`]
 //! * `arraystring` - enables [`ArrayString`]
 //! * `smallvec` - implies `alloc` and enables [`SmallVec`]
+//! * `smallstring` - implies `alloc` and enab;es [`SmallString`]
 //!
 //! [`ArrayVec`]: crate::arrayvec::ArrayVec
 //! [`ArrayString`]: crate::arraystring::ArrayString
 //! [`SmallVec`]: crate::smallvec::SmallVec
+//! [`SmallString`]: crate::smallstring::SmallString
 //! [`no_std`]: https://docs.rust-embedded.org/book/intro/no-std.html
 //!
 
@@ -66,6 +69,10 @@ pub mod arraystring;
 #[cfg(feature = "smallvec")]
 #[cfg_attr(docsrs, doc(cfg(feature = "smallvec")))]
 pub mod smallvec;
+
+#[cfg(feature = "smallstring")]
+#[cfg_attr(docsrs, doc(cfg(feature = "smallstring")))]
+pub mod smallstring;
 
 pub mod len;
 pub mod mem;

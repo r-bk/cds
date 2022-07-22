@@ -17,6 +17,7 @@ arraystring = []
 alloc = []
 std = ["alloc"]
 smallvec = ["alloc"]
+smallstring = ["alloc"]
 
 
 [package.metadata.docs.rs]
