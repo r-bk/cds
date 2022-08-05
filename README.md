@@ -27,19 +27,16 @@
 
 ## Crate Features
 
-Every data structure has a corresponding crate feature written in all lowercase.
-For example, `arrayvec` enables `ArrayVec`. None of the data structures is enabled by default.
+- `arrayvec` - enables `ArrayVec`
+- `arraystring` - enables `ArrayString`
+- `smallvec` - enables `SmallVec`, implies `alloc`.
+- `alloc` - enables usage of the standard [alloc] crate
+- `std`- enables usage of the Rust standard library. Implies `alloc`, and enables implementation
+  of standard traits which are not available in `core`. Without this feature the crate is `no_std`.
 
-Additionally, the following crate features are available:
-
-- `alloc` - enables usage of the standard [alloc] crate.
-
-- `std`- enables usage of the Rust standard library.
-
-  Currently, this feature implies `alloc`, and enables implementation of traits from `std`
-  which are not available in `core`.
-
-  Without this feature the crate is `no_std`.
+By default, all optional features are enabled. To build in `no_std` environment, or to avoid
+compilation of unneeded functionality, use `default-features = false` and choose the required
+features explicitly.
 
 [alloc]: https://doc.rust-lang.org/alloc/
 

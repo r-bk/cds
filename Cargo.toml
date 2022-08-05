@@ -11,7 +11,7 @@ repository = "https://github.com/r-bk/cds"
 exclude = [".git*", "Makefile.toml"]
 
 [features]
-default = []
+default = ["std", "arrayvec", "arraystring", "smallvec"]
 arrayvec = []
 arraystring = []
 alloc = []

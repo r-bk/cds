@@ -42,6 +42,10 @@
 //! * `arraystring` - enables [`ArrayString`]
 //! * `smallvec` - implies `alloc` and enables [`SmallVec`]
 //!
+//! By default, all optional features are enabled. To build in `no_std` environment, or to avoid
+//! compilation of unneeded functionality, disable default features and cherry pick the required
+//! features explicitly.
+//!
 //! [`ArrayVec`]: crate::arrayvec::ArrayVec
 //! [`ArrayString`]: crate::arraystring::ArrayString
 //! [`SmallVec`]: crate::smallvec::SmallVec
