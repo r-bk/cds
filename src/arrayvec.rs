@@ -1122,7 +1122,7 @@ where
                 )
             } else {
                 // empty drained range, mark it with an impossible combination of `tail/tail_len`
-                ((&mut []).iter_mut(), L::new(L::MAX), L::new(L::MAX))
+                ([].iter_mut(), L::new(L::MAX), L::new(L::MAX))
             };
 
             Drain {

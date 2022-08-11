@@ -32,7 +32,7 @@ where
 {
     #[inline]
     fn as_ref(&self) -> &std::ffi::OsStr {
-        (&**self).as_ref()
+        (**self).as_ref()
     }
 }
 
@@ -45,7 +45,7 @@ where
 {
     #[inline]
     fn as_ref(&self) -> &std::path::Path {
-        (&**self).as_ref()
+        (**self).as_ref()
     }
 }
 

@@ -184,7 +184,7 @@ where
 
         // move the iterator to stack, to be able to borrow it read-only even when
         // `self` is borrowed for write in the DropGuard below
-        let iter = mem::replace(&mut self.iter, (&mut []).iter_mut());
+        let iter = mem::replace(&mut self.iter, [].iter_mut());
         let remaining = iter.len();
 
         if mem::size_of::<T>() == 0 {
