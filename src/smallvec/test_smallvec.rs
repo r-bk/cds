@@ -2,12 +2,9 @@ use crate as cds;
 use cds::{
     gen_dropped_zst,
     len::{LengthType, Usize, U8},
-    mem::{Pattern, SpareMemoryPolicy, Uninitialized},
+    mem::{errors::ReservationError, Pattern, SpareMemoryPolicy, Uninitialized},
     small_vec,
-    smallvec::{
-        errors::{InsertError, ReservationError},
-        SmallVec,
-    },
+    smallvec::{errors::InsertError, SmallVec},
     testing::{
         dropped::{Dropped, Track},
         dropped_zst::{counters, Counters},

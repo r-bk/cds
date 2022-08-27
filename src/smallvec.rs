@@ -2,7 +2,7 @@
 
 use crate::{
     len::{LengthType, Usize},
-    mem::{SpareMemoryPolicy, Uninitialized},
+    mem::{errors::ReservationError, SpareMemoryPolicy, Uninitialized},
 };
 use ::alloc::alloc::{self, Layout};
 use core::{
@@ -819,7 +819,7 @@ where
     /// # Examples
     ///
     /// ```rust
-    /// # use cds::{small_vec, smallvec::errors::ReservationError};
+    /// # use cds::{small_vec, mem::errors::ReservationError};
     /// # fn foo() -> Result<(), ReservationError> {
     /// let mut v = small_vec![2; u64];
     /// assert_eq!(v, []);
@@ -1002,8 +1002,8 @@ where
     ///
     /// ```rust
     /// # use cds::{
-    /// #     smallvec::{SmallVec, errors::ReservationError},
-    /// #     len::U8, mem::Uninitialized
+    /// #     smallvec::SmallVec,
+    /// #     len::U8, mem::{Uninitialized, errors::ReservationError},
     /// # };
     /// # fn example() -> Result<(), ReservationError> {
     /// type SV = SmallVec<usize, 3, U8, Uninitialized>;
@@ -1521,7 +1521,7 @@ where
     /// # Examples
     ///
     /// ```rust
-    /// # use cds::{small_vec, smallvec::errors::ReservationError};
+    /// # use cds::{small_vec, mem::errors::ReservationError};
     /// # fn foo() -> Result<(), ReservationError> {
     /// let mut v = small_vec![8; u64];
     /// assert_eq!(v, []);
@@ -1750,7 +1750,7 @@ where
     /// # Examples
     ///
     /// ```rust
-    /// # use cds::{small_vec, smallvec::errors::ReservationError};
+    /// # use cds::{small_vec, mem::errors::ReservationError};
     /// # fn foo() -> Result<(), ReservationError> {
     /// let mut v = small_vec![2; usize];
     /// assert_eq!(v, []);
@@ -1881,7 +1881,7 @@ where
     ///
     /// # Examples
     /// ```rust
-    /// # use cds::{small_vec, smallvec::errors::ReservationError};
+    /// # use cds::{small_vec, mem::errors::ReservationError};
     /// # fn foo() -> Result<(), ReservationError> {
     /// let mut v = small_vec![5; 1, 2];
     /// assert_eq!(v, [1, 2]);

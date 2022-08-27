@@ -1,7 +1,7 @@
 use crate::{
     len::LengthType,
-    mem::SpareMemoryPolicy,
-    smallvec::{clone_from_slice_unchecked, errors::ReservationError, SmallVec, NOHAE},
+    mem::{errors::ReservationError, SpareMemoryPolicy},
+    smallvec::{clone_from_slice_unchecked, SmallVec, NOHAE},
 };
 use core::{convert::TryFrom, mem, ptr};
 
