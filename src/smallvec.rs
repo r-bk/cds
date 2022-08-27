@@ -2,9 +2,13 @@
 
 use crate::{
     len::{LengthType, Usize},
-    mem::{errors::ReservationError, SpareMemoryPolicy, Uninitialized},
+    mem::{
+        alloc::{alloc_buffer, realloc_buffer, DOHAE, NOHAE},
+        errors::ReservationError,
+        SpareMemoryPolicy, Uninitialized,
+    },
 };
-use ::alloc::alloc::{self, Layout};
+
 use core::{
     marker::PhantomData,
     mem,
@@ -17,9 +21,6 @@ use buffer::SetLenOnDrop;
 
 mod retain;
 use retain::RetainGuard;
-
-const DOHAE: bool = true; // call `handle_allocation_error`
-const NOHAE: bool = false; // do not call `handle_allocation_error`
 
 /// A continuous growable array with "small size" optimization.
 ///
@@ -699,34 +700,18 @@ where
             debug_assert!(new_cap > C);
             debug_assert!(new_cap > cap);
 
-            let p: *mut T = unsafe {
-                let new_layout = Layout::array::<T>(new_cap.as_usize())
-                    .map_err(|_| ReservationError::CapacityOverflow)?;
-                if new_layout.size() > isize::MAX as usize {
-                    return Err(ReservationError::CapacityOverflow);
-                }
-
-                let tmp = alloc::alloc(new_layout);
-                if tmp.is_null() {
-                    if HAE {
-                        alloc::handle_alloc_error(new_layout);
-                    }
-                    return Err(ReservationError::AllocError { layout: new_layout });
-                }
-
+            let p = unsafe {
                 // if spare memory policy is a noop do not copy the old spare memory
-                let n = if SM::NOOP { len } else { cap };
-                ptr::copy_nonoverlapping(self.buf.local_ptr(), tmp.cast(), n);
-                tmp.cast()
-            };
-
-            if !SM::NOOP {
-                unsafe {
+                let prefix = if SM::NOOP { len } else { cap };
+                let tmp = alloc_buffer::<T, HAE>(new_cap.as_usize())?;
+                ptr::copy_nonoverlapping(self.buf.local_ptr(), tmp, prefix);
+                if !SM::NOOP {
                     // initialize the new spare memory only; old spare memory was preserved
-                    SM::init(p.add(cap), new_cap.as_usize() - cap);
+                    SM::init(tmp.add(cap), new_cap.as_usize() - cap);
                     SM::init(self.buf.local_mut_ptr(), len)
                 }
-            }
+                tmp
+            };
 
             self.buf.set_heap(p, self.capacity);
             self.capacity = new_cap;
@@ -736,49 +721,18 @@ where
             if cap - len.as_usize() >= additional {
                 return Ok(self.buf.heap_mut_len_mut_p());
             }
-
             let new_cap = nc(len, additional)?;
             debug_assert!(new_cap > cap);
-            let old_p = self.buf.heap_mut_ptr();
-            let old_array_size = mem::size_of::<T>() * cap;
-            let old_layout =
-                unsafe { Layout::from_size_align_unchecked(old_array_size, mem::align_of::<T>()) };
-            let new_layout = Layout::array::<T>(new_cap.as_usize())
-                .map_err(|_| ReservationError::CapacityOverflow)?;
-            if new_layout.size() > isize::MAX as usize {
-                return Err(ReservationError::CapacityOverflow);
-            }
-
-            let p: *mut T = if SM::NOOP {
-                unsafe {
-                    let tmp = alloc::realloc(old_p.cast(), old_layout, new_layout.size());
-                    if tmp.is_null() {
-                        if HAE {
-                            alloc::handle_alloc_error(new_layout);
-                        }
-                        return Err(ReservationError::AllocError { layout: new_layout });
-                    }
-                    tmp.cast()
-                }
-            } else {
-                unsafe {
-                    let tmp = alloc::alloc(new_layout);
-                    if tmp.is_null() {
-                        if HAE {
-                            alloc::handle_alloc_error(new_layout);
-                        }
-                        return Err(ReservationError::AllocError { layout: new_layout });
-                    }
-
-                    // copy the old buffer including its spare memory
-                    ptr::copy_nonoverlapping(old_p.cast(), tmp, old_layout.size());
-                    SM::init((tmp as *mut T).add(cap), new_cap.as_usize() - cap);
-                    SM::init(old_p, len.as_usize());
-                    alloc::dealloc(old_p.cast(), old_layout);
-                    tmp.cast()
-                }
+            let p = unsafe {
+                let tmp = realloc_buffer::<T, SM, HAE>(
+                    self.buf.heap_mut_ptr(),
+                    len.as_usize(),
+                    cap,
+                    new_cap.as_usize(),
+                )?;
+                SM::init(tmp.add(cap), new_cap.as_usize() - cap);
+                tmp
             };
-
             self.buf.set_heap_ptr(p);
             self.capacity = new_cap;
             Ok(self.buf.heap_mut_len_mut_p())

@@ -3,4 +3,7 @@
 mod policy;
 pub use policy::*;
 
+#[cfg(any(feature = "smallvec"))]
+pub(crate) mod alloc;
+
 pub mod errors;
