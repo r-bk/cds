@@ -1,5 +1,8 @@
-use crate::{len::LengthType, mem::SpareMemoryPolicy, smallvec::SmallVec};
-use ::alloc::alloc::{self, Layout};
+use crate::{
+    len::LengthType,
+    mem::{alloc::dealloc_buffer, SpareMemoryPolicy},
+    smallvec::SmallVec,
+};
 use core::mem;
 
 impl<T, const C: usize, L, SM> Drop for SmallVec<T, C, L, SM>
@@ -15,11 +18,7 @@ where
             // SAFETY: cap > C means reserve_impl has succeeded at least once.
             // Hence, array_size cannot overflow because reserve_impl uses the safe function
             // to calculate new_layout.
-            unsafe {
-                let array_size = mem::size_of::<T>() * cap;
-                let layout = Layout::from_size_align_unchecked(array_size, mem::align_of::<T>());
-                alloc::dealloc(self.buf.heap_mut_ptr().cast(), layout);
-            }
+            dealloc_buffer(self.buf.heap_mut_ptr(), cap);
         }
     }
 }

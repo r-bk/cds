@@ -70,3 +70,12 @@ pub fn realloc_buffer<T, SM: SpareMemoryPolicy<T>, const HAE: bool>(
         }
     }
 }
+
+#[inline]
+pub fn dealloc_buffer<T>(p: *mut T, cap: usize) {
+    unsafe {
+        let layout =
+            Layout::from_size_align_unchecked(mem::size_of::<T>() * cap, mem::align_of::<T>());
+        alloc::dealloc(p.cast(), layout);
+    }
+}
