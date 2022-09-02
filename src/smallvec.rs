@@ -54,10 +54,10 @@ use retain::RetainGuard;
 ///
 /// [`spare memory policy`]: SpareMemoryPolicy
 /// [`length type`]: LengthType
-/// [`alloc`]: alloc::alloc
-/// [`realloc`]: alloc::realloc
-/// [`Allocator`]: alloc::Allocator
-/// [`handle_alloc_error`]: alloc::handle_alloc_error
+/// [`alloc`]: ::alloc::alloc
+/// [`realloc`]: ::alloc::alloc::realloc
+/// [`Allocator`]: ::alloc::alloc::Allocator
+/// [`handle_alloc_error`]: ::alloc::alloc::handle_alloc_error
 ///
 /// # Examples
 ///
@@ -595,11 +595,12 @@ where
     /// This method panics on any of the following conditions:
     /// - the total capacity overflows the length type `L::MAX`
     /// - the total capacity in bytes overflows `isize::MAX`
-    /// - memory allocation fails ([`alloc::handle_alloc_error`] is called)
+    /// - memory allocation fails ([`handle_alloc_error`] is called)
     ///
     /// See [`try_reserve`] for a method that returns [`ReservationError`] instead.
     ///
     /// [`try_reserve`]: SmallVec::try_reserve
+    /// [`handle_alloc_error`]: ::alloc::alloc::handle_alloc_error
     #[inline]
     pub fn reserve(&mut self, additional: usize) {
         self.try_reserve_impl::<DOHAE>(additional)
@@ -635,11 +636,12 @@ where
     /// This method panics on any of the following conditions:
     /// - the total capacity overflows the length type `L::MAX`
     /// - the total capacity in bytes overflows `isize::MAX`
-    /// - memory allocation fails ([`alloc::handle_alloc_error`] is called)
+    /// - memory allocation fails ([`handle_alloc_error`] is called)
     ///
     /// See [`try_reserve_exact`] for a method that returns [`ReservationError`] instead.
     ///
     /// [`try_reserve_exact`]: SmallVec::try_reserve_exact
+    /// [`handle_alloc_error`]: ::alloc::alloc::handle_alloc_error
     #[inline]
     pub fn reserve_exact(&mut self, additional: usize) {
         self.try_reserve_exact_impl::<DOHAE>(additional)
