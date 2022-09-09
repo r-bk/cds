@@ -38,6 +38,22 @@ where
     heap: (*const T, L),
 }
 
+unsafe impl<T, const C: usize, L, SM> Send for Buffer<T, C, L, SM>
+where
+    T: Send,
+    L: LengthType,
+    SM: SpareMemoryPolicy<T>,
+{
+}
+
+unsafe impl<T, const C: usize, L, SM> Sync for Buffer<T, C, L, SM>
+where
+    T: Sync,
+    L: LengthType,
+    SM: SpareMemoryPolicy<T>,
+{
+}
+
 impl<T, const C: usize, L, SM> Buffer<T, C, L, SM>
 where
     L: LengthType,
