@@ -35,7 +35,7 @@ where
     SM: SpareMemoryPolicy<T>,
 {
     local: ManuallyDrop<Local<T, C, SM>>,
-    heap: (*mut T, L),
+    heap: (*const T, L),
 }
 
 impl<T, const C: usize, L, SM> Buffer<T, C, L, SM>
@@ -62,7 +62,7 @@ where
 
     #[inline]
     pub fn heap_mut_ptr(&mut self) -> *mut T {
-        unsafe { self.heap.0 }
+        unsafe { self.heap.0 as *mut T }
     }
 
     #[inline]
@@ -103,12 +103,12 @@ where
 
     #[inline]
     pub fn heap_len_mut_p(&mut self) -> (L, *mut T) {
-        unsafe { (self.heap.1, self.heap.0) }
+        unsafe { (self.heap.1, self.heap.0 as *mut T) }
     }
 
     #[inline]
     pub fn heap_mut_len_mut_p(&mut self) -> (&mut L, *mut T) {
-        unsafe { (&mut self.heap.1, self.heap.0) }
+        unsafe { (&mut self.heap.1, self.heap.0 as *mut T) }
     }
 }
 

@@ -2607,3 +2607,11 @@ fn test_split_at_spare_mut_zst() {
         assert_eq!(s.len(), 0);
     }
 }
+
+#[test]
+#[allow(dead_code)]
+fn test_small_vec_covariance() {
+    fn foo<'a>(v: SmallVec<&'static str, 8>) -> SmallVec<&'a str, 8> {
+        v
+    }
+}
