@@ -12,6 +12,8 @@ mod lt_private {
 
     pub trait LengthTypeBase:
         Copy
+        + Send
+        + Sync
         + Clone
         + PartialEq<usize>
         + PartialOrd<usize>

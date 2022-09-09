@@ -1,7 +1,7 @@
 use core::ptr;
 
 pub(crate) mod private {
-    pub trait SpareMemoryPolicyBase<T> {
+    pub trait SpareMemoryPolicyBase<T>: Send + Sync {
         // is the policy a no-op?
         const NOOP: bool;
         unsafe fn init(dst: *mut T, count: usize);
