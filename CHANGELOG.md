@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2022-09-09
+### Changed
+- enable all optional crate features by default.
+
+  From now on all public types are enabled by default, and `cds` links with the standard
+  library `std`. To build in `no_std` environment, use `default-features = false`
+  and choose the required features explicitly.
+
+- make `SmallVec` covariant over the generic type `T`.
+
+  This means, for example, that `SmallVec<&'static str, 8>` can be used where
+  `SmallVec<&'a str, 8>` is expected.
+  More information can be found [here](https://doc.rust-lang.org/nomicon/vec/vec-layout.html#layout).
+
+- make `SmallVec` implement `Send` and `Sync` when `T` is `Send` or `Sync` respectively
+
 ## [0.8.1] - 2022-07-22
 ### Fixed
 - fix new `miri` errors,
@@ -150,3 +166,4 @@ This is a small refactoring-only release done in preparation for `ArrayString`.
 [0.7.0]: https://github.com/r-bk/cds/compare/v0.6.0...v0.7.0
 [0.8.0]: https://github.com/r-bk/cds/compare/v0.7.0...v0.8.0
 [0.8.1]: https://github.com/r-bk/cds/compare/v0.8.0...v0.8.1
+[0.9.0]: https://github.com/r-bk/cds/compare/v0.8.1...v0.9.0
