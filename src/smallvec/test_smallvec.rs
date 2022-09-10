@@ -4,7 +4,7 @@ use cds::{
     len::{LengthType, Usize, U8},
     mem::{errors::ReservationError, Pattern, SpareMemoryPolicy, Uninitialized},
     small_vec,
-    smallvec::{errors::InsertError, SmallVec},
+    smallvec::{errors::InsertError, Drain, SmallVec},
     testing::{
         dropped::{Dropped, Track},
         dropped_zst::{counters, Counters},
@@ -2613,5 +2613,15 @@ fn test_split_at_spare_mut_zst() {
 fn test_small_vec_covariance() {
     fn foo<'a>(v: SmallVec<&'static str, 8>) -> SmallVec<&'a str, 8> {
         v
+    }
+}
+
+#[test]
+#[allow(dead_code)]
+fn test_small_vec_drain_covariance() {
+    fn foo<'a>(
+        d: Drain<'a, &'static str, Usize, Uninitialized, 8>,
+    ) -> Drain<'a, &'a str, Usize, Uninitialized, 8> {
+        d
     }
 }
