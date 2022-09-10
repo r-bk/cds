@@ -3,7 +3,7 @@ use cds::{
     array_vec,
     arrayvec::{
         errors::{InsertError, InsertErrorVal, InsufficientCapacityError},
-        ArrayVec,
+        ArrayVec, Drain,
     },
     len::{LengthType, U8},
     mem::{Pattern, SpareMemoryPolicy, Uninitialized},
@@ -1110,5 +1110,15 @@ fn test_copy_from_slice_unchecked() {
 fn test_arrayvec_covariance() {
     fn foo<'a>(av: ArrayVec<&'static str, 8>) -> ArrayVec<&'a str, 8> {
         av
+    }
+}
+
+#[test]
+#[allow(dead_code)]
+fn test_arrayvec_drain_covariance() {
+    fn foo<'a>(
+        d: Drain<'static, &'static str, U8, Uninitialized, 8>,
+    ) -> Drain<'a, &'a str, U8, Uninitialized, 8> {
+        d
     }
 }
