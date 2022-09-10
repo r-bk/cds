@@ -1104,3 +1104,11 @@ fn test_copy_from_slice_unchecked() {
     unsafe { av.copy_from_slice_unchecked(&[1, 2, 3]) };
     assert_eq!(av, [1, 2, 3]);
 }
+
+#[test]
+#[allow(dead_code)]
+fn test_arrayvec_covariance() {
+    fn foo<'a>(av: ArrayVec<&'static str, 8>) -> ArrayVec<&'a str, 8> {
+        av
+    }
+}
