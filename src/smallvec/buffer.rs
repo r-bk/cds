@@ -104,12 +104,12 @@ where
 
     #[inline]
     pub fn local_ptr(&self) -> *const T {
-        unsafe { (*self.local).arr.as_ptr() as *const T }
+        unsafe { self.local.arr.as_ptr() as *const T }
     }
 
     #[inline]
     pub fn local_mut_ptr(&mut self) -> *mut T {
-        unsafe { (*self.local).arr.as_mut_ptr() as *mut T }
+        unsafe { self.local.arr.as_mut_ptr() as *mut T }
     }
 
     #[inline]
