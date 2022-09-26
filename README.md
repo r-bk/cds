@@ -49,6 +49,7 @@ The documentation is at [docs.rs/cds][docs-url]
 ## Roadmap
 
 - `SmallString` - a string with local capacity to avoid heap allocation
+- `aformat!` - a fallible macro to format a string on stack
 
 
 ## Changelog
