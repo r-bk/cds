@@ -1,5 +1,5 @@
 use crate::{arraystring::ArrayString, len::LengthType, mem::SpareMemoryPolicy};
-use core::fmt::{Arguments, Write};
+use core::fmt::{self, Arguments, Write};
 
 struct LossyWriter<'a, const C: usize, L: LengthType, SM: SpareMemoryPolicy<u8>>(
     &'a mut ArrayString<C, L, SM>,
@@ -69,6 +69,55 @@ where
     let mut pw = LossyWriter(&mut s);
     pw.write_fmt(args).ok();
     s
+}
+
+/// Formats an `ArrayString`.
+///
+/// This function allows formatting an `ArrayString` similar to the standard [`format`] function.
+/// However, as `ArrayString` is a non-growable string, formatting it may fail due to lack of
+/// capacity. Thus, unlike the standard function, this function returns `Result<ArrayString>`
+/// instead. See [`format_lossy`] for a function that returns a plain `ArrayString`, possibly
+/// truncating the result when capacity is insufficient.
+///
+/// The [`Arguments`] instance can be created with the [`format_args!`] macro.
+/// See the [`aformat!`] macro for a convenience wrapper of this function.
+///
+/// # Examples
+///
+/// ```rust
+/// # use cds::{arraystring::{format, ArrayString}, len::U8};
+/// # use core::format_args;
+/// # fn foo() -> core::fmt::Result{
+/// type S = ArrayString<16, U8>;
+/// let s: S = format(format_args!("Hello, world!"))?;
+/// assert_eq!(s, "Hello, world!");
+/// # Ok(())
+/// # }
+/// # foo().unwrap();
+/// ```
+/// Note that the function may fail when there is no enough capacity in `ArrayString`.
+///
+/// ```rust
+/// # use cds::{arraystring::{format, ArrayString}, len::U8};
+/// # use core::{fmt, format_args};
+/// type S = ArrayString<5, U8>;
+/// let res: Result<S, fmt::Error> = format(format_args!("Hello, world!"));
+/// assert!(res.is_err());
+/// ```
+///
+/// [`format`]: std::fmt::format
+/// [`aformat!`]: crate::aformat
+#[inline]
+pub fn format<const C: usize, L, SM>(
+    args: Arguments<'_>,
+) -> Result<ArrayString<C, L, SM>, fmt::Error>
+where
+    L: LengthType,
+    SM: SpareMemoryPolicy<u8>,
+{
+    let mut s = ArrayString::<C, L, SM>::new();
+    s.write_fmt(args)?;
+    Ok(s)
 }
 
 #[cfg(test)]
