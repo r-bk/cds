@@ -22,6 +22,8 @@
 - `ArrayString` - an array with string-like API
 - `lformat!` - a macro to format a string on stack, without memory allocation
   (yields an `ArrayString`)
+- `aformat!` - a macro to format a string on stack, without memory allocation
+  (yields a `Result<ArrayString>`)
 - `SmallVec` - a growable array with optimization for small capacities
 
 
@@ -49,7 +51,6 @@ The documentation is at [docs.rs/cds][docs-url]
 ## Roadmap
 
 - `SmallString` - a string with local capacity to avoid heap allocation
-- `aformat!` - a fallible macro to format a string on stack
 
 
 ## Changelog
