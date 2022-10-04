@@ -45,7 +45,7 @@ where
 /// ```
 ///
 /// The result may be silently truncated if there is no enough capacity. Use only when lossy
-/// formatting is appropriate.
+/// formatting is appropriate, or when the capacity is ensured to be enough.
 /// ```rust
 /// # use cds::{arraystring::{format_lossy, ArrayString}, len::U8};
 /// # use core::format_args;

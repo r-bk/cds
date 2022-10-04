@@ -86,7 +86,7 @@ macro_rules! array_str {
 ///
 /// Note that the result may be truncated if `ArrayString` capacity is not enough to accommodate the
 /// whole formatted string. In some use case this may yield wrong results. Thus use only where lossy
-/// formatting is appropriate.
+/// formatting is appropriate, or when the capacity is ensured to be enough.
 ///
 /// ```rust
 /// # use cds::lformat;
