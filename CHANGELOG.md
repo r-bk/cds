@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2022-10-06
+### Changed
+- make `smallvec::Drain` covariant over the generic type `T`
+- make `arrayvec::Drain` covariant over the generic type `T`
+- cleanup arraystring docs
+
+### Fixed
+- fix `clippy::explicit-auto-deref` warning detected by latest `beta` toolchain
+
+### Added
+- add `aformat!` macro to format a string on stack, returning `Result<ArrayString>`.
+
+  The difference between `lformat!` and `aformat!` is the returned type. The former
+  returns a plain `ArrayString`. However, as `ArrayString` is a fixed-capacity data structure,
+  the format is lossy. In other words, the result may be a truncated string.
+  `aformat!` on the contrary checks that formatting completed successfully, and `ArrayString`
+  had enough space to hold the whole formatted string. In case when `ArrayString`'s capacity is
+  not enough to hold a fully formatted string, `aformat!` returns an `Err`.
+
 ## [0.9.0] - 2022-09-09
 ### Changed
 - enable all optional crate features by default.
@@ -167,3 +186,4 @@ This is a small refactoring-only release done in preparation for `ArrayString`.
 [0.8.0]: https://github.com/r-bk/cds/compare/v0.7.0...v0.8.0
 [0.8.1]: https://github.com/r-bk/cds/compare/v0.8.0...v0.8.1
 [0.9.0]: https://github.com/r-bk/cds/compare/v0.8.1...v0.9.0
+[0.10.0]: https://github.com/r-bk/cds/compare/v0.9.0...v0.10.0
