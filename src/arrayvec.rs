@@ -987,7 +987,7 @@ where
     pub fn swap_remove(&mut self, index: usize) -> T {
         let len = self.len();
         if index >= len {
-            panic!("index is out of bounds [0, {}): {}", len, index);
+            panic!("index is out of bounds [0, {len}): {index}");
         }
 
         unsafe { self.swap_remove_unchecked(index) }

@@ -45,7 +45,7 @@ impl Display for InsertError {
             InsertError::InvalidIndex => "invalid index",
             InsertError::InsufficientCapacity => "insufficient capacity",
         };
-        write!(f, "arraystring insert error: {}", s)
+        write!(f, "arraystring insert error: {s}")
     }
 }
 

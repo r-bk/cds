@@ -71,7 +71,7 @@ impl core::fmt::Display for InsertError {
             InsertError::InvalidIndex => "index is out of bounds",
             InsertError::InsufficientCapacity => "insufficient capacity",
         };
-        write!(f, "arrayvec insert error: {}", e)
+        write!(f, "arrayvec insert error: {e}")
     }
 }
 
@@ -119,7 +119,7 @@ impl<T> Display for InsertErrorVal<T> {
             Self::InvalidIndex(_) => "index is out of bounds",
             Self::InsufficientCapacity(_) => "insufficient capacity",
         };
-        write!(f, "arrayvec insert error: {}", e)
+        write!(f, "arrayvec insert error: {e}")
     }
 }
 
@@ -127,9 +127,9 @@ impl<T> Debug for InsertErrorVal<T> {
     fn fmt(&self, f: &mut Formatter<'_>) -> core::fmt::Result {
         let name = type_name::<T>();
         match self {
-            Self::InvalidIndex(_) => write!(f, "InsertErrorVal<{}>::InvalidIndex", name),
+            Self::InvalidIndex(_) => write!(f, "InsertErrorVal<{name}>::InvalidIndex"),
             Self::InsufficientCapacity(_) => {
-                write!(f, "InsertErrorVal<{}>::InsufficientCapacity", name)
+                write!(f, "InsertErrorVal<{name}>::InsufficientCapacity")
             }
         }
     }
