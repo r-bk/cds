@@ -217,6 +217,30 @@ fn test_reserve() {
 }
 
 #[test]
+fn test_reserve_empty() {
+    type SV = SmallVec<u8, 4, U8>;
+    let mut v = SV::new();
+    assert_eq!(v.capacity(), 4);
+    v.reserve(4);
+    assert_eq!(v.capacity(), 4);
+    v.reserve(8);
+    assert_eq!(v.capacity(), 8);
+    v.reserve(9);
+    assert_eq!(v.capacity(), 16);
+    v.reserve(16);
+    assert_eq!(v.capacity(), 16);
+    v.reserve(17);
+    assert_eq!(v.capacity(), 32);
+    assert!(v.is_empty());
+
+    v.copy_from_slice(b"0123456789");
+    v.copy_from_slice(b"0123456789");
+    assert_eq!(v.capacity(), 32);
+    v.reserve(17);
+    assert_eq!(v.capacity(), 64);
+}
+
+#[test]
 #[should_panic]
 fn test_reserve_panics_on_length_overflow_when_local() {
     const P: u8 = 0xCD;
