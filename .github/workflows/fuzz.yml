@@ -76,7 +76,7 @@ jobs:
         run: |
           LLVM_COV=$(find ~ -name "llvm-cov")
           echo "Found llvm-cov: $LLVM_COV"
-          echo "::set-output name=llvmcov::$LLVM_COV"
+          echo "llvmcov=$LLVM_COV" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: generate arrayvec.coverage.html
