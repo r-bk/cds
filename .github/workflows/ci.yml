@@ -39,98 +39,61 @@ jobs:
           - smallvec,std
     steps:
       - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@v1
         with:
-          profile: minimal
           toolchain: ${{ matrix.rust }}
-          override: true
-          components: rustfmt, clippy
+          components: rustfmt,clippy
 
-      - uses: actions-rs/cargo@v1
-        name: build cds
+      - name: build cds
         if: ${{ matrix.feature != 'all' && matrix.feature != '' }}
-        with:
-          command: build
-          args: --no-default-features --features ${{ matrix.feature }}
+        run: cargo build --no-default-features --features ${{ matrix.feature }}
 
-      - uses: actions-rs/cargo@v1
-        name: build all cds
+      - name: build all cds
         if: ${{ matrix.feature == 'all' }}
-        with:
-          command: build
-          args: --all-features
+        run: cargo build --all-features
 
-      - uses: actions-rs/cargo@v1
-        name: build no-default-features cds
+      - name: build no-default-features cds
         if: ${{ matrix.feature == '' }}
-        with:
-          command: build
-          args: --no-default-features
+        run: cargo build --no-default-features
 
-      - uses: actions-rs/cargo@v1
-        name: test cds
+      - name: test cds
         if: ${{ matrix.feature != 'all' && matrix.feature != '' }}
-        with:
-          command: test
-          args: --no-default-features --features ${{ matrix.feature }}
+        run: cargo test --no-default-features --features ${{ matrix.feature }}
 
-      - uses: actions-rs/cargo@v1
-        name: test all cds
+      - name: test all cds
         if: ${{ matrix.feature == 'all' }}
-        with:
-          command: test
-          args: --all-features
+        run: cargo test --all-features
 
-      - uses: actions-rs/cargo@v1
-        name: test no-default-features cds
+      - name: test no-default-features cds
         if: ${{ matrix.feature == '' }}
-        with:
-          command: test
-          args: --no-default-features
+        run: cargo test --no-default-features
 
-      - uses: actions-rs/cargo@v1
-        name: lint cds
+      - name: lint cds
         if: ${{ matrix.feature != 'all' && matrix.feature != '' }}
-        with:
-          command: clippy
-          args: --no-default-features --features ${{ matrix.feature }}
+        run: cargo clippy --no-default-features --features ${{ matrix.feature }}
 
-      - uses: actions-rs/cargo@v1
-        name: lint all cds
+      - name: lint all cds
         if: ${{ matrix.feature == 'all' }}
-        with:
-          command: clippy
-          args: --all-features
+        run: cargo clippy --all-features
 
-      - uses: actions-rs/cargo@v1
-        name: lint no-default-features cds
+      - name: lint no-default-features cds
         if: ${{ matrix.feature == '' }}
-        with:
-          command: clippy
-          args: --no-default-features
+        run: cargo clippy --no-default-features
 
   common-ci:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@v1
         with:
-          profile: minimal
           toolchain: nightly
-          override: true
           components: rustfmt
-      - uses: actions-rs/cargo@v1
-        name: format all
-        with:
-          command: fmt
-          args: -- --check
-      - uses: actions-rs/cargo@v1
-        name: doc cds
+      - name: format all
+        run: cargo fmt -- --check
+      - name: doc cds
         env:
           RUSTDOCFLAGS: "--cfg docsrs"
-        with:
-          command: doc
-          args: --all-features --no-deps
+        run: cargo doc --all-features --no-deps
 
   coverage:
     runs-on: ubuntu-latest
@@ -139,12 +102,8 @@ jobs:
       options: --security-opt seccomp=unconfined
     steps:
       - uses: actions/checkout@v3
-      - uses: actions-rs/cargo@v1
-        name: tarpaulin
-        with:
-          toolchain: nightly
-          command: tarpaulin
-          args: -p cds --exclude-files fuzz/* --all-features --out Html
+      - name: tarpaulin
+        run: cargo +nightly tarpaulin -p cds --exclude-files fuzz/* --all-features --out Html
       - uses: actions/upload-artifact@v2
         with:
           name: tarpaulin-report.html

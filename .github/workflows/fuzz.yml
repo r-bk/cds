@@ -16,60 +16,34 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@v1
         with:
-          profile: default
           toolchain: nightly
-          override: true
           components: llvm-tools-preview,rust-src
 
-      - uses: actions-rs/cargo@v1
-        name: install cargo-fuzz
-        with:
-          command: install
-          args: cargo-fuzz
+      - name: install cargo-fuzz
+        run: cargo install cargo-fuzz
 
-      - uses: actions-rs/cargo@v1
-        name: install rustfilt
-        with:
-          command: install
-          args: rustfilt
+      - name: install rustfilt
+        run: cargo install rustfilt
 
-      - uses: actions-rs/cargo@v1
-        name: fuzz arrayvec
-        with:
-          command: fuzz
-          args: run arrayvec -- -max_total_time=900 -jobs=2 -workers=2 -verbosity=0 -max_len=16192
+      - name: fuzz arrayvec
+        run: cargo fuzz run arrayvec -- -max_total_time=900 -jobs=2 -workers=2 -verbosity=0 -max_len=16192
 
-      - uses: actions-rs/cargo@v1
-        name: fuzz arraystring
-        with:
-          command: fuzz
-          args: run arraystring -- -max_total_time=900 -jobs=2 -workers=2 -verbosity=0 -max_len=16192
+      - name: fuzz arraystring
+        run: cargo fuzz run arraystring -- -max_total_time=900 -jobs=2 -workers=2 -verbosity=0 -max_len=16192
 
-      - uses: actions-rs/cargo@v1
-        name: fuzz smallvec
-        with:
-          command: fuzz
-          args: run smallvec -- -max_total_time=900 -jobs=2 -workers=2 -verbosity=0 -max_len=16192
+      - name: fuzz smallvec
+        run: cargo fuzz run smallvec -- -max_total_time=900 -jobs=2 -workers=2 -verbosity=0 -max_len=16192
 
-      - uses: actions-rs/cargo@v1
-        name: cover arrayvec
-        with:
-          command: fuzz
-          args: coverage arrayvec
+      - name: cover arrayvec
+        run: cargo fuzz coverage arrayvec
 
-      - uses: actions-rs/cargo@v1
-        name: cover arraystring
-        with:
-          command: fuzz
-          args: coverage arraystring
+      - name: cover arraystring
+        run: cargo fuzz coverage arraystring
 
-      - uses: actions-rs/cargo@v1
-        name: cover smallvec
-        with:
-          command: fuzz
-          args: coverage smallvec
+      - name: cover smallvec
+        run: cargo fuzz coverage smallvec
 
       - id: find_llvmcov
         name: find llvm-cov
