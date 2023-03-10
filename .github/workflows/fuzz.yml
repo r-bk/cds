@@ -71,17 +71,17 @@ jobs:
           --format html --instr-profile=fuzz/coverage/smallvec/coverage.profdata --Xdemangler=rustfilt >
           smallvec.fuzz.coverage.html
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: arrayvec.fuzz.coverage.html
           path: arrayvec.fuzz.coverage.html
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: arraystring.fuzz.coverage.html
           path: arraystring.fuzz.coverage.html
 
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         with:
           name: smallvec.fuzz.coverage.html
           path: smallvec.fuzz.coverage.html
