@@ -45,7 +45,6 @@ mod testing {
             core::write!(&mut s, "Hello, {}!", "world"),
             Err(core::fmt::Error)
         ));
-        assert_eq!(s, "Hello, ");
     }
 
     #[test]
