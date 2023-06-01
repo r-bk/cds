@@ -448,7 +448,7 @@ where
     /// ```
     #[inline]
     pub fn pop(&mut self) -> Option<char> {
-        let ch = self.chars().rev().next()?;
+        let ch = self.chars().next_back()?;
         let ch_len = ch.len_utf8();
         let new_len = self.len() - ch_len;
         unsafe {
