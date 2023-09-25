@@ -2197,6 +2197,7 @@ fn test_clone_local() {
     assert!(s.is_local());
     assert_eq!(s, [0, 1, 2, 3, 4, 5, 6, 7]);
     check_spare_memory(&s, P);
+    #[allow(clippy::redundant_clone)]
     let d = s.clone();
     assert_eq!(d, [0, 1, 2, 3, 4, 5, 6, 7]);
     check_spare_memory(&d, P);
@@ -2210,6 +2211,7 @@ fn test_clone_heap() {
     assert!(s.is_heap());
     assert_eq!(s, [0, 1, 2, 3, 4, 5, 6, 7]);
     check_spare_memory(&s, P);
+    #[allow(clippy::redundant_clone)]
     let d = s.clone();
     assert_eq!(d, [0, 1, 2, 3, 4, 5, 6, 7]);
     check_spare_memory(&d, P);
