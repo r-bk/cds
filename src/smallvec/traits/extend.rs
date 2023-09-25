@@ -48,20 +48,20 @@ mod testing {
 
     #[test]
     fn test_extend_dropped() {
-        type ITEM<'a> = Dropped<'a, 512>;
-        type SV<'a> = SmallVec<ITEM<'a>, 6, U8>;
+        type Item<'a> = Dropped<'a, 512>;
+        type SV<'a> = SmallVec<Item<'a>, 6, U8>;
         let t = Track::new();
 
         let mut v = SV::new();
         v.extend(t.take(5));
         assert_eq!(v.len(), 5);
-        assert_eq!(v.is_local(), true);
+        assert!(v.is_local());
         assert_eq!(v.capacity(), 6);
         assert!(t.dropped_range(0..0));
 
         v.extend(t.take(5));
         assert_eq!(v.len(), 10);
-        assert_eq!(v.is_local(), false);
+        assert!(!v.is_local());
         assert_eq!(v.capacity(), 16);
         assert!(t.dropped_range(0..0));
 
@@ -72,8 +72,8 @@ mod testing {
     #[test]
     #[should_panic]
     fn test_extend_panics() {
-        type ITEM<'a> = Dropped<'a, 512>;
-        type SV<'a> = SmallVec<ITEM<'a>, 6, U8>;
+        type Item<'a> = Dropped<'a, 512>;
+        type SV<'a> = SmallVec<Item<'a>, 6, U8>;
         let t = Track::new();
         let mut v = SV::new();
         v.extend(t.take(300));

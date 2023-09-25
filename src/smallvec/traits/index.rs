@@ -49,6 +49,7 @@ mod testing {
     #[should_panic]
     fn test_index_panics() {
         let v = small_vec![5; u64; 1, 2, 3, 4, 5];
+        #[allow(clippy::unnecessary_operation)]
         v[5];
     }
 

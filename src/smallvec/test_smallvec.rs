@@ -64,7 +64,7 @@ impl RangeBounds<usize> for CustomRange<'_> {
 fn test_zst_capacity() {
     let v = SmallVec::<(), 32, U8>::new();
     assert_eq!(v.capacity(), u8::MAX as usize);
-    assert_eq!(v.is_heap(), false);
+    assert!(!v.is_heap());
 }
 
 #[test]
@@ -74,7 +74,7 @@ fn test_zst_never_heap() {
         v.push(());
     }
     assert_eq!(v.len(), 32);
-    assert_eq!(v.is_heap(), false);
+    assert!(!v.is_heap());
 }
 
 #[test]
@@ -82,25 +82,25 @@ fn test_with_capacity() {
     type SV = SmallVec<usize, 16, U8>;
     let v = SV::with_capacity(8);
     assert_eq!(v.capacity(), 16);
-    assert_eq!(v.is_heap(), false);
+    assert!(!v.is_heap());
     let v = SV::with_capacity(16);
     assert_eq!(v.capacity(), 16);
-    assert_eq!(v.is_heap(), false);
+    assert!(!v.is_heap());
     let v = SV::with_capacity(17);
     assert_eq!(v.capacity(), 17);
-    assert_eq!(v.is_heap(), true);
+    assert!(v.is_heap());
 }
 
 #[test]
 fn test_as_slice() {
     type SV = SmallVec<usize, 3, U8>;
     let mut v = SV::try_from([1, 2, 3]).unwrap();
-    assert_eq!(v.is_heap(), false);
+    assert!(!v.is_heap());
     assert_eq!(v.as_slice(), &[1, 2, 3]);
     assert_eq!(v.as_mut_slice(), &[1, 2, 3]);
 
     v.push(4);
-    assert_eq!(v.is_heap(), true);
+    assert!(v.is_heap());
     assert_eq!(v.as_slice(), &[1, 2, 3, 4]);
     assert_eq!(v.as_mut_slice(), &[1, 2, 3, 4]);
 }
@@ -108,13 +108,13 @@ fn test_as_slice() {
 #[test]
 fn test_as_ptr() {
     let mut v = small_vec![3; usize];
-    assert_eq!(v.is_local(), true);
+    assert!(v.is_local());
     assert_eq!(v.as_ptr().cast(), ptr::addr_of!(v));
     assert_eq!(v.as_mut_ptr().cast(), ptr::addr_of_mut!(v));
     assert_eq!(v.as_ptr(), v.as_mut_ptr());
 
     v.reserve(10);
-    assert_eq!(v.is_local(), false);
+    assert!(!v.is_local());
     assert_ne!(v.as_ptr().cast(), ptr::addr_of!(v));
     assert_ne!(v.as_mut_ptr().cast(), ptr::addr_of_mut!(v));
     assert_eq!(v.as_ptr(), v.as_mut_ptr());
@@ -130,8 +130,8 @@ fn test_clear() {
     check_spare_memory(&v, P);
     v.clear();
     assert_eq!(v, []);
-    assert_eq!(v.is_empty(), true);
-    assert_eq!(v.is_heap(), false);
+    assert!(v.is_empty());
+    assert!(!v.is_heap());
     check_spare_memory(&v, P);
 
     let mut v = SV::try_from([10, 12, 15, 19]).unwrap();
@@ -139,8 +139,8 @@ fn test_clear() {
     check_spare_memory(&v, P);
     v.clear();
     assert_eq!(v, []);
-    assert_eq!(v.is_empty(), true);
-    assert_eq!(v.is_heap(), true);
+    assert!(v.is_empty());
+    assert!(v.is_heap());
     check_spare_memory(&v, P);
 }
 
@@ -150,38 +150,38 @@ where
     SM: SpareMemoryPolicy<usize>,
 {
     if !SM::NOOP {
-        check_spare_memory(&v, pattern);
+        check_spare_memory(v, pattern);
     }
-    assert_eq!(v.is_local(), true);
+    assert!(v.is_local());
 
     for i in 0..4 {
         v.reserve(1);
-        assert_eq!(v.is_local(), true);
+        assert!(v.is_local());
         assert_eq!(v.capacity(), 4);
         assert_eq!(v.len(), i);
         if !SM::NOOP {
-            check_spare_memory(&v, pattern);
+            check_spare_memory(v, pattern);
         }
         v.push(1);
     }
 
     v.reserve(1);
-    assert_eq!(v.is_local(), false);
+    assert!(!v.is_local());
     assert_eq!(v.capacity(), 8);
     assert_eq!(v.len(), 4);
     assert_eq!(v, [1, 1, 1, 1]);
     if !SM::NOOP {
-        check_spare_memory(&v, pattern);
+        check_spare_memory(v, pattern);
     }
     v.push(2);
 
     v.reserve(100);
-    assert_eq!(v.is_local(), false);
+    assert!(!v.is_local());
     assert_eq!(v.capacity(), 128);
     assert_eq!(v.len(), 5);
     assert_eq!(v, [1, 1, 1, 1, 2]);
     if !SM::NOOP {
-        check_spare_memory(&v, pattern);
+        check_spare_memory(v, pattern);
     }
 
     // reserve takes the MAX when next power of two overflows
@@ -189,18 +189,18 @@ where
     for _ in 0..128 {
         v.push(7);
     }
-    assert_eq!(v.is_local(), false);
+    assert!(!v.is_local());
     assert_eq!(v.capacity(), 128);
 
     v.reserve(10);
-    assert_eq!(v.is_local(), false);
+    assert!(!v.is_local());
     assert_eq!(v.capacity(), 255);
     assert_eq!(v.len(), 128);
     for i in 0..v.len() {
         assert_eq!(v[i], 7);
     }
     if !SM::NOOP {
-        check_spare_memory(&v, pattern);
+        check_spare_memory(v, pattern);
     }
 }
 
@@ -483,38 +483,38 @@ where
     SM: SpareMemoryPolicy<usize>,
 {
     if !SM::NOOP {
-        check_spare_memory(&v, pattern);
+        check_spare_memory(v, pattern);
     }
-    assert_eq!(v.is_local(), true);
+    assert!(v.is_local());
 
     for i in 0..4 {
         v.try_reserve(1).unwrap();
-        assert_eq!(v.is_local(), true);
+        assert!(v.is_local());
         assert_eq!(v.capacity(), 4);
         assert_eq!(v.len(), i);
         if !SM::NOOP {
-            check_spare_memory(&v, pattern);
+            check_spare_memory(v, pattern);
         }
         v.push(1);
     }
 
     v.try_reserve(1).unwrap();
-    assert_eq!(v.is_local(), false);
+    assert!(!v.is_local());
     assert_eq!(v.capacity(), 8);
     assert_eq!(v.len(), 4);
     assert_eq!(v, [1, 1, 1, 1]);
     if !SM::NOOP {
-        check_spare_memory(&v, pattern);
+        check_spare_memory(v, pattern);
     }
     v.push(2);
 
     v.try_reserve(100).unwrap();
-    assert_eq!(v.is_local(), false);
+    assert!(!v.is_local());
     assert_eq!(v.capacity(), 128);
     assert_eq!(v.len(), 5);
     assert_eq!(v, [1, 1, 1, 1, 2]);
     if !SM::NOOP {
-        check_spare_memory(&v, pattern);
+        check_spare_memory(v, pattern);
     }
 
     // reserve takes the MAX when next power of two overflows
@@ -522,18 +522,18 @@ where
     for _ in 0..128 {
         v.push(7);
     }
-    assert_eq!(v.is_local(), false);
+    assert!(!v.is_local());
     assert_eq!(v.capacity(), 128);
 
     v.try_reserve(10).unwrap();
-    assert_eq!(v.is_local(), false);
+    assert!(!v.is_local());
     assert_eq!(v.capacity(), 255);
     assert_eq!(v.len(), 128);
     for i in 0..v.len() {
         assert_eq!(v[i], 7);
     }
     if !SM::NOOP {
-        check_spare_memory(&v, pattern);
+        check_spare_memory(v, pattern);
     }
 }
 
@@ -619,38 +619,38 @@ fn test_try_reserve_exact_impl<const C: usize, L, SM>(
     SM: SpareMemoryPolicy<usize>,
 {
     if !SM::NOOP {
-        check_spare_memory(&v, pattern);
+        check_spare_memory(v, pattern);
     }
-    assert_eq!(v.is_local(), true);
+    assert!(v.is_local());
 
     for i in 0..4 {
         v.try_reserve_exact(1).unwrap();
-        assert_eq!(v.is_local(), true);
+        assert!(v.is_local());
         assert_eq!(v.capacity(), 4);
         assert_eq!(v.len(), i);
         if !SM::NOOP {
-            check_spare_memory(&v, pattern);
+            check_spare_memory(v, pattern);
         }
         v.push(1);
     }
 
     v.try_reserve_exact(1).unwrap();
-    assert_eq!(v.is_local(), false);
+    assert!(!v.is_local());
     assert_eq!(v.capacity(), 5);
     assert_eq!(v.len(), 4);
     assert_eq!(v, [1, 1, 1, 1]);
     if !SM::NOOP {
-        check_spare_memory(&v, pattern);
+        check_spare_memory(v, pattern);
     }
     v.push(2);
 
     v.try_reserve_exact(100).unwrap();
-    assert_eq!(v.is_local(), false);
+    assert!(!v.is_local());
     assert_eq!(v.capacity(), 105);
     assert_eq!(v.len(), 5);
     assert_eq!(v, [1, 1, 1, 1, 2]);
     if !SM::NOOP {
-        check_spare_memory(&v, pattern);
+        check_spare_memory(v, pattern);
     }
 
     // reserve takes the MAX when next power of two overflows
@@ -658,18 +658,18 @@ fn test_try_reserve_exact_impl<const C: usize, L, SM>(
     for _ in 0..128 {
         v.push(7);
     }
-    assert_eq!(v.is_local(), false);
+    assert!(!v.is_local());
     assert_eq!(v.capacity(), 128);
 
     v.try_reserve_exact(10).unwrap();
-    assert_eq!(v.is_local(), false);
+    assert!(!v.is_local());
     assert_eq!(v.capacity(), 138);
     assert_eq!(v.len(), 128);
     for i in 0..v.len() {
         assert_eq!(v[i], 7);
     }
     if !SM::NOOP {
-        check_spare_memory(&v, pattern);
+        check_spare_memory(v, pattern);
     }
 }
 
@@ -697,7 +697,7 @@ fn test_try_from_iter() {
 
 #[test]
 fn test_try_from_iter_fails_on_iterator_size_hint() {
-    let (min, max) = (0..256).into_iter().size_hint();
+    let (min, max) = (0..256).size_hint();
     assert_eq!(min, 256);
     assert_eq!(max, Some(256));
 
@@ -741,8 +741,8 @@ fn test_try_from_iter_fails_without_valid_hint() {
 
 #[test]
 fn test_try_from_iter_drops_on_failure_without_valid_hint() {
-    type ITEM<'a> = Dropped<'a, 512>;
-    type SV<'a> = SmallVec<ITEM<'a>, 64, U8>;
+    type Item<'a> = Dropped<'a, 512>;
+    type SV<'a> = SmallVec<Item<'a>, 64, U8>;
     let t = Track::new();
 
     struct I<'a, const C: usize> {
@@ -861,8 +861,8 @@ fn test_zst_pop_heap() {
 #[test]
 fn test_pop() {
     const P: u8 = 0xEF;
-    type ITEM<'a> = Dropped<'a, 512>;
-    type SV<'a> = SmallVec<ITEM<'a>, 8, U8, Pattern<P>>;
+    type Item<'a> = Dropped<'a, 512>;
+    type SV<'a> = SmallVec<Item<'a>, 8, U8, Pattern<P>>;
     let t = Track::new();
 
     let mut v = SV::from_iter(t.take(8));
@@ -1019,8 +1019,8 @@ fn test_try_insert_reservation_error_local_to_heap() {
 #[test]
 fn test_try_insert_dropped() {
     const P: u8 = 0xEF;
-    type ITEM<'a> = Dropped<'a, 512>;
-    type SV<'a> = SmallVec<ITEM<'a>, 8, U8, Pattern<P>>;
+    type Item<'a> = Dropped<'a, 512>;
+    type SV<'a> = SmallVec<Item<'a>, 8, U8, Pattern<P>>;
     let t = Track::new();
 
     let mut v = SV::from_iter(t.take(8));
@@ -1089,6 +1089,7 @@ fn test_insert_panics_on_reservation_error_heap() {
 }
 
 #[test]
+#[allow(clippy::unit_cmp)]
 fn test_zst_remove() {
     type SV = SmallVec<(), 8, U8>;
     let mut v = SV::new();
@@ -1112,8 +1113,8 @@ fn test_zst_remove_panics() {
 #[test]
 fn test_remove_local() {
     const P: u8 = 0xEF;
-    type ITEM<'a> = Dropped<'a, 512>;
-    type SV<'a> = SmallVec<ITEM<'a>, 8, U8, Pattern<P>>;
+    type Item<'a> = Dropped<'a, 512>;
+    type SV<'a> = SmallVec<Item<'a>, 8, U8, Pattern<P>>;
     let t = Track::new();
 
     let mut v = SV::from_iter(t.take(8));
@@ -1145,8 +1146,8 @@ fn test_remove_local_panics() {
 #[test]
 fn test_remove_heap() {
     const P: u8 = 0xEF;
-    type ITEM<'a> = Dropped<'a, 512>;
-    type SV<'a> = SmallVec<ITEM<'a>, 1, U8, Pattern<P>>;
+    type Item<'a> = Dropped<'a, 512>;
+    type SV<'a> = SmallVec<Item<'a>, 1, U8, Pattern<P>>;
     let t = Track::new();
 
     let mut v = SV::from_iter(t.take(8));
@@ -1226,8 +1227,8 @@ fn test_zst_try_remove() {
 #[test]
 fn test_try_remove_local() {
     const P: u8 = 0xEF;
-    type ITEM<'a> = Dropped<'a, 512>;
-    type SV<'a> = SmallVec<ITEM<'a>, 8, U8, Pattern<P>>;
+    type Item<'a> = Dropped<'a, 512>;
+    type SV<'a> = SmallVec<Item<'a>, 8, U8, Pattern<P>>;
     let t = Track::new();
 
     let mut v = SV::from_iter(t.take(8));
@@ -1249,8 +1250,8 @@ fn test_try_remove_local() {
 #[test]
 fn test_try_remove_heap() {
     const P: u8 = 0xEF;
-    type ITEM<'a> = Dropped<'a, 512>;
-    type SV<'a> = SmallVec<ITEM<'a>, 2, U8, Pattern<P>>;
+    type Item<'a> = Dropped<'a, 512>;
+    type SV<'a> = SmallVec<Item<'a>, 2, U8, Pattern<P>>;
     let t = Track::new();
 
     let mut v = SV::from_iter(t.take(8));
@@ -1276,6 +1277,7 @@ fn test_try_remove_empty_sv() {
 }
 
 #[test]
+#[allow(clippy::unit_cmp)]
 fn test_zst_swap_remove() {
     type SV = SmallVec<(), 8, U8>;
     let mut v = SV::new();
@@ -1296,8 +1298,8 @@ fn test_zst_swap_remove_panics() {
 #[test]
 fn test_swap_remove_local() {
     const P: u8 = 0xAF;
-    type ITEM<'a> = Dropped<'a, 512>;
-    type SV<'a> = SmallVec<ITEM<'a>, 8, U8, Pattern<P>>;
+    type Item<'a> = Dropped<'a, 512>;
+    type SV<'a> = SmallVec<Item<'a>, 8, U8, Pattern<P>>;
     let t = Track::new();
 
     let mut v = SV::from_iter(t.take(8));
@@ -1322,8 +1324,8 @@ fn test_swap_remove_local_panics() {
 #[test]
 fn test_swap_remove_heap() {
     const P: u8 = 0xAF;
-    type ITEM<'a> = Dropped<'a, 512>;
-    type SV<'a> = SmallVec<ITEM<'a>, 1, U8, Pattern<P>>;
+    type Item<'a> = Dropped<'a, 512>;
+    type SV<'a> = SmallVec<Item<'a>, 1, U8, Pattern<P>>;
     let t = Track::new();
 
     let mut v = SV::from_iter(t.take(8));
@@ -1431,8 +1433,8 @@ fn test_try_swap_remove_empty_vector() {
 #[test]
 fn test_retain_dropped() {
     const P: u8 = 0xAF;
-    type ITEM<'a> = Dropped<'a, 512>;
-    type SV<'a> = SmallVec<ITEM<'a>, 1, U8, Pattern<P>>;
+    type Item<'a> = Dropped<'a, 512>;
+    type SV<'a> = SmallVec<Item<'a>, 1, U8, Pattern<P>>;
     let t = Track::new();
 
     let mut v = SV::from_iter(t.take(8));
@@ -1481,7 +1483,7 @@ fn test_zst_try_resize_with() {
     type SV = SmallVec<T, 8, U8>;
     let mut v = SV::new();
     assert_eq!(v.len(), 0);
-    assert!(v.try_resize_with(255, || T::new()).is_ok());
+    assert!(v.try_resize_with(255, T::new).is_ok());
     assert_eq!(v.len(), 255);
     assert_eq!(
         counters::<T>(),
@@ -1493,7 +1495,7 @@ fn test_zst_try_resize_with() {
     );
 
     assert!(matches!(
-        v.try_resize_with(256, || T::new()),
+        v.try_resize_with(256, T::new),
         Err(ReservationError::CapacityOverflow)
     ));
 
@@ -1706,8 +1708,8 @@ fn test_resize_with_heap() {
 #[test]
 fn test_resize_with_dropped() {
     const P: u8 = 0xFF;
-    type ITEM<'a> = Dropped<'a, 512>;
-    type SV<'a> = SmallVec<ITEM<'a>, 4, U8, Pattern<P>>;
+    type Item<'a> = Dropped<'a, 512>;
+    type SV<'a> = SmallVec<Item<'a>, 4, U8, Pattern<P>>;
     let t = Track::new();
 
     let mut v = SV::new();
@@ -1729,8 +1731,8 @@ fn test_resize_with_dropped() {
 #[test]
 fn test_try_resize_with_dropped() {
     const P: u8 = 0xFF;
-    type ITEM<'a> = Dropped<'a, 512>;
-    type SV<'a> = SmallVec<ITEM<'a>, 4, U8, Pattern<P>>;
+    type Item<'a> = Dropped<'a, 512>;
+    type SV<'a> = SmallVec<Item<'a>, 4, U8, Pattern<P>>;
     let t = Track::new();
 
     let mut v = SV::new();
@@ -2030,7 +2032,7 @@ fn test_drain_zst() {
     gen_dropped_zst!(T);
     type SV = SmallVec<T, 8, U8>;
     let mut v = SV::new();
-    v.resize_with(8, || T::new());
+    v.resize_with(8, T::new);
     assert_eq!(
         counters::<T>(),
         Counters {
@@ -2218,7 +2220,7 @@ fn test_clone_zst() {
     gen_dropped_zst!(T);
     type SV = SmallVec<T, 8, U8>;
     let mut s = SV::new();
-    s.resize_with(16, || T::new());
+    s.resize_with(16, T::new);
     assert_eq!(s.len(), 16);
     assert_eq!(
         counters::<T>(),
@@ -2253,8 +2255,8 @@ fn test_clone_zst() {
 #[test]
 fn test_clone_dropped() {
     const P: u8 = 0xFF;
-    type ITEM<'a> = Dropped<'a, 512>;
-    type SV<'a> = SmallVec<ITEM<'a>, 16, U8, Pattern<P>>;
+    type Item<'a> = Dropped<'a, 512>;
+    type SV<'a> = SmallVec<Item<'a>, 16, U8, Pattern<P>>;
     let t = Track::new();
 
     let v = SV::from_iter(t.take(10));
@@ -2476,7 +2478,7 @@ fn test_try_copy_from_slice_zst() {
 fn test_is_full_zst() {
     type SV = SmallVec<(), 8, U8>;
     let mut v = SV::new();
-    assert_eq!(v.is_full(), false);
+    assert!(!v.is_full());
 
     for i in 0..u8::MAX {
         v.push(());
@@ -2489,7 +2491,7 @@ fn test_is_full_zst() {
 fn test_is_full() {
     type SV = SmallVec<usize, 8, U8>;
     let mut v = SV::new();
-    assert_eq!(v.is_full(), false);
+    assert!(!v.is_full());
 
     for i in 0..u8::MAX {
         v.push(i as usize);
@@ -2505,7 +2507,7 @@ fn test_is_full() {
 fn test_has_spare_capacity_zst() {
     type SV = SmallVec<(), 8, U8>;
     let mut v = SV::new();
-    assert_eq!(v.has_spare_capacity(), true);
+    assert!(v.has_spare_capacity());
 
     for i in 0..255 {
         v.push(());
@@ -2517,7 +2519,7 @@ fn test_has_spare_capacity_zst() {
 fn test_has_spare_capacity() {
     type SV = SmallVec<usize, 8, U8>;
     let mut v = SV::new();
-    assert_eq!(v.has_spare_capacity(), true);
+    assert!(v.has_spare_capacity());
 
     for i in 0..255 {
         v.push(i);

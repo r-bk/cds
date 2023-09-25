@@ -113,6 +113,7 @@ mod testing {
     type SV = SmallVec<u64, 7>;
 
     #[test]
+    #[allow(clippy::op_ref)]
     fn test_eq_arr_ref() {
         let v = SV::from_iter(0..3);
         assert!(v == &[0, 1, 2]);
@@ -143,6 +144,7 @@ mod testing {
     }
 
     #[test]
+    #[allow(clippy::op_ref)]
     fn test_ref_eq_arr() {
         let v = SV::from_iter(3..5);
         let arr1: [u64; 2] = [3, 4];
@@ -152,6 +154,7 @@ mod testing {
     }
 
     #[test]
+    #[allow(clippy::op_ref)]
     fn test_eq_av_ref() {
         let a = SV::from_iter(0..2);
         let b = small_vec![2; u64; 0, 1];

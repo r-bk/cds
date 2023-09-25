@@ -32,6 +32,7 @@ mod testing {
     use core::cmp::Ordering;
 
     #[test]
+    #[allow(clippy::nonminimal_bool)]
     fn test_partial_ord() {
         let a = small_vec![3; u64; 1, 2, 3];
         let b = small_vec![3; u64; 2, 2, 3];
