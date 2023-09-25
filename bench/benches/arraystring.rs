@@ -191,6 +191,7 @@ fn bench_lformat(c: &mut Criterion) {
     });
     group.bench_function("std", |b| {
         b.iter(|| {
+            #[allow(clippy::useless_format)]
             black_box(std::format!("cds"));
         })
     });

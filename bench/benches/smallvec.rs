@@ -5,8 +5,8 @@ const MAX_CAP: usize = 8192;
 /// local cap for heap benchmarks
 const HEAP_CAP: usize = 2;
 
-type HSV = cds::smallvec::SmallVec<u64, HEAP_CAP>;
-type HTV = tinyvec::TinyVec<[u64; HEAP_CAP]>;
+type Hsv = cds::smallvec::SmallVec<u64, HEAP_CAP>;
+type Htv = tinyvec::TinyVec<[u64; HEAP_CAP]>;
 
 macro_rules! bench_group {
     ($gsfx:ident, $gname:literal, $(($fname:literal, $f:expr)),*) => {
@@ -214,9 +214,9 @@ macro_rules! bf_drain {
 bench_group!(
     bench_push_heap,
     "smallvec/push/heap",
-    ("cds", bf_push!(HSV::with_capacity(MAX_CAP))),
+    ("cds", bf_push!(Hsv::with_capacity(MAX_CAP))),
     ("std", bf_push!(Vec::with_capacity(MAX_CAP))),
-    ("tinyvec", bf_push!(HTV::with_capacity(MAX_CAP))),
+    ("tinyvec", bf_push!(Htv::with_capacity(MAX_CAP))),
     (
         "smallvec",
         bf_push!(smallvec::SmallVec::<[_; HEAP_CAP]>::with_capacity(MAX_CAP))
@@ -238,9 +238,9 @@ bench_group!(
 bench_group!(
     bench_pop_heap,
     "smallvec/pop/heap",
-    ("cds", bf_pop!(HSV::with_capacity(MAX_CAP))),
+    ("cds", bf_pop!(Hsv::with_capacity(MAX_CAP))),
     ("std", bf_pop!(Vec::with_capacity(MAX_CAP))),
-    ("tinyvec", bf_pop!(HTV::with_capacity(MAX_CAP))),
+    ("tinyvec", bf_pop!(Htv::with_capacity(MAX_CAP))),
     (
         "smallvec",
         bf_pop!(smallvec::SmallVec::<[_; HEAP_CAP]>::with_capacity(MAX_CAP))
@@ -262,9 +262,9 @@ bench_group!(
 bench_group!(
     bench_insert_heap,
     "smallvec/insert/heap",
-    ("cds", bf_insert!(HSV::with_capacity(MAX_CAP))),
+    ("cds", bf_insert!(Hsv::with_capacity(MAX_CAP))),
     ("std", bf_insert!(Vec::with_capacity(MAX_CAP))),
-    ("tinyvec", bf_insert!(HTV::with_capacity(MAX_CAP))),
+    ("tinyvec", bf_insert!(Htv::with_capacity(MAX_CAP))),
     (
         "smallvec",
         bf_insert!(smallvec::SmallVec::<[_; HEAP_CAP]>::with_capacity(MAX_CAP))
@@ -286,9 +286,9 @@ bench_group!(
 bench_group!(
     bench_remove_heap,
     "smallvec/remove/heap",
-    ("cds", bf_remove!(HSV::with_capacity(MAX_CAP))),
+    ("cds", bf_remove!(Hsv::with_capacity(MAX_CAP))),
     ("std", bf_remove!(Vec::with_capacity(MAX_CAP))),
-    ("tinyvec", bf_remove!(HTV::with_capacity(MAX_CAP))),
+    ("tinyvec", bf_remove!(Htv::with_capacity(MAX_CAP))),
     (
         "smallvec",
         bf_remove!(smallvec::SmallVec::<[_; HEAP_CAP]>::with_capacity(MAX_CAP))
@@ -310,9 +310,9 @@ bench_group!(
 bench_group!(
     bench_swap_remove_heap,
     "smallvec/swap_remove/heap",
-    ("cds", bf_swap_remove!(HSV::with_capacity(MAX_CAP))),
+    ("cds", bf_swap_remove!(Hsv::with_capacity(MAX_CAP))),
     ("std", bf_swap_remove!(Vec::with_capacity(MAX_CAP))),
-    ("tinyvec", bf_swap_remove!(HTV::with_capacity(MAX_CAP))),
+    ("tinyvec", bf_swap_remove!(Htv::with_capacity(MAX_CAP))),
     (
         "smallvec",
         bf_swap_remove!(smallvec::SmallVec::<[_; HEAP_CAP]>::with_capacity(MAX_CAP))
@@ -334,9 +334,9 @@ bench_group!(
 bench_group!(
     bench_resize_heap,
     "smallvec/resize/heap",
-    ("cds", bf_resize!(HSV::with_capacity(MAX_CAP))),
+    ("cds", bf_resize!(Hsv::with_capacity(MAX_CAP))),
     ("std", bf_resize!(Vec::with_capacity(MAX_CAP))),
-    ("tinyvec", bf_resize!(HTV::with_capacity(MAX_CAP))),
+    ("tinyvec", bf_resize!(Htv::with_capacity(MAX_CAP))),
     (
         "smallvec",
         bf_resize!(smallvec::SmallVec::<[_; HEAP_CAP]>::with_capacity(MAX_CAP))
@@ -358,9 +358,9 @@ bench_group!(
 bench_group!(
     bench_drain_heap,
     "smallvec/drain/heap",
-    ("cds", bf_drain!(HSV::with_capacity(MAX_CAP))),
+    ("cds", bf_drain!(Hsv::with_capacity(MAX_CAP))),
     ("std", bf_drain!(Vec::with_capacity(MAX_CAP))),
-    ("tinyvec", bf_drain!(HTV::with_capacity(MAX_CAP))),
+    ("tinyvec", bf_drain!(Htv::with_capacity(MAX_CAP))),
     (
         "smallvec",
         bf_drain!(smallvec::SmallVec::<[_; HEAP_CAP]>::with_capacity(MAX_CAP))
@@ -382,9 +382,9 @@ bench_group!(
 bench_group!(
     bench_drain_no_consume_heap,
     "smallvec/drain_no_consume/heap",
-    ("cds", bf_drain_no_consume!(HSV::with_capacity(MAX_CAP))),
+    ("cds", bf_drain_no_consume!(Hsv::with_capacity(MAX_CAP))),
     ("std", bf_drain_no_consume!(Vec::with_capacity(MAX_CAP))),
-    ("tinyvec", bf_drain_no_consume!(HTV::with_capacity(MAX_CAP))),
+    ("tinyvec", bf_drain_no_consume!(Htv::with_capacity(MAX_CAP))),
     (
         "smallvec",
         bf_drain_no_consume!(smallvec::SmallVec::<[_; HEAP_CAP]>::with_capacity(MAX_CAP))
