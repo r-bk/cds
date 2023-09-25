@@ -103,7 +103,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: tarpaulin
-        run: cargo +nightly tarpaulin -p cds --exclude-files fuzz/* --all-features --out Html
+        run: cargo +nightly tarpaulin -p cds --exclude-files fuzz/* --all-features --out html
       - uses: actions/upload-artifact@v3
         with:
           name: tarpaulin-report.html
