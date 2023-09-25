@@ -89,6 +89,7 @@ mod testing {
     type A = ArrayVec<u64, 7>;
 
     #[test]
+    #[allow(clippy::op_ref)]
     fn test_eq_arr_ref() {
         let a = A::from_iter(0..3);
         assert!(a == &[0, 1, 2]);
@@ -119,6 +120,7 @@ mod testing {
     }
 
     #[test]
+    #[allow(clippy::op_ref)]
     fn test_eq_av_ref() {
         let a = A::from_iter(0..2);
         let b = array_vec![2; u64; 0, 1];

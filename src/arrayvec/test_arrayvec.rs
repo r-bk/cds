@@ -73,10 +73,10 @@ fn test_zst_push_pop() {
     }
     assert_eq!(a.len(), 3);
     assert_eq!(a.spare_capacity(), 0);
-    assert_eq!(a.try_push(()).is_err(), true);
+    assert!(a.try_push(()).is_err());
 
     while !a.is_empty() {
-        let _zst = unsafe { a.pop_unchecked() };
+        unsafe { a.pop_unchecked() };
     }
     assert_eq!(a.len(), 0);
     assert_eq!(a.spare_capacity(), 3);
@@ -118,23 +118,23 @@ fn test_capacity_len_empty_full() {
     assert_eq!(a.len(), 0);
     assert_eq!(a.capacity(), 2);
     assert_eq!(a.spare_capacity(), a.capacity());
-    assert_eq!(a.has_spare_capacity(), true);
-    assert_eq!(a.is_empty(), true);
-    assert_eq!(a.is_full(), false);
+    assert!(a.has_spare_capacity());
+    assert!(a.is_empty());
+    assert!(!a.is_full());
 
     a.push(1);
     assert_eq!(a.len(), 1);
-    assert_eq!(a.has_spare_capacity(), true);
+    assert!(a.has_spare_capacity());
     assert_eq!(a.spare_capacity(), 1);
-    assert_eq!(a.is_empty(), false);
-    assert_eq!(a.is_full(), false);
+    assert!(!a.is_empty());
+    assert!(!a.is_full());
 
     a.push(2);
     assert_eq!(a.len(), a.capacity());
-    assert_eq!(a.has_spare_capacity(), false);
+    assert!(!a.has_spare_capacity());
     assert_eq!(a.spare_capacity(), 0);
-    assert_eq!(a.is_empty(), false);
-    assert_eq!(a.is_full(), true);
+    assert!(!a.is_empty());
+    assert!(a.is_full());
 }
 
 #[test]
@@ -779,6 +779,7 @@ fn test_drain_end_out_of_bounds() {
 #[should_panic]
 fn test_drain_invalid_range() {
     let mut a = array_vec![3; 1, 2, 3];
+    #[allow(clippy::reversed_empty_ranges)]
     a.drain(1..0);
 }
 
@@ -851,6 +852,7 @@ fn test_drain_zst() {
     }
     assert_eq!(a.len(), a.capacity());
 
+    #[allow(clippy::unit_cmp)]
     for e in a.drain(1..3) {
         assert_eq!(e, ());
     }

@@ -36,7 +36,7 @@ mod testing {
     #[test]
     fn test_drop_copy() {
         type A = ArrayVec<usize, 7>;
-        let a = A::try_from_iter((0..5).into_iter()).unwrap();
+        let a = A::try_from_iter(0..5).unwrap();
         drop(a);
     }
 }

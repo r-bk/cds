@@ -169,6 +169,7 @@ mod testing {
     #[test]
     fn test_capacity_error_clone() {
         let e = InsufficientCapacityError {};
+        #[allow(clippy::clone_on_copy)]
         let e2 = e.clone();
         format!("{} {}", e, e2);
     }
