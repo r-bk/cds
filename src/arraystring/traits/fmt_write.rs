@@ -50,7 +50,8 @@ mod testing {
     #[test]
     fn test_write_char() {
         let mut s = array_str![1;];
-        assert!(core::write!(&mut s, "{}", 'A').is_ok());
+        const A: char = 'A';
+        assert!(core::write!(&mut s, "{}", A).is_ok());
         assert_eq!(s, "A");
     }
 
