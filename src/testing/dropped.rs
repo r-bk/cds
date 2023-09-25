@@ -45,7 +45,7 @@ impl<const C: usize> Track<C> {
     }
 
     fn free(&self, d: &Dropped<'_, C>) {
-        assert_eq!(self.get(d.idx), false);
+        assert!(!self.get(d.idx));
         self.n_allocated.set(self.n_allocated.get() - 1);
         self.set(d.idx, true);
     }
@@ -77,9 +77,7 @@ impl<const C: usize> Track<C> {
     ) -> bool {
         let arr = self.arr.borrow();
         for (i, b) in arr.iter().enumerate() {
-            if range.contains(&i) && !*b {
-                return false;
-            } else if !range.contains(&i) && *b {
+            if (range.contains(&i) && !*b) || (!range.contains(&i) && *b) {
                 return false;
             }
         }
@@ -94,10 +92,8 @@ impl<const C: usize> Track<C> {
     pub fn dropped_indices(&self, indices: &[usize]) -> bool {
         let arr = self.arr.borrow();
         for (i, b) in arr.iter().enumerate() {
-            let is_found = indices.iter().find(|&x| *x == i).is_some();
-            if is_found && !*b {
-                return false;
-            } else if !is_found && *b {
+            let is_found = indices.iter().any(|x| *x == i);
+            if (is_found && !*b) || (!is_found && *b) {
                 return false;
             }
         }

@@ -11,7 +11,7 @@ use std::{
 #[macro_export]
 macro_rules! gen_dropped_zst {
     ($name:ident) => {
-        use crate::testing::dropped_zst;
+        use $crate::testing::dropped_zst;
 
         #[derive(Debug, Eq, PartialEq, Ord, PartialOrd)]
         struct $name {}
@@ -67,6 +67,7 @@ fn get_table_mutex<'a>() -> &'a Mutex<Table> {
 
 pub fn counters<T: 'static>() -> Counters {
     let mut t = get_table_mutex().lock().unwrap();
+    #[allow(clippy::clone_on_copy)]
     t.entry(TypeId::of::<T>())
         .or_insert_with(Counters::default)
         .clone()
